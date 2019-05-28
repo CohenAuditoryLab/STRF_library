@@ -1,0 +1,109 @@
+clc
+clear
+
+% Generating function to be sampled
+x1 = randn(1, 44100*5);
+x = cell2mat(struct2cell(load('ProjectData.mat')));
+
+% General frequencies
+cutoffLow = 500;
+cutoffMid = 5000;
+sampleFreq = 44100;
+bandW = cutoffMid - cutoffLow;
+count = 1;
+
+% Kaiser specific requirements
+atten = -20*log10(.01);
+beta = .5842 * (atten - 21)^.4 + .07886 * (atten - 21);
+NLow = ceil((sampleFreq*(atten-7.95))/(28.72*500));
+NMid = ceil((sampleFreq*(atten-7.95))/(28.72*400));
+NHigh = ceil((sampleFreq*(atten-7.95))/(28.72*1000));
+
+% Sizing of ideal vectors
+h_low = zeros([2*NLow+1 1]);
+h_band = zeros([2*NMid+1 1]);
+h_high = zeros([2*NHigh+1 1]);
+
+% Ideal filters
+% Low
+for k = -NLow:NLow
+    temp = (2*cutoffLow)/sampleFreq;
+    temp = temp*sinc(k*(2*cutoffLow)/sampleFreq);
+    h_low(count) = temp;
+    count = count + 1;
+end
+
+% Mid
+count = 1;
+for k = -NMid:NMid
+    temp = bandW/sampleFreq;
+    temp = temp*sinc((bandW*k)/sampleFreq);
+    temp = temp*cos((2*pi*k*((cutoffLow+bandW)/2))/sampleFreq);
+    h_band(count) = temp;
+    count = count + 1;
+end
+
+% High
+count = 1;
+for k = -NHigh:NHigh
+    temp = (2*cutoffMid)/sampleFreq;
+    temp = temp * sinc((2*cutoffMid*k)/sampleFreq);
+    if k==0
+        temp=1-temp;
+    else
+        temp=-temp;
+    end
+    h_high(count) = temp;
+    count = count + 1;
+end
+
+% Window functionswhos
+wLow = kaiser(2*NLow+1, beta);
+wMid = kaiser(2*NMid+1, beta);
+wHigh = kaiser(2*NHigh+1, beta);
+
+% Practical Kaiser transfer functions
+hTrueLow = h_low .* wLow;
+hTrueMid = h_band .* wMid;
+hTrueHigh = h_high .* wHigh;
+
+% Music output calculation
+yLow = conv(hTrueLow,x);
+yMid = conv(hTrueMid,x);
+yHigh = conv(hTrueHigh,x);
+
+% White noise output calculation
+yLow1 = conv(hTrueLow,x1);
+yMid1 = conv(hTrueMid,x1);
+yHigh1 = conv(hTrueHigh,x1);
+
+% Plotting of waveforms
+t = 0:length(yLow)-1;
+figure;plot(yLow);
+figure;plot(yMid);
+figure;plot(yHigh);
+
+soundsc(yLow,sampleFreq);
+soundsc(yMid,sampleFreq);
+soundsc(yHigh,sampleFreq);
+
+%figure;plot(yLow1);
+%figure;plot(yMid1);
+%figure;plot(yHigh1);
+
+figure;plot(pwelch(yLow));
+ylim([-1 100]);
+figure;plot(pwelch(yMid));
+ylim([0 1]);
+xlim([0 20000])
+figure;plot(pwelch(yHigh));
+
+
+% Random white noise
+%sound(yLow1,sampleFreq);
+%sound(yMid1,sampleFreq);
+%sound(yHigh1,sampleFreq);
+
+%audiowrite('low_filter.mp4', yLow, sampleFreq);
+%audiowrite('mid_filter.mp4', yMid, sampleFreq);
+%audiowrite('high_filter.mp4',yHigh, sampleFreq);

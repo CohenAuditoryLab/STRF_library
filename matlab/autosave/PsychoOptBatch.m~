@@ -1,0 +1,25 @@
+
+for k=1:length(tc)
+    MTFOpt(:,:,k)=MTF(k).Dp;
+end
+
+DpOpt=zeros(size(MTF(1).Dp));
+TcOpt=zeros(size(MTF(1).Dp));
+for k=1:size(MTFOpt,1)
+    for l=1:size(MTFOpt,2)
+   
+        
+            i=find(MTFOpt(k,l,:)==max(MTFOpt(k,l,:)))
+        
+            if MTFOpt(k,l,i)>1
+                DpOpt(k,l)=MTFOpt(k,l,i);
+                TcOpt(k,l)=tc(i);
+            end
+    end
+end
+
+for k=1:100
+imagesc(log2(MTF(1).FMAxis),20*log10(MTF(1).GammaAxis),[MTF(k).Dp]'),colorbar,set(gca,'YDir','normal'),caxis([0 2.5])
+title(['tc = ' int2str(tc(k))])
+pause(.1)
+end

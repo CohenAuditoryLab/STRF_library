@@ -1,0 +1,9 @@
+
+load '10I02, Anechoic Chamber 80cm -90deg.mat'
+
+hr=brir.full.hR;
+hl=brir.full.hL;
+CF=3988;
+[BR]=brir2mtf(hl,hr,Fs,CF*2^(-.5),CF*2^0.5,2000,1,'n',40)
+
+

@@ -1,0 +1,9 @@
+Fs=96000
+M=32000
+L=1799*32000    %Number of samples, file length
+
+trigfile('movingrippleratctx50Hz45dBTrig.sw',M,400,L,'n')
+float2wav2ch('movingrippleratctx50Hz45dB.bin','movingrippleratctx50Hz45dB.wav',Fs)
+
+%sox -r 96000 -c 1 movingrippleratctx50Hz45dBTrig.sw movingrippleratctx50Hz45dBTrig.wav
+%sox -r 96000 -c 2 movingrippleratctx50Hz45dB.sw movingrippleratctx50Hz45dB.wav

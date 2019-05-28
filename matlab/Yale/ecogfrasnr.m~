@@ -1,0 +1,55 @@
+% function [SNRData]=ecogfrasnr(FTC)
+%	
+%	FILE NAME 	: ECOG FRA SNR
+%	DESCRIPTION : Computes the SNR for all ECOG electrode channels using
+%                 FRA data structure. SNR is computed at the loudest SPL.
+%
+%	FTCn        : FRA Data structrue matrix containg the FRAs for each
+%                 electrode channel
+%
+%RETURNED VARIABLES
+%   SNRData     : Data structure matrix containing SNR measurements
+%
+% (C) Monty A. Escabi, Jun 2013
+%
+function [SNRData]=ecogfrasnr(FTC)who
+
+%Computing SNR for all channels
+for i=1:size(FTC,1)
+    for j=1:size(FTC,2)
+
+        %Selecting data for a given electrode channel
+        Rtrial=FTC(i,j).Rtrial;
+        Ravg=FTC(i,j).Ravg;
+        
+        %Computing Noise Spectrum
+        Snoise=[];
+        for k=1:size(Rtrial,1)
+            for l=1:size(Rtrial,3)
+                Snoise=[Snoise ;squeeze(Rtrial(k,1,l,:))'];
+            end
+        end
+        Pnn=mean(abs(fft(Snoise,[],2)).^2,1);
+
+        %Computing signal spectrum using shuffled CSD
+        Pssk=[];
+        for k=1:size(Rtrial,1)
+            Pss=[];
+            for l=1:size(Rtrial,3)
+                for m=1:size(Rtrial,3)
+                    if m~=l
+                        N=size(Rtrial,2);           %Computes SNR at the loudest SPL
+                        Sl=squeeze(Rtrial(k,N,l,:))';
+                        Sm=squeeze(Rtrial(k,N,m,:))';
+                        Pss=[Pss;abs(fft(Sl).*conj(fft(Sm)))];
+                    end
+                end
+            end
+            Pssk=[Pssk;mean(Pss,1)];
+        end
+
+        %Computing SNR
+        SNRData(i,j).SNR=10*log10(mean(Pssk)./Pnn);
+
+    end
+end

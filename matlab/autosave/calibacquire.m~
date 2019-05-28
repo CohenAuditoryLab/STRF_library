@@ -1,0 +1,147 @@
+%
+%function [Data]=calibacquire(MicGain,NB,Interface,Device,DeviceNum,NoiseSelect,AcquireSelect)
+% 	
+%   FILE NAME   : CALIB ACQUIRE
+% 	DESCRIPTION : Acquires input-output data for TDT Calibration.
+%
+%   MicGain         : Microphone Amplifier Gain (dB) (Default=40)
+%   NB              : Number of white noise samples for measurement (Default,
+%                     NB=970000, i.e. 10 sec at 97kHz)
+%   Interface       : TDT Interface (Default, Interface='GB')
+%   Device          : TDT Device for acquiring calibration data ('RX6' or
+%                     'RP2'; Default, 'RX6')
+%   DeviceNum       : Device Number - Designated in zBUSMon (Default,
+%                     DeviceNum=1)
+%   NoiseSelect     : Noise type selector
+%                     Noise Select == 0 for white noise (Default)
+%                     Noise Select == 1 for f-Noise
+%                     Noise Select == 2 Ripple noise
+%                     Noise Select == 3 Linear chirp
+%                     Noise Select == 4 Logarithmic chirp
+%   AcquireSelect   : Selects between calibration mode (direct input) and
+%                     validation mode (uses FIR filter to calibrate input).
+%                     0 = calibration mode
+%                     1 = validation mode
+%                     (Default == 0)
+%   freq            : Vector (2x1) containng the lower and upper frequency
+%                     for the chirp input ([flow fhigh], Optional)
+%
+%RETURNED VARIABLES
+%
+%   Data        : Data structure containing calibration data
+%                 X     - Input white noise signal
+%                 Y     - Recorder speaker output signal
+%                 Fs    - sampling rate (Hz)
+%
+% (C) Monty A. Escabi, November 2007 (Edit May 2009)
+%
+function [Data]=calibacquire(MicGain,NB,Interface,Device,DeviceNum,NoiseSelect,AcquireSelect)
+
+%Input Arguments
+if nargin<1
+    MicGain=40;
+end
+if nargin<2
+    NB=970000;
+end
+if nargin<3
+    Interface='GB';
+end
+if nargin<4
+    Device='RX6';
+end
+if nargin<5
+    DeviceNum=2;
+end
+if nargin<6
+    NoiseSelect=0;
+end
+if nargin<7
+    AcquireSelect=0;
+end
+
+%Path For TDT Circuit
+CircuitPath=which('calibacquire');
+i=strfind(CircuitPath,'calibacquire.m');
+if strcmp(Device,'RX6')
+    CircuitPath = [CircuitPath(1:i-2) '\speakerCAL_onlineRX6.rcx'];
+else
+    CircuitPath = [CircuitPath(1:i-2) '\speakerCAL_onlineRP2.rcx'];
+end
+
+%Loading Calibration Noise
+if NoiseSelect==0
+    randn('state',0);
+    X=randn(1,NB);
+    %X=(rand(1,NB)-.5)*2*8;
+elseif NoiseSelect==1
+    load CalibNoise1f.mat
+    X=X(1:NB);
+elseif NoiseSelect==2
+    load MovingRipple.mat
+    X=X(1:NB);
+elseif NoiseSelect==3
+    Fs=96000;
+    time=(0:NB-1)/Fs;
+    X = chirp(time,f1,NB/Fs,f2,'linear');
+elseif NoiseSlect==4
+    Fs=96000;
+    time=(0:NB-1)/Fs;
+    X = chirp(time,f1,NB/Fs,f2,'logarithmic');
+end
+
+%Open A Dummy Figure
+figure, set(gcf,'visible','off');
+
+%Acquisition 
+RP=actxcontrol('RPco.x');
+invoke(RP,'ClearCOF'); %Clears all the Buffers and circuits on that RP2
+invoke(RP,['Connect' Device],Interface,DeviceNum); %Connects the desired Device via the desired Interface given the proper device number
+invoke(RP,'LoadCOF',CircuitPath); % Loads circuit'
+invoke(RP,'Run'); %Starts Circuit'
+
+%Selecting between calibration and validation mode
+invoke(RP, 'WriteTagV','AcquireSelect',0,AcquireSelect*ones(1,NB));
+
+%Writing Noise to RP device
+invoke(RP, 'WriteTagV','Noise',0,X); 
+
+%Error Checking
+Status=double(invoke(RP,'GetStatus'));%converts value to bin'
+if bitget(Status,1)==0;%checks for errors in starting circuit'
+   disp(['Error connecting to ' Device ])
+elseif bitget(Status,2)==0; %checks for connection'
+   disp('Error loading circuit')
+elseif bitget(Status,3)==0
+   disp('Error running circuit')
+else  
+   disp('Circuit loaded and running')
+end
+
+%Checking Number of Samples Read
+curindex=invoke(RP, 'GetTagVal', 'index');
+while(curindex<NB-1) 
+    curindex=invoke(RP, 'GetTagVal', 'index');
+end
+curindex=invoke(RP, 'GetTagVal', 'index');
+
+%Reading Input and Output Calibration Data
+Data.X=invoke(RP, 'ReadTagV', 'input', 0,NB);
+Data.Y=invoke(RP, 'ReadTagV', 'output', 0,NB);
+Data.Fs = double(invoke(RP,'GetSfreq'));
+%Data.Fs=invoke(RP, 'ReadTagV', 'SR', 0,NB);
+Data.MicGain=MicGain;
+
+%Computing RMS SPL
+Gain=10^(MicGain/20);       %Microphone Amplifier Gain
+Sensitivity=2.265E-3;       %Volts/Pascals
+Po=2.2E-5;                  %Threshold of hearing in Pascals
+Data.SPL=20*log10(std(Data.Y(10000:NB))/MicGain/Sensitivity/Po);
+
+%Closing Devices
+invoke(TTX,'ReleaseServer');
+invoke(RP,'Halt');
+disp('Done Reading Input and Output Data')
+
+%Closing Dummy Figure
+close

@@ -1,0 +1,33 @@
+ClassData(1).PATH='./Bats_NR/'
+ClassData(2).PATH='./frog_stats_NR/'
+ClassData(3).PATH='./parrots_NR/'
+ClassData(4).PATH='./humans2_NR/'
+ClassData(5).PATH='./primates_NR/'
+ClassData(6).PATH='./water1_NR/'
+ClassData(7).PATH='./old_world_primates_NR/'
+
+
+[ClassData] = bayesextractfeature(ClassData);	
+
+
+
+
+[ValidClass] = bayesclassifier2f(ClassData,32,2000);	
+axis equal
+CM2= sum(ValidClass,3)/size(ValidClass,3)	
+
+imagesc(CM2)
+caxis([0,1])
+labels{1}= 'bats'
+labels{2}='frogs'
+labels{3}='parrots'
+labels{4}='humans'
+labels{5}='primates'
+labels{6}='water'
+labels{7}='old_primates'
+labels{8}='squirrels'
+
+
+set(gca,'Yticklabel',labels, 'YTick',[1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16])
+
+set(gca,'Xticklabel',labels,'XTick',[1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16])

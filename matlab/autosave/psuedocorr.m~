@@ -1,0 +1,66 @@
+% cross correation:
+%
+% - input: x (array of numbers), y (array of numbers), lag (maximum lag)
+%   - e.g. x=speed, y=theta env, lag=200 (or maybe arraylen / 2)
+% - output: array of cross correlations between -lag and lag
+%   (e.g. twice the length of lag)
+% - step 1: compute average of x and y
+% - step 2: compute denominator using average
+% - step 3; copute result for all lag values within -maxlag to maxlag
+% - return resulting array
+% see http://paulbourke.net/miscellaneous/correlate/
+%
+% matlab pseudo code : (disclaimer: I've never written a line of
+% matlab in my life)
+
+function [result]=xcorr(x, y, maxlag)
+
+  if (length(x) ~= length(y))
+    error('Arrays must have same length');
+  end
+
+  len = length(y);
+
+  avg_x = mean(x);
+  avg_y = mean(y);
+
+  sx = 0;
+  sy = 0;
+  % compute denominator, essentially,
+  % sx = sum([ (x[i]-avg_x)^2 for i between 0 and len ])
+  % sy = sum([ (y[i]-avg_y)^2 for i between 0 and len ])
+  % denom = sqrt(sx*sy)
+  pause
+  for idx = 1:len
+    dist_from_avg_x = x(idx) - avg_x;
+    dist_from_avg_y = y(idx) - avg_y;
+    sx =sx+ dist_from_avg_x * dist_from_avg_x;
+    sy =sx+ dist_from_avg_y * dist_from_avg_y;
+  end
+  denom = sqrt(sx*sy);
+
+  % create a new array to hold the results
+  % result will have 2 * maxlag because we
+  % iterate over -maxlag to maxlag
+  result = [];
+  % result = [ sum([ (x[i]-avg_x)*(y[i-cur_lag]-avg_y) for i between 0 and len])
+  %            for cur_lag between -maxlag and maxlag ]
+  for lag = -maxlag:maxlag
+    numer = 0;
+    for x_idx = 1:len
+      % for each x in the x_array, we examine all y's within
+      y_idx = x_idx+lag;
+      % ignore when y_idx is out of range
+      if y_idx > 0 || y_idx <= len
+        dist_from_avg_x = x(x_idx) - avg_x;
+        dist_from_avg_y = y(y_idx) - avg_y;
+        numer =numer+ dist_from_avg_y * dist_from_avg_x;
+      end
+    end
+    % since our result ranges from -maxlag to maxlag,
+    % we offset the index by maxlag to prevent
+    retidx = lag + maxlag;
+    result(retidx) = numer / denom;
+  end
+  %return result;
+end

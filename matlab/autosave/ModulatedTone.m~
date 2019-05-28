@@ -1,0 +1,24 @@
+fc=1000
+Fs=44100
+M=Fs*3
+L=3         %Number of Periods
+
+Fm=[5 10 20 40]
+%Fm=[50 100 200 400]
+taxis=(1:M)/Fs;
+N=round(L/Fm(1)*Fs)
+
+for k=1:4
+    subplot(4,1,k)
+    E=(1-cos(2*pi*Fm(k)*taxis));
+    X=E.*sin(2*pi*fc*taxis);
+    XN=E.*2.*(rand(1,length(E))-0.5);
+    plot(taxis(1:N),X(1:N),'r','linewidth',1)
+    hold on
+    plot(taxis(1:N),E(1:N),'y','linewidth',3)
+    hold off
+    set(gca,'visible','off')
+    wavwri(X,Fs,16,1,['SAMTone' int2str(Fm(k)) '.wav'])
+    wavwri(XN,Fs,16,1,['SAMNoise' int2str(Fm(k)) '.wav'])
+    ylim([min(X)*1.1 max(X)*1.1])    
+end

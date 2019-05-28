@@ -1,0 +1,116 @@
+%
+%function [X,Vm,Vt,Vs,R,C]=ifneuronadapt_new1(Im,Tau,Taus,Gs,Tref,Vtresh,Vrest,Fs,In,detrendim,detrendin)
+%
+%       FILE NAME   : IF NEURON ADAPT 3
+%       DESCRIPTION : Integrate and fire model neuron with spike threshold
+%                     adaptation. Includes spike threhold adapation due to
+%                     both membrane hyperpolarization and firing  rate. Uses
+%                     separate time constants for spike and membrane
+%                     adaptation components.
+%
+%       Im          : Input Membrane Current Signal
+%       Tau         : Integration time constant (msec)
+%       Taus        : Spike dependent threhold-adaptation time constant (msec)
+%       Gs          : Threshold-spike coupling gain
+%       Tref        : Refractory Period (msec)
+%       Vtresh      : Average (DC) Threshold Membrane Potential (mVolts)
+%       Vrest       : Resting Membrane Potential - Same as the Leackage
+%                     Membrane Potential (mVolts)
+%       Fs          : Sampling Rate
+%       In          : Noise current signal
+%       detrendim   : Removes time constant from Im if desired ('y' or 'n')
+%                     (Default=='n'). This detrending is usefull if you 
+%                     know the desired intracellular voltage Vm, but not
+%                     the intracellular current.
+%       detrendin   : Removes time constant from Im if desired ('y' or 'n')
+%                     (Default=='n'). This detrending is usefull if you
+%                     know the desired intracellular noise voltage but 
+%                     not the intracellular noise current.
+%
+%OUTPUT SIGNAL
+%       X           : Spike Train
+%       Vm          : Membrane Voltage
+%       Vt          : Threshold Voltage ( Note: Vt=Vs+Vthresh-Vrest )
+%       Vs          : Spike adaptation threshold component
+%       R           : Leackage Resistance
+%       C           : Membrane Capacitance
+%
+% (C) Fatemeh Khatami, 9/10/2014 _ revised ifneuronadapt3 by Monty A.
+%  Escabi 2006
+
+function [X,Vm,Vt,Vs,R,C]=ifneuronadapt_new3(Im,Tau,Taus,Gs,Tref,Vtresh,Vrest,Fs,In,detrendim,detrendin)
+
+%Input Arguments
+if nargin<12
+	detrendim='n';
+end
+if nargin<13
+	detrendin='n';
+end
+
+%Initializing Array
+Vm=zeros(1,length(Im));
+
+%Setting Parameters
+Tau=Tau/1000;               % Integration Time Constant
+Taus=Taus/1000;             % Spike threshold adaptation time constant
+Tref=Tref/1000;             % Refractory Period
+dt=1/Fs;                    % Sampling Interval
+R=100E6;                    % Membrane Resistance
+C=Tau/R;                    % Membrane Capacitance
+Cs=Taus/R;                  % Spike-Vt Couppling capacitance
+Nref=max(round(Tref*Fs),1);	% Number of Samples for Refractory Period
+Ts=[];                      % time of spikes
+ts=1/Fs:dt:length(Im)/Fs;    % time step
+%Removing Time Constant from Im and In if desired
+if strcmp(detrendim,'y')
+	Im(1:length(Im)-1)=diff(Im)*Fs*Tau/R+Im(1:length(Im)-1)/R;
+	Im(length(Im))=Im(length(Im))*(Tau*Fs+1)/R;
+end
+if strcmp(detrendin,'y')
+	In(1:length(In)-1)=diff(In)*Fs*Tau/R+In(1:length(In)-1)/R;
+	In(length(In))=In(length(In))*(Tau*Fs+1)/R;
+end
+%Integrating Membrane Potential
+Vm=zeros(1,length(Im));
+Vt=(Vtresh-Vrest)*ones(1,length(Im));
+t=dt:dt:7*Taus;
+Vss=Gs*exp(-t/Taus);
+X=zeros(size(Vm));
+k=1;
+%Itot=Im+In-mean(Im+In);             %Do we need -mean(Im+In)
+Itot=Im+In;
+% syms t
+% Vs1(t)=exp(-t/(Taus));
+ii=1;
+Vss(1)=0;
+jj=1;
+Vt(1)=Vtresh-Vrest;
+while k<=length(Im)
+	%Membrane Integration
+	 Vm(k+1)=(1-dt/R/C)*Vm(k) + dt/C*( Itot(k) );
+     %Vt(k+1)=Vss+Vt(k);
+     Vt(k+1)=Vss(jj)+Vt(1);
+     %Thresholding Spike Train
+	if Vm(k+1)>Vt(k+1)
+		%Adding Spike
+		X(k+1)=1;
+        Vm(k+1)=0;
+        Ts=[Ts k+1];
+         %Spike voltage
+                jj=jj+1
+                Vss(jj)=Gs*(1/(R*Cs))*exp(-(Ts(end)/1000-Ts(end-1)/1000)/(Taus));
+           
+     %Reseting Potential, Computing threshold, and Delaying By Refractory Period
+         L=k+1+Nref;
+         k=k+1;
+         while k<=L & k<length(Im)
+              Vm(k+1)=Vm(k);
+              k=k+1;
+         end
+   
+    else
+       k=k+1; 
+    end
+        
+end

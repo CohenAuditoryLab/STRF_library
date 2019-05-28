@@ -1,0 +1,109 @@
+%
+%function [R]=xcorrspikeb(spet1,spet2,Fs,Fsd,MaxTau,B,T,Zero,Mean,Disp)
+%
+%   FILE NAME   : XCORR SPIKE B
+%   DESCRIPTION : X-Correlation Function of Spike Train Performed
+%                 By binning the Spike Train into Blocks and 
+%			      Averaging individual X-Corr
+%
+%	spet1,spet2	: Input Spike Event Times
+%   Fs          : Samping Rate of SPET
+%	Fsd         : Sampling Rate for R(T)
+%	MaxTau		: X-Correlation Temporal Lag (sec)
+%	B           : Block Size (sec)
+%	Zero		: Correct the Zeroth Bin when computing
+%                 autocorrelation: spet1==spet2
+%                 Default: 'y'
+%	Mean		: Remove Mean Value
+%                 Default : 'n'
+%	Disp		: Display : 'y' or 'n'
+%                 Default : 'y' 
+%
+function [R]=xcorrpikeb(spet1,spet2,Fs,Fsd,MaxTau,B,T,Zero,Mean,Disp)
+
+%Preliminaries
+if nargin<7
+	Zero='y';
+end
+if nargin<8
+	Mean='n';
+end
+if nargin<9
+	Disp='y';
+end
+
+%Block Size and Temporal Lag
+NB=ceil(B*Fs);
+MaxLag=ceil(MaxTau*Fsd);
+
+%Checking to See if spet1==spet2 and Computing X-Corr
+count=1;
+Ts=1/Fsd;
+if length(spet1)~=length(spet2) | strcmp(Zero,'n')
+	%Binning and Computing X-Correlation
+	R=zeros(1,2*MaxLag+1);
+	M=0;					%Number of X-Corr Samples
+%	while (count-1)*NB<min(max(spet1),max(spet2)) 
+    while (count-1)*B<T
+		index1=find(spet1<NB*count & spet1>NB*(count-1));
+		index2=find(spet2<NB*count & spet2>NB*(count-1));
+		if isempty(index1) 
+			X1=zeros(1,NB);
+		end		
+		if isempty(index2) 
+			X2=zeros(1,NB);
+		end
+		if ~isempty(index1) & ~isempty(index2)
+			X1=spet2impulse(spet1(index1)-NB*(count-1),Fs,Fsd,B);
+			X2=spet2impulse(spet2(index2)-NB*(count-1),Fs,Fsd,B);
+		else
+			X=zeros(1,NB);
+		end
+		if length(X1)<length(X2)
+        	        X2=X2(1:length(X1));
+		elseif length(X1)>length(X2)
+			X1=X1(1:length(X2));
+		end
+		if Mean=='y'
+			R=R+xcorr(X1-mean(X1),X2-mean(X2),MaxLag);
+		else
+			R=R+xcorr(X1,X2,MaxLag);
+		end
+		M=M+length(X1);
+		count=count+1;
+	end
+	R=R/M;
+    M
+else
+	%Binning and Computing X-Correlation
+	R=zeros(1,2*MaxLag+1);
+	M=0;					%Number of X-Corr Samples
+	while (count-1)*NB<max(spet1)
+    while (count-1)*B<T
+		index=find(spet1<NB*count & spet1>NB*(count-1));
+		if ~isempty(index)
+			X=spet2impulse(spet1(index)-NB*(count-1),Fs,Fsd,B);
+		else
+			X=zeros(1,NB);
+		end
+		if Mean=='y'
+			R=R+xcorr(X-mean(X),X-mean(X),MaxLag);
+		else
+			R=R+xcorr(X,X,MaxLag);
+		end
+		M=M+length(X);
+		count=count+1;
+	end
+	N=length(spet1)				%Number of Spikes
+	VarPois=N/Ts^2;				%Variance for Poisson 
+	R(MaxLag+1)=R(MaxLag+1)-VarPois;
+	R=R/M;
+end
+
+%Plotting X-Correlation
+if strcmp(Disp,'y')
+	plot((-MaxLag:MaxLag)/Fsd,R)
+	ylabel('R( T )');
+	xlabel('Time Lag - T ( sec )')
+	pause(0)
+end

@@ -1,0 +1,92 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%% SIMULATING AUDITORY NETWORK %%%%%%%%%%%%%%%%%
+Fs=1993
+Nlayer=5
+Ntrial=10
+Nnode=50
+Nsig=1.5
+SNR=5
+EIR=1.5
+SigE=0.03
+SigI=0.05
+List=dir('*AGram.mat');
+clear NetData
+TauE=[0.5 2 8 32 128];
+TauI=TauE*1.5;
+Tref=1
+
+clear AudNetData
+for k=1:11
+    
+    load(List(k).name)
+    [AudNetData(k)]=integratefirenetworkaud(AudData.S,Nlayer,Nnode,TauE,TauI,Tref,Nsig,SNR,SigE,SigI,EIR,Fs,Ntrial);
+
+end
+
+
+
+%%%%%%%%%%%%%% PLOTTING RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure
+for Layer=1:Nlayer
+    figure(Layer)
+    for k=1:length(List)
+
+        N1=size(AudNetData(k).Layer(Layer).Y{1},1);
+        N2=size(AudNetData(k).Layer(Layer).Y{1},2);
+        Y=mean(reshape(full(cell2mat(AudNetData(k).Layer(Layer).Y)),N1,N2,Ntrial),3);
+
+        subplot(4,4,k)
+        taxis=(0:N2-1)/Fs*1000;
+        faxis=AudData.faxis;
+        imagesc(taxis,log2(faxis/100),Y),set(gca,'YDir','normal')
+        set(gca,'YTick',[0 2 4 6])
+        set(gca,'YTickLabel',[100 400 1600 6400])
+        set(gca,'YDir','normal')
+        set(gca,'XTick',[0 250 500 750 1000])
+
+    end
+end
+
+
+
+
+
+figure
+for k=1:length(List)
+    load(List(k).name)
+    subplot(4,4,k)
+    imagesc(AudData.taxis*1000,log2(AudData.faxis/100),AudData.S),set(gca,'YDir','normal')
+end
+
+
+
+
+
+%%%%%%%%%%%%%%%%%% DISTANCE ANALYSIS %%%%%%%%%%%%%%%%
+
+W=ones(4,20)/80;
+for k=1:11
+    for l=1:100
+        
+    end
+end
+
+D12=[];
+Layer=3
+for k=1:11
+    for l=1:11
+        [k l]
+        N1=size(AudNetData(k).Layer(Layer).Y{1},1);
+        N2=size(AudNetData(k).Layer(Layer).Y{1},2);
+        Y1=mean(reshape(full(cell2mat(AudNetData(k).Layer(Layer).Y)),N1,N2,Ntrial),3);
+        Y2=mean(reshape(full(cell2mat(AudNetData(l).Layer(Layer).Y)),N1,N2,Ntrial),3);
+        
+        
+        
+        V1=var(reshape(full(cell2mat(AudNetData(k).Layer(Layer).Y)),N1,N2,Ntrial),0,3);
+        V2=var(reshape(full(cell2mat(AudNetData(l).Layer(Layer).Y)),N1,N2,Ntrial),0,3);
+
+        
+        D12(k,l)=sqrt(2) * sqrt(sum(reshape(Y1-Y2,1,N1*N2).^2)) ./ sqrt(sum(reshape(V1+V2,1,N1*N2)))
+        
+    end
+end

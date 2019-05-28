@@ -1,0 +1,61 @@
+clear all
+load ./figdata7/Figure7Data
+
+LB=20  %Number of bootstraps
+T=4
+Tau=round(100*sqrt(2).^(0:10))/1000;        %Spike train duration in sec
+%Tau=1.6
+Sig=[0 2.^(0:8)];                               %Temporal resolution in msec
+%Sig=10
+
+
+[RAS2]=rastercompress(RAS2,Fs,T);
+[RAS3]=rastercompress(RAS3,Fs,T);
+
+
+    for k=1:length(Sig)
+
+        [RAS2j]=rasteraddjitterunifcirc(RAS2,Sig(k),1,0);
+        [RAS3j]=rasteraddjitterunifcirc(RAS3,Sig(k),1,0);
+
+        for l=1:length(Tau)
+
+                    %Extracting spike trains for each segment of Tau duration
+                    [RAS2c]=raster2cycleraster(RAS2j,1/Tau(l),1,0,0);
+                    [RAS3c]=raster2cycleraster(RAS3j,1/Tau(l),1,0,0);
+
+                    %Generating ISI Distribution
+                    clear ISI2 ISI3 N2 N3
+                    M=length(RAS2c);
+                    for m=1:M
+                        ISI2=[diff(RAS2c(m).spet)/Fs];
+                        ISI3=[diff(RAS3c(m).spet)/Fs];
+                        if isempty(ISI2)
+                            ISI2=Tau(l);
+                        end
+                        if isempty(ISI3)
+                            ISI3=Tau(l);
+                        end
+                        N2=hist(log10(ISI2*1000),0.2:0.1:4);
+                        P2(k,l).p(m,:)=N2/sum(N2);
+                        N3=hist(log10(ISI3*1000),0.2:0.1:4);
+                        P3(k,l).p(m,:)=N3/sum(N3);
+                    end
+
+                    for i=1:LB
+                        %Randomly selecting half the data
+                        index=randperm(M);
+                        X22=P2(k,l).p(index(1:M/2),:)*mean(P2(k,l).p(index(M/2+1:end),:))';
+                        X23=P2(k,l).p(index(1:M/2),:)*mean(P3(k,l).p(index(M/2+1:end),:))';
+                        X33=P3(k,l).p(index(1:M/2),:)*mean(P3(k,l).p(index(M/2+1:end),:))';
+                        X32=P3(k,l).p(index(1:M/2),:)*mean(P2(k,l).p(index(M/2+1:end),:))';
+
+                        D3(k,l,i)=sum(X33>X32)/length(X33);
+                        D2(k,l,i)=sum(X22>X23)/length(X22);
+                        
+                        clc
+                        disp(['Sig=' num2str(Sig(k)) ', Tau=' num2str(Tau(l)) ', nb=' num2str(i)])
+                    end
+        end
+    end
+

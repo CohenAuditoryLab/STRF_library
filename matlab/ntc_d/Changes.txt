@@ -1,0 +1,15 @@
+4/98
+changed computation of rateslope1 and rateslope2 to actually mean something.
+
+8/98
+added mean spontaneous rate and standard deviation to attributes, 
+taking over places formerly occupied by unused entries 4 and 5.
+modified decoding of dtc file header somewhat
+
+9/98
+added guess for latency based on Poisson process model for spike trains
+changed erasemode to normal because win95 can't handle 'xor' properly
+added font size menu for win95 and mac (note that font size on buttons does
+  not resize on windows anyway, because windows is braindead)
+split modprefs into pieces so win95 and mac can display them
+

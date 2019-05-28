@@ -1,0 +1,50 @@
+load ProjectData2
+
+%Lowpass Filter
+Gp=20*log10(0.9);
+Gs=20*log10(0.01);
+wp=250/22050;
+ws=750/22050;
+[N, Wn] = ellipord(wp, ws, -Gp, -Gs);
+[num,den] = ellip(N,-Gp,-Gs,Wn,'low');
+H=tf(num,den);
+Yl=filter(num,den,X);
+%bode(H)
+
+
+
+
+%Bandpass Filter
+Gp=20*log10(0.9);
+Gs=20*log10(0.01);
+wp1=700/22050;
+ws1=300/22050;
+wp2=4500/22050;
+ws2=5500/22050;
+wp=[wp1 wp2];
+ws=[ws1 ws2];
+
+[N, Wn] = ellipord(wp, ws, -Gp, -Gs);
+[num,den] = ellip(N,-Gp,-Gs,Wn);
+H=tf(num,den);
+Yb=filter(num,den,X);
+%bode(H)
+
+%Highpass filter
+Gp=20*log10(0.9);
+Gs=20*log10(0.01);
+wp=5500/22050;
+ws=4500/22050;
+[N, Wn] = ellipord(wp, ws, -Gp, -Gs);
+[num,den] = ellip(N,-Gp,-Gs,Wn,'high');
+H=tf(num,den);
+Yh=filter(num,den,X);
+%bode(H)
+
+%Plot White Noise Results
+psd(Yh,1024,44100);
+hold on
+psd(Yl,1024,44100);
+psd(Yb,1024,44100);
+
+

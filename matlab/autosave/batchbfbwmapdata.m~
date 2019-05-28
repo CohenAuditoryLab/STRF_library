@@ -1,0 +1,78 @@
+clear all
+load 26y
+FTCn2=FTCn;
+load 26n
+FTCn=FTCn;
+
+f0=1000;
+X=log2(FTCn(1,1).Freq/f0);
+
+BF=zeros(14,14,9);
+BFHz=zeros(14,14,9);
+Std=zeros(14,14,9);
+for k=1:14
+    
+    for l=1:14
+        
+       M=mean(reshape(FTCn2(k,l).Rpp,1,9*41));
+       S=std(reshape(FTCn2(k,l).Rpp,1,9*41));
+        
+       Rpp=FTCn(k,l).Rpp;
+       i=find(Rpp<M+3*S);
+       Rpp(i)=zeros(size(i));
+   
+       %Finding BF
+       bf=Rpp'*X'./sum(Rpp)';
+       bfhz=f0*2.^(bf);
+
+       %Computing Standard Deviation
+       XX=ones(length(bf),1)*X - bf*ones(size(X));  
+       sd=sqrt( sum(Rpp'.*XX.^2,2) ./sum(Rpp)' ) ;
+
+       BF(k,l,:)=bf;
+       BFHz(k,l,:)=bfhz;
+       Std(k,l,:)=sd;
+    end
+end
+save AuditoryCortexBFBWMap102610 BF BFHz Std
+
+
+clear all
+load 27y
+FTCn2=FTCn;
+load 27n
+FTCn=FTCn;
+
+f0=1000;
+X=log2(FTCn(1,1).Freq/f0);
+
+BF=zeros(14,14,9);
+BFHz=zeros(14,14,9);
+Std=zeros(14,14,9);
+for k=1:14
+    
+    for l=1:14
+        
+       M=mean(reshape(FTCn2(k,l).Rpp,1,9*41));
+       S=std(reshape(FTCn2(k,l).Rpp,1,9*41));
+        
+       Rpp=FTCn(k,l).Rpp;
+       i=find(Rpp<M+3*S);
+       Rpp(i)=zeros(size(i));
+   
+       %Finding BF
+       bf=Rpp'*X'./sum(Rpp)';
+       bfhz=f0*2.^(bf);
+
+       %Computing Standard Deviation
+       XX=ones(length(bf),1)*X - bf*ones(size(X));  
+       sd=sqrt( sum(Rpp'.*XX.^2,2) ./sum(Rpp)' ) ;
+
+       BF(k,l,:)=bf;
+       BFHz(k,l,:)=bfhz;
+       Std(k,l,:)=sd;
+    end
+end
+
+
+save AuditoryCortexBFBWMap102710 BF BFHz Std

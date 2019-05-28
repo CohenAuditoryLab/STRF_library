@@ -1,0 +1,109 @@
+ load figdataDecompose/DataSpontaneous.mat
+ 
+L=100
+Raa0=mean(reshape([JitterDataLambdan0(1:L).Raa],251,L)');
+Rab0=mean(reshape([JitterDataLambdan0(1:L).Rab],251,L)');
+
+Raa5=mean(reshape([JitterDataLambdan5(1:L).Raa],251,L)');
+Rab5=mean(reshape([JitterDataLambdan5(1:L).Rab],251,L)');
+
+Raa10=mean(reshape([JitterDataLambdan10(1:L).Raa],251,L)');
+Rab10=mean(reshape([JitterDataLambdan10(1:L).Rab],251,L)');
+
+Rnoise0=Rab0-Raa0;
+Rnoise5=Rab5-Raa5;
+Rnoise10=Rab10-Raa10;
+Tau=JitterDataLambdan0(1).Tau;
+
+Max=1500
+subplot(334)
+plot(Tau,Rab0,'k')
+hold on
+plot(Tau,Raa0,'color',[0.75 0.75 0.75])
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(335)
+plot(Tau,Rab5,'k')
+hold on
+plot(Tau,Raa5,'color',[0.75 0.75 0.75])
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(336)
+plot(Tau,Rab10,'k')
+hold on
+plot(Tau,Raa10,'color',[0.75 0.75 0.75])
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(337)
+plot(Tau,Rab0-Raa0,'k')
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(338)
+plot(Tau,Rab5-Raa5,'k')
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(339)
+plot(Tau,Rab10-Raa10,'k')
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+
+%JITTER
+figure
+L=5
+Raa0=mean(reshape([JitterDataSigma2(1:L).Raa],251,L)');
+Rab0=mean(reshape([JitterDataSigma2(1:L).Rab],251,L)');
+
+Raa5=mean(reshape([JitterDataSigma4(1:L).Raa],251,L)');
+Rab5=mean(reshape([JitterDataSigma4(1:L).Rab],251,L)');
+
+Raa10=mean(reshape([JitterDataSigma8(1:L).Raa],251,L)');
+Rab10=mean(reshape([JitterDataSigma8(1:L).Rab],251,L)');
+
+Rnoise0=Rab0-Raa0;
+Rnoise5=Rab5-Raa5;
+Rnoise10=Rab10-Raa10;
+Tau=JitterDataLambdan0(1).Tau;
+
+Max=500
+subplot(334)
+plot(Tau,Rab0,'k')
+hold on
+plot(Tau,Raa0,'color',[0.75 0.75 0.75])
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(335)
+plot(Tau,Rab5,'k')
+hold on
+plot(Tau,Raa5,'color',[0.75 0.75 0.75])
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(336)
+plot(Tau,Rab10,'k')
+hold on
+plot(Tau,Raa10,'color',[0.75 0.75 0.75])
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(337)
+plot(Tau,Rab0-Raa0,'k')
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(338)
+plot(Tau,Rab5-Raa5,'k')
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+
+subplot(339)
+plot(Tau,Rab10-Raa10,'k')
+axis([-25 25 -0.05*Max Max])
+set(gca,'Box','off')
+

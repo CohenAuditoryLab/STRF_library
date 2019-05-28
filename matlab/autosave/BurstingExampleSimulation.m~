@@ -1,0 +1,44 @@
+%load /Users/escabi/data/figure/FeatureSelectivityModel/Y_data/Y_icg315t3_f07_ch1_u0_dB.mat
+%load /Users/escabi/data/figure/FeatureSelectivityModel/Y_data/Y_icg315t3_f17_ch1_u0_dB.mat
+load /Users/escabi/data/figure/FeatureSelectivityModel/Y_data/Y_icg315t4_f12_ch1_u1_dB.mat
+%load /Users/escabi/data/figure/FeatureSelectivityModel/Y_data/Y_icg315t3_f17_ch2_u1_dB.mat
+%load /Users/escabi/data/figure/FeatureSelectivityModel/Y_data/Y_icg315t4_f12_ch1_u3_dB.mat
+%load /Users/escabi/data/figure/FeatureSelectivityModel/Y_data/Y_icg315t4_f05_ch1_u0_dB.mat
+
+Fs=FS
+t=(0:length(Y)-1)/Fs;
+LL=4
+Fs=Fs*LL;
+ti=(0:length(Y)*LL-1)/Fs;
+Im = interp1(t,Y,ti,'cubic');
+
+Tau=1
+Tref=3
+Vtresh=-55
+Vrest=-65
+Nsig=1.5
+SNR=5
+flag=3
+
+detrendim='y'
+detrendin='n '
+Fsd=Fs
+
+%In=randn(size(Im));
+%[In]=synapticnoise2(100,1,1,3,100,100,1,100,0,1,Fs,length(Im));
+[taxis,In]=n1overf(1,1000,1,Fs,length(Im));
+
+[XA,Vm,R,C,sigma_m,sigma_i]=integratefire(Im,Tau,Tref,Vtresh,Vrest,Nsig,SNR,Fs,flag,In,detrendim,detrendin);
+%In=randn(size(Im));
+%[In]=synapticnoise2(100,1,1,3,100,100,1,100,0,3,Fs,length(Im));
+[taxis,In]=n1overf(1,1000,1,Fs,length(Im));
+
+[XB,Vm,R,C,sigma_m,sigma_i]=integratefire(Im,Tau,Tref,Vtresh,Vrest,Nsig,SNR,Fs,flag,In,detrendim,detrendin);
+
+[spetA]=impulse2spet(XA,Fs,Fs);
+[spetB]=impulse2spet(XB,Fs,Fs);
+
+T=length(Im)/Fs
+MaxTau=50
+Disp='y'
+[JitterData]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp)

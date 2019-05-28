@@ -1,0 +1,236 @@
+function [RATEm,NORMm,VSm]=norm(IN,FMAxis,Nall,N18)
+
+% OUT1      : Normalized by sum(IN)
+% OUT2      : Normalized by max(IN)
+
+for FMindex = 1:18
+    VS=[];
+    i=1;
+    for n=1:Nall
+    if ~isempty(IN.VS(n,FMindex))
+      VS(i) = IN.VS(n,FMindex);
+      i = i+1;
+    end
+    end % end of n
+    
+    VSm.M(FMindex) = mean(VS(~isnan(VS))));
+    VSm.sem(FMindex) = std(VS(find(~isnan(VS))))/sqrt(length(find(~isnan(VS)))); 
+end % end of FMindex
+
+for i=1:Nall
+%    OUT.RATE(i,:)=IN.RATE(i,:)/sum(IN.RATE(i,:));
+%    OUT.NORM(i,:)=IN.NORM(i,:)/sum(IN.NORM(i,:));
+  
+   OUT.RATE(i,:)=IN.RATE(i,:)/max(IN.RATE(i,:));
+   OUT.NORM(i,:)=IN.NORM(i,:)/max(IN.NORM(i,:));
+end
+
+for FMindex = 1:18
+    RATE=[]; NORM=[];
+    j = 1;
+    for n=1:Nall
+    if ~isempty(OUT.RATE(n,FMindex)
+        RATE(j)=OUT.RATE(n,FMindex);
+        NORM(j)=OUT.NORM(n,FMindex);
+        j=j+1;
+    end
+    end % end of n
+    
+    RATEm.M(FMindex) = mean(RATE(find(~isnan(RATE))));
+    RATEm.sem(FMindex) = std(RATE(find(~isnan(RATE))))/sqrt(length(find(~isnan(RATE)))); 
+    NORMm.M(FMindex) = mean(NORM(find(~isnan(NORM))));
+    NORMm.sem(FMindex) = std(NORM(find(~isnan(NORM))))/sqrt(length(find(~isnan(NORM)))); 
+end % end of FMindex
+
+FM2 = log10(FMAxis);
+figure
+subplot(311)
+errorbar(FM2,RATEm_M,RATEm_sem);
+set(gca,'Xtick',FMAxis);
+xlim([0 log10(2000)])
+ylabel('sp');
+% 
+% figure
+% subplot(211)
+% semilogx(FMAxis,OUT1.RATE,'b-');
+% hold on
+% semilogx(FMAxis,mR,'.r-');
+% ylabel('spikes / sec');
+% xlim([1 2000]);
+% title('normalized by sum(MTF)');
+% subplot(212)
+% semilogx(FMAxis,OUT1.NORM,'b-');
+% hold on
+% semilogx(FMAxis,mN,'.r-')
+% xlim([1 2000]);
+% ylabel('spikes / event');
+% 
+% figure
+% subplot(211)
+% semilogx(FMAxis,OUT2.RATE,'b-');
+% xlim([1 2000]);
+% title('normalized by max(MTF)');
+% subplot(212)
+% semilogx(FMAxis,OUT2.NORM,'b-');
+% xlim([1 2000]);
+% 
+% figure
+% 
+% FM2 = log10(FMAxis);
+% errorbar(FM2,mR,msdR);
+% set(gca,'Xtick',FMAxis);
+   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% function [VS_M,VS_sem]=norm(MTF,FMAxis,Nall)
+% for FMindex = 1:18
+%     VS=[];
+%     i=1;
+%     for n=1:Nall
+%     if ~isempty(MTF.VS(n,FMindex))
+%       VS(i) = MTF.VS(n,FMindex);
+%       i = i+1;
+%     end
+%     end % end of n
+%     
+%     VS_M(FMindex) = mean(VS(find(VS>0)));
+%     VS_sem(FMindex) = std(VS(find(~isnan(VS))))/sqrt(length(find(~isnan(VS)))); 
+% end % end of FMindex
+% 
+% figure
+% FM2 = log10(FMAxis);
+% errorbar(FM2,VS_M,VS_sem);
+% set(gca,'Xtick',FMAxis);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% function [Rab_M,r_M,r_sem,R,MI]=norm(MTFsh,FMAxis,Nall)
+% 
+% for FMindex = 1:18
+%  i=1; j=1;
+%  Rab=[]
+%  Rab_n=[]
+%  r=[]
+%  for n=1:Nall
+%    if ~isempty(MTFsh(n,FMindex).Rab)& ~isempty(MTFsh(n,FMindex).DC)
+%     Rab(i,:)=real(sqrt(MTFsh(n,FMindex).Rab))
+%     if std(Rab(i,:))==0
+%         Rab_n(i,:)=Rab(i,:)-MTFsh(n,FMindex).DC
+%     else
+%         % Rab_n(i,:)=(Rab(i,:)-MTFsh(n,FMindex).DC)/std(Rab(i,:))
+%         Rab_n(i,:)=Rab(i,:)/std(Rab(i,:))
+%     end 
+%     i=i+1;
+%    end  % end of if ~isempty
+%  end  % end of n
+% 
+%  Rab_M{FMindex}=mean(Rab,1)
+%  Rab_Mn{FMindex}=mean(Rab_n,1)   % normorlized
+%  
+%  Fsd=min(FMAxis(FMindex)*50,12207);  % RASTER.Fs=12207
+%  N=(length(Rab_M{FMindex})-1)/2;
+%  Tau = (-N:N)/Fsd;
+%  
+%  beta = lsqcurvefit(@(beta,time) beta(1)*cos(2*pi*FMAxis(FMindex)*Tau)+beta(2),[10 10],Tau,Rab_M{FMindex});
+%  Rabmodel=beta(1)*cos(2*pi*FMAxis(FMindex)*Tau)+beta(2);
+%  R_temp=corrcoef(Rabmodel,Rab_M{FMindex});
+%  R(FMindex)=R_temp(1,2);
+%  MI(FMindex) = beta(1)/beta(2);
+%  
+%  beta_n = lsqcurvefit(@(beta_n,time) beta_n(1)*cos(2*pi*FMAxis(FMindex)*Tau)+beta_n(2),[10 10],Tau,Rab_Mn{FMindex});
+%  Rabmodel_n = beta_n(1)*cos(2*pi*FMAxis(FMindex)*Tau)+beta_n(2);
+%  R_tempn=corrcoef(Rabmodel,Rab_Mn{FMindex});
+%  R_n(FMindex) = R_tempn(1,2);
+%  MI_n(FMindex) = beta_n(1)/beta_n(2);
+%  
+%  for n=1:Nall
+%      if ~isempty(MTFsh(n,FMindex).r)
+%      r(j)=MTFsh(n,FMindex).r;
+%      j=j+1;
+%      end
+%  end
+%  
+%  r_M(FMindex) = mean(r(find(~isnan(r))));
+%  r_sem(FMindex) = std(r(find(~isnan(r))))/sqrt(length(find(~isnan(r))))
+%  
+%  figure(1)
+%  subplot(121)
+%  plot(Tau,Rab_M{FMindex});
+%  hold on;
+%  plot(Tau,beta(1)*cos(2*pi*FMAxis(FMindex)*Tau)+beta(2),'r')
+%  hold off
+%  subplot(122)
+%  % plot(Tau,real(sqrt(Rab_M{FMindex})))
+%  plot(Tau,Rab_Mn{FMindex});
+%  hold on;
+%  plot(Tau,beta_n(1)*cos(2*pi*FMAxis(FMindex)*Tau)+beta_n(2),'r')
+%  hold off
+%  pause(1)
+% end  % end of FMindex
+%    
+% figure(2)
+% subplot(121)
+% semilogx(FMAxis,R,'.-');
+% subplot(122)
+% semilogx(FMAxis, R_n,'.-');
+% 
+% figure(3)
+% subplot(121)
+% semilogx(FMAxis,MI,'.-');
+% subplot(122)
+% semilogx(FMAxis,MI_n,'.-');
+% 
+% figure(4)
+% errorbar(FMAxis,r_M,r_sem)
+% FM2 = log10(FMAxis);
+% errorbar(FM2,r_M,r_sem);
+% set(gca,'Xtick',FMAxis);
+
+%%%%%%%%%%%%%%%%%%%%% CYCH %%%%%%%%%%%%%%%%
+% function [CYCH_M,phase_M,phase_sem]=norm(HIST,FMAxis,Nall)
+% for FMindex = 1:18
+%     CYCH=[];
+%     i=1;j=1;
+%     for n=1:Nall
+%     if ~isempty(HIST(n,FMindex).CYCH)
+%       CYCH(i,:)=HIST(n,FMindex).CYCH;
+%       CYCH(i,:)=CYCH(i,:)/sum(CYCH(i,:));
+%       i = i+1;
+%     end
+%     end % end of n
+%     
+%     CYCH_M{FMindex}=mean(CYCH,1)
+%    L=50
+%    Fsd = FMAxis(FMindex)*L;
+%    Tau = (0:L)/L/FMAxis(FMindex);
+%    beta1 = lsqcurvefit(@(beta1,time) beta1(1)*cos(2*pi*FMAxis(FMindex)*Tau+beta1(2)),[10 10],Tau,CYCH_M{FMindex});
+%    phase = beta1(2);
+%    beta = lsqcurvefit(@(beta,time) beta(1)*cos(2*pi*FMAxis(FMindex)*Tau+ phase)+beta(2),[10 10],Tau,CYCH_M{FMindex});
+%    bar(Tau,CYCH_M{FMindex});
+%    hold on
+%    plot(Tau,beta(1)*cos(2*pi*FMAxis(FMindex)*Tau+phase)+beta(2),'r')
+%    hold off
+%    pause(1)
+%    
+%     for n=1:Nall
+%      if ~isempty(HIST(n,FMindex).phase)
+%      Phase(j)=HIST(n,FMindex).phase;
+%      j=j+1;
+%      end
+%     end
+%  model = beta(1)*cos(2*pi*FMAxis(FMindex)*Tau+phase)+beta(2);
+%  R_temp=corrcoef(model,CYCH_M{FMindex});
+%  R(FMindex) = R_temp(1,2);
+%  MI(FMindex) = beta(1)/beta(2);
+%  
+%  phase_M(FMindex) = mean(Phase(find(~isnan(Phase))));
+%  phase_sem(FMindex) = std(Phase(find(~isnan(Phase))))/sqrt(length(find(~isnan(Phase))))
+%  
+% end % end of FMindex
+% 
+% figure
+% semilogx(FMAxis,R,'.-')
+% figure
+% semilogx(FMAxis,abs(MI),'.-')
+
+
+
+
+

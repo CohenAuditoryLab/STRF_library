@@ -1,0 +1,18 @@
+
+subplot(331)
+[Y,S,t,X]=mripple(200,8000,.5,4,60,44100/5,44100,300,0,100);
+imagesc(t*1000,X,20*log10(S)+60),set(gca,'YDir','normal')
+set(gca,'YTick',[0 1 2 3 4 5])
+set(gca,'XTick',[0 100 200])
+
+subplot(332)
+[Y,S,t,X]=mripple(200,8000,0,16,60,44100/5,44100,300,0,100);
+imagesc(t*1000,X,20*log10(S)+60),set(gca,'YDir','normal')
+set(gca,'YTick',[0 1 2 3 4 5])
+set(gca,'XTick',[0 100 200])
+
+subplot(333)
+[Y,S,t,X]=mripple(200,8000,1,16,60,44100/5,44100,300,0,100);
+imagesc(t*1000,X,20*log10(S)+60),set(gca,'YDir','normal')
+set(gca,'YTick',[0 1 2 3 4 5])
+set(gca,'XTick',[0 100 200])

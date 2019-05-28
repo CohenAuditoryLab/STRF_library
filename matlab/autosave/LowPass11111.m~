@@ -1,0 +1,32 @@
+
+function [ b,a] = LowPass( Gs, Gp, fs, fp, sf )
+Gsh=-20*log10(Gs);
+Gph=-20*log10(Gp);
+ws=fs*2/sf;
+wp=fp*2/sf;
+[n,Wn]=buttord(wp,ws,Gph,Gsh);
+
+[b,a]=butter(n,Wn);
+
+%t=0:1/fs:0.6;
+%xc=length(t);
+
+x = importdata('ProjectData.mat');
+Y = filter(b,a,x);
+%taxis=linspace(0,5,44100*5);
+taxis=(1:length(x))'/sf;
+%T = randn(1,44100*5);
+%plot(taxis,T);
+%psd(T,512,sf);
+wavwrite(Y,sf,16,'LowPass.wav');
+
+
+size(x)
+size(Y)
+size(taxis)
+
+[P,F]=psd(x,1024,sf);
+% 
+% subplot(3,1,1), plot(taxis,x); title('')
+% 
+% subplot(3,1,2), plot(taxis,PSD); title('')

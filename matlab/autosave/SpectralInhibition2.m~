@@ -1,0 +1,110 @@
+%Time and Frequency Axis
+input.X=-2:.025:2;
+input.taxis=0:.05:20;
+
+%     beta            : STRF parameter vector
+%                       beta(1): Response latency (msec)
+%                       beta(2): Rise time constant (msec)
+%                       beta(3): Decay time constant (msec)
+%                       beta(4): Best temporal modulation frequency (Hz)
+%                       beta(5): Temporal phase (0-2*pi)
+%                       beta(6): Best octave frequency, xo
+%                       beta(7): Gaussian spectral bandwidth (octaves)
+%                       beta(8): Best spectral modulation frequency (octaves)
+%                       beta(9): Spectral phase (0-2*pi)
+%                       beta(10): Peak Amplitude
+% 
+beta(1)=5
+beta(2)=1
+beta(3)=2;
+beta(4)=0
+beta(5)=pi/4
+beta(6)=0
+beta(7)=1
+beta(8)=1
+beta(9)=0
+beta(10)=1
+
+k=1 %counter
+for BW=0.3:.05:1.5
+    beta(7)=BW;  %Gabor Bandwidth
+    [STRF(k).STRFm]=strfgaboralpha1([beta],input);
+    [Fm,RD,RTF(k).RTF]=strf2rtf(input.taxis/1000,1000*2.^(input.X),STRF(k).STRFm,500,4);
+    taxis=input.taxis;
+    faxis=1000*2.^(input.X);
+
+    %Excitatory STRF
+    i=find(STRF(k).STRFm<0);
+    STRFe(k).STRFm=STRF(k).STRFm;
+    STRFe(k).STRFm(i)=zeros(size(i));
+    
+    %Inhibitory STRF
+    i=find(STRF(k).STRFm>0);
+    STRFi(k).STRFm=STRF(k).STRFm;
+    STRFi(k).STRFm(i)=zeros(size(i));
+
+    %Model Parameters
+    Fst=1000/(input.taxis(2)-input.taxis(1));
+    [RFParamI(k)]=strfparam(taxis/1000,faxis,STRFi(k).STRFm,1,1,'MR',500,4,.5,0,0);
+    [RFParamE(k)]=strfparam(taxis/1000,faxis,STRFe(k).STRFm,1,1,'MR',500,4,.5,0,0);
+    [RFParam(k)]=strfparam(taxis/1000,faxis,STRF(k).STRFm,1,1,'MR',500,4,.5,0,0);
+
+    %increment counter
+    k=k+1; 
+    disp(k)
+end
+
+subplot(221)
+k1=2
+k2=11
+k3=16
+% plot([RFParam.DCGainSpectraldB],[RFParamI.STRFStd].^2./[RFParamE.STRFStd].^2,'k')
+% hold on
+% plot([RFParam(k1).DCGainSpectraldB],[RFParamI(k1).STRFStd].^2./[RFParamE(k1).STRFStd].^2,'ko')
+% plot([RFParam(k2).DCGainSpectraldB],[RFParamI(k2).STRFStd].^2./[RFParamE(k2).STRFStd].^2,'ko')
+% plot([RFParam(k3).DCGainSpectraldB],[RFParamI(k3).STRFStd].^2./[RFParamE(k3).STRFStd].^2,'ko')
+% axis([-40 10 0 1])
+plot([RFParamI.STRFStd].^2./[RFParamE.STRFStd].^2,[RFParam.DCGainSpectraldB],'k')
+hold on
+plot([RFParamI(k1).STRFStd].^2./[RFParamE(k1).STRFStd].^2,[RFParam(k1).DCGainSpectraldB],'ko')
+plot([RFParamI(k2).STRFStd].^2./[RFParamE(k2).STRFStd].^2,[RFParam(k2).DCGainSpectraldB],'ko')
+plot([RFParamI(k3).STRFStd].^2./[RFParamE(k3).STRFStd].^2,[RFParam(k3).DCGainSpectraldB],'ko')
+axis([0 .6 -25 5])
+
+
+subplot(222)
+imagesc(input.taxis,input.X,STRF(k1).STRFm)
+caxis([-1 1]*max(max(abs(STRF(k1).STRFm))))
+axis([4 15 -2 2])
+pause(0)
+
+subplot(223)
+imagesc(input.taxis,input.X,STRF(k2).STRFm)
+caxis([-1 1]*max(max(abs(STRF(k2).STRFm))))
+axis([4 15 -2 2])
+pause(0)
+
+subplot(224)
+imagesc(input.taxis,input.X,STRF(k3).STRFm)
+caxis([-1 1]*max(max(abs(STRF(k3).STRFm))))
+axis([4 15 -2 2])
+pause(0)
+
+
+figure
+subplot(222)
+imagesc(Fm,RD,RTF(k1).RTF),set(gca,'YDir','normal')
+axis([-500 500 0 4])
+pause(0)
+
+subplot(223)
+imagesc(Fm,RD,RTF(k2).RTF),set(gca,'YDir','normal')
+axis([-500 500 0 4])
+pause(0)
+
+subplot(224)
+imagesc(Fm,RD,RTF(k2).RTF),set(gca,'YDir','normal')
+axis([-500 500 0 4])
+pause(0)
+
+colormap jet

@@ -1,0 +1,194 @@
+Tau=20
+Tref=2
+Vtresh=-50
+Vrest=-65
+Nsig=.65
+SNR=10
+Fs=4000;
+flag=3
+detrendin='n'
+detrendim='n'
+
+M=Fs*60*5;
+%[Im,XEf,XIf,NEf,NIf]=synapticnoise2(10,1,1,10,100,100,1,1,0,1,Fs,M);
+%In=randn(1,M);
+%[X,Vm,R,C,sigma_m,sigma_i]=integratefire(Im,Tau,Tref,Vtresh,Vrest,Nsig,SNR,Fs,flag,In,detrendim,detrendin);
+%spet=impulse2spet(X,Fs,Fs);
+L=100
+ [spet]=poissongenstat(50,5*60,Fs,5,1);
+
+subplot(331)
+p=.8
+sigma=.5
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+Fsd=4000;
+T=max(spet)/Fs;
+MaxTau=0.02;
+Disp='n';
+[JitterData1]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData1.Tau,JitterData1.Rnoise,'k')
+hold on
+plot(JitterData1.Tau,JitterData1.Rmodel,'k-.')
+axis([-10 10 -1000 12000])
+
+subplot(332)
+p=.8
+sigma=1
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+Fsd=4000;
+T=max(spet)/Fs;
+MaxTau=0.02;
+Disp='n';
+[JitterData2]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData2.Tau,JitterData2.Rnoise,'k')
+hold on
+plot(JitterData2.Tau,JitterData2.Rmodel,'k-.')
+axis([-10 10 -1000 12000])
+
+
+subplot(333)
+p=.8
+sigma=2
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+Fsd=4000;
+T=max(spet)/Fs;
+MaxTau=0.02;
+Disp='n';
+[JitterData3]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData3.Tau,JitterData3.Rnoise,'k')
+hold on
+plot(JitterData3.Tau,JitterData3.Rmodel,'k-.')
+axis([-10 10 -1000 12000])
+
+subplot(334)
+p=.8
+sigma=1
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+T=max(spet)/Fs;
+MaxTau=0.02;
+Disp='n';
+[JitterData4]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData4.Tau,JitterData4.Rnoise,'k')
+hold on
+plot(JitterData4.Tau,JitterData4.Rmodel,'k-.')
+axis([-10 10 -200 4000])
+
+subplot(335)
+p=.4
+sigma=1
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+T=max(spet)/Fs;
+MaxTau=0.02;
+Disp='n';
+[JitterData5]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData5.Tau,JitterData5.Rnoise,'k')
+hold on
+plot(JitterData5.Tau,JitterData5.Rmodel,'k-.')
+axis([-10 10 -200 4000])
+
+subplot(336)
+p=.2
+sigma=1
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+T=max(spet)/Fs;
+MaxTau=0.02;
+Disp='n';
+[JitterData6]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData6.Tau,JitterData6.Rnoise,'k')
+hold on
+plot(JitterData6.Tau,JitterData6.Rmodel,'k-.')
+axis([-10 10 -200 4000])
+
+
+
+% %Parameters to Test
+% sig=10.^(-1:0.1:1);
+% pp=0.05:0.05:1;
+% count=1;
+% 
+% M=Fs*60*5;
+% L=100
+% [spet]=poissongenstat(L,5*60,Fs,5,1);
+% 
+% 
+% for k=1:length(sig)
+%     for l=1:length(pp)
+%   
+%     p(count)=pp(l);
+%     sigma(count)=sig(k);
+%     lambda(count)=length(spet)/max(spet)*Fs*p(k);
+%     
+%     [spetA]=spetaddjitter(spet,sigma(count),p(count),0,Fs);
+%     [spetB]=spetaddjitter(spet,sigma(count),p(count),0,Fs);
+%     T=max(spet)/Fs;
+%     MaxTau=0.02;
+%     Disp='n';
+%     [JitterData(count)]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+%     
+%     count=count+1;
+%     end
+% end
+% 
+% save FigData4
+
+
+
+
+
+%Measurement Error versus number of spikes
+
+%Parameters to Test
+sig=10.^(-1:0.2:1);
+pp=0.1:0.1:1;
+alpha=10.^(1/4)
+N=100*alpha.^(0:8);
+
+M=Fs*60*5;
+L=100
+
+
+
+MaxT=4*max(N)/(L*min(pp));
+
+
+for m=1:10      %Repeat 10 times to average
+    
+for i=1:length(N)
+    
+    
+    for k=1:length(sig)
+        for l=1:length(pp)
+
+            T=N(i)/(L*pp(l));
+            [spet]=poissongenstat(L,T,Fs,5);
+
+            [N(i) sig(k) pp(l)]
+
+
+%spet=shufflespet(spet);
+%i=find(spet/Fs<T)
+
+        p(i,k,l)=pp(l);
+        sigma(i,k,l)=sig(k);
+        lambda(i,k,l)=length(spet)/max(spet)*Fs*p(k);
+        Nspikes(i,k,l)=N(i);
+        
+        [spetA]=spetaddjitter(spet,sig(k),pp(l),0,Fs);
+        [spetB]=spetaddjitter(spet,sig(k),pp(l),0,Fs);
+    
+        MaxTau=0.02;
+        Disp='n';
+        [JitterDataN(i,k,l)]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+
+        end
+    end
+end
+save FigData4ErrorN
+
+end

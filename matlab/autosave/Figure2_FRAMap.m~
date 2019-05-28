@@ -1,0 +1,85 @@
+load ./BFBWMapData/26y
+FTCn2=FTCn;
+load ./BFBWMapData/2
+
+u3
+
+
+for k=1:14
+    for l=1:14
+        
+   subplot(14,14,(14-l+1)+(k-1)*14)
+   imagesc(log2(FTCn(k,l).Freq/1000),FTCn(k,l).Level,FTCn(k,l).Rpp')  
+   set(gca,'YDir','normal')
+        
+    end
+end
+
+
+for k=1:14 
+    for l=1:14
+        
+       M(k,l)=mean(reshape(FTCn2(k,l).Rpp,1,9*41));
+       S(k,l)=std(reshape(FTCn2(k,l).Rpp,1,9*41));
+        
+       i=find(FTCn(k,l).Rpp<M(k,l)+3*S(k,l));
+       FTCn(k,l).Rpp(i)=zeros(size(i));
+       
+       subplot(14,14,(14-l+1)+(k-1)*14)
+       imagesc(log2(FTCn(k,l).Freq/1000),FTCn(k,l).Level,(FTCn(k,l).Rpp'-M(k,l))/S(k,l))  
+       set(gca,'YDir','normal')
+
+    end
+end
+
+
+%%%%%%%%%%%%%%%%% EXAMPLE FRAS %%%%%%%%%%%%%%%%%%%%%%%%%
+
+Level=FTCn(1,1).Level-max(FTCn(1,1).Level)+85;
+figure
+subplot(331)
+k=12,l=12
+M=mean(reshape(FTCn2(k,l).Rpp,1,9*41));
+S=std(reshape(FTCn2(k,l).Rpp,1,9*41));
+i=find(FTCn(k,l).Rpp<M+3*S);
+Rpp=FTCn(k,l).Rpp;
+Rpp(i)=zeros(size(i));
+imagesc(log2(FTCn(k,l).Freq/1000),Level,(Rpp'-M)/(S))  
+set(gca,'YDir','normal')
+set(gca,'YTick',[5 25 45 65 85])
+set(gca,'XTick',[1:5])
+set(gca,'XTickLabel',[2 4 8 16 32])
+caxis([0 35])
+
+subplot(332)
+k=9,l=9
+M=mean(reshape(FTCn2(k,l).Rpp,1,9*41));
+S=std(reshape(FTCn2(k,l).Rpp,1,9*41));
+i=find(FTCn(k,l).Rpp<M+3*S);
+Rpp=FTCn(k,l).Rpp;
+Rpp(i)=zeros(size(i));
+imagesc(log2(FTCn(k,l).Freq/1000),Level,(Rpp'-M)/(S))  
+set(gca,'YDir','normal')
+set(gca,'YTick',[5 25 45 65 85])
+set(gca,'XTick',[1:5])
+set(gca,'XTickLabel',[2 4 8 16 32])
+caxis([0 35])
+
+subplot(333)
+k=5,l=5
+M=mean(reshape(FTCn2(k,l).Rpp,1,9*41));
+S=std(reshape(FTCn2(k,l).Rpp,1,9*41));
+i=find(FTCn(k,l).Rpp<M+3*S);
+Rpp=FTCn(k,l).Rpp;
+Rpp(i)=zeros(size(i));
+imagesc(log2(FTCn(k,l).Freq/1000),Level,(Rpp'-M)/(S))  
+set(gca,'YDir','normal')
+set(gca,'YTick',[5 25 45 65 85])
+set(gca,'XTick',[1:5])
+set(gca,'XTickLabel',[2 4 8 16 32])
+caxis([0 30])
+
+subplot(334)
+c=colorbar
+caxis([0 35])
+set(c,'YTick',[0 15 30])

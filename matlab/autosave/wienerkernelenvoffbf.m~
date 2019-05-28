@@ -1,0 +1,208 @@
+%
+%function [Wkernel]=wienerkernelenv2input(RASData,SoundEstEnv,SoundParam,T1,T2,DF,Disp)
+%
+%       FILE NAME       : WIENER KERNEL ENV 2 INPUT
+%       DESCRIPTION     : Computes the first and second order temporal wiener
+%                         kernels for a sound with random temporal
+%                         envelope using an estimation dataset. A second
+%                         dataset will subsequently be used for predcition.
+%                         Details for computing 1st and 2nd order kernels
+%                         can be dound in the Van Dijk 1994
+%
+%       RASData         : Data structure containing the estimation and
+%                         prediciton responses. Organized as follows:
+%
+%           .Est        : Estimation Rastergram
+%           .spet       : Spike event times for each trial. Different sound
+%                         segments are repeated L times (in sample number).
+%           .T          : Trial duration
+%           .Fs         : Samping rate (Hz)
+%
+%           .Pre        : Prediction Rastergram
+%           .spet       : Spike event times (sample number).
+%           .T          : Trial duration.
+%           .Fs         : Sampling rate (Hz)
+%       SoundEstEnv     : Sound envelopes for estimating wiener kernels.
+%                         Each envelope is repeated L times.
+%       SoundParam      : Data structure containing sound parameters
+%       T1              : Minimum negative delay used for estimating 
+%                         kernels (msec). T1>0 but negative sign is added
+%                         in program.
+%       T2              : Maximum delay used for estimating kernels (msec)
+%       DF              : Downsampling factor for envelope
+%       Disp            : Displaying output ('y' or 'n', Default=='n')
+%
+%Returned Variables
+%       F               : Frequency Array
+%       Pxy             : Spike Train CSD
+%       PxyS            : Spike Shuffled CSD - Bias Removal
+%       df              : Actual Spectral Resolution (Hz)
+%
+%   (C) Monty A. Escabi, Jan 2011
+%
+function [Wkernel]=wienerkernelenv2input(RASData,SoundEstEnv,SoundParam,T1,T2,DF,Disp)
+
+%Input Arguments
+if nargin<7
+    Disp='n';
+end
+
+%Stored Enevelope Sampling rate
+Fs=SoundParam.Fs/SoundParam.DS;
+
+%Temporal Lag (number of samples)
+N1=ceil(T1/1000*Fs/DF);
+N2=ceil(T2/1000*Fs/DF);
+Fsd=Fs/DF;
+
+%Extracting Pre-event envelopes
+L=length(RASData.Est);
+NN=0;
+Ttotal=0;
+for k=1:L
+
+    %Sound Envelope in dB
+    X=20*log10(SoundEstEnv(ceil(k/2)).Env)+15;
+    i=find(X<-15);
+    X(i)=zeros(size(i));
+    X=X(1:DF:end);
+
+    %Selecting spikes so that pre-event stimuli do not exceed sound
+    %duration and resampling to desired sampling rate
+    spet=round(RASData.Est(k).spet/RASData.Est(k).Fs*Fs/DF);
+    i=find(spet-N2>0 & spet+N1<length(X));
+    spet=spet(i);
+    
+    %Finding Waveforms prior to spike (pre-event envelope)
+    STAEnv(k).Env=zeros(length(spet),N2+N1+1);  %Initializing pre-event envelope matrix
+    for l=1:length(spet)
+        STAEnv(k).Env(l,:)=X(spet(l)-N2:spet(l)+N1);
+    end
+    
+    %Number of spikes and total durtion
+    NN=NN+length(spet);
+    Ttotal=Ttotal+length(X)/Fsd;
+end
+
+%Computing spike rate
+lambda=NN/Ttotal;
+
+%Organizing envelopes in Toeplitz form. Used to compute sound covariance
+XEnv=[];
+for k=1:L
+ 
+    %Sound Envelope in dB
+    X=20*log10(SoundEstEnv(ceil(k/2)).Env)+15;
+    i=find(X<-15);
+    X(i)=zeros(size(i));
+    X=X(1:DF:end);
+
+    %Organizing sound in topelitz form
+    N=floor(length(X)/size(STAEnv(k).Env,2));
+    XEnv=[XEnv; reshape(X(1:size(STAEnv(k).Env,2)*N),size(STAEnv(k).Env,2),N)'];    %Toeplitz form. Used to compute sound covariance
+end
+Varxx=var(reshape(XEnv,1,numel(XEnv)));
+
+%Computing Wiener kernels and adding results to data structure
+PEE=[];                                     %Pre-event envelope
+for k=1:L
+    PEE=[PEE;  (STAEnv(k).Env)];            %Pre-event envelopes
+end
+Wkernel.N=NN;                               %Total number of spikes
+Wkernel.k0=lambda;                          %Zeroth order kernel (i.e., spike rate)
+Wkernel.Varxx=Varxx;                        %Sound variance
+Wkernel.k1=lambda*fliplr(mean(PEE))/Varxx;  %First order Wiener kernel
+k1b= lambda*bootstrp(100,'mean',PEE)/Varxx; %Bootstrap to compute standard error
+Wkernel.k1ste=std(fliplr(k1b));             %Standard error
+
+%Second Order Kernel
+Wkernel.Rxx2=fliplr(flipud(cov(XEnv)));     %Sound covariance
+Wkernel.Ryxx2=fliplr(flipud((cov(PEE))));   %Second order REVCORR
+Wkernel.k2=2*lambda/Varxx^2*(Wkernel.Ryxx2-Wkernel.Rxx2);      %Second order Wiener kernel
+Wkernel.PEE=PEE;                            %Pre-event envelopes
+
+%Computing Qudrature NL filter approximation a la Yamada & Lewis
+[U,S,V]=svd(Wkernel.k2);
+Wkernel.k2_1=V(:,1);
+Wkernel.k2_2=V(:,2);
+Wkernel.lambda2_1=sign(max(V(:,1)./U(:,1)))*S(1,1);
+Wkernel.lambda2_2=sign(max(V(:,2)./U(:,2)))*S(2,2);
+Wkernel.k2U=U;
+Wkernel.k2V=V;
+Wkernel.k2S=S;
+
+%Time delays
+Wkernel.T=(-N1:N2)/Fsd*1000;                %Delay
+Wkernel.T1=(-N1:N2)/Fsd*1000;               %Delay 1
+Wkernel.T2=(-N1:N2)/Fsd*1000;               %Delay 2
+
+%Estimating Output Nonlinearity
+dt=1/(SoundParam.Fs/DF/SoundParam.DS);
+F1=[];
+F2=[];
+for k=1:L
+    
+    %Spike event times using Fsd
+    spet=round(RASData.Est(k).spet/RASData.Est(k).Fs*Fs/DF);
+    
+    %Sound in dB using Fsd
+    X=20*log10(SoundEstEnv(ceil(k/2)).Env)+15;
+    i=find(X<-15);
+    X(i)=zeros(size(i));
+    X=X(1:DF:end);
+        
+    %Predicting Output
+    Y1=conv(Wkernel.k1,X)*dt;
+    %Y1n=(Y1-mean(Y1))/std(Y1);
+    Y2_1=(conv(Wkernel.k2_1,X).*dt).^2;
+    Y2_2=(conv(Wkernel.k2_2,X).*dt).^2;
+    Y2=Wkernel.lambda2_1*Y2_1+Wkernel.lambda2_2*Y2_2;
+    
+    
+    %Y2n=(Y2-mean(Y2))/std(Y2);
+    F1=[F1 Y1(spet)];
+    F2=[F2 Y2(spet)];
+    F1prior=[F1 Y1];
+    F2prior=[F2 Y2];
+    %F1=[F1 Y1n(spet)];
+    %F2=[F2 Y2n(spet)];
+    %F1prior=[F1 (Y1-mean(Y1))/std(Y1)];
+    %F2prior=[F2 (Y2-mean(Y2))/std(Y2)];
+end
+Wkernel.F1=F1;
+Wkernel.F2=F2;
+Wkernel.F1prior=F1prior;
+Wkernel.F2prior=F2prior;
+[y1,y2,Nprior]=hist2(Wkernel.F1prior,Wkernel.F2prior,20,20,'n');
+[y1,y2,N]=hist2(Wkernel.F1,Wkernel.F2,y1,y2,'n');
+Wkernel.F=Wkernel.k0*(N/sum(sum(N)))./(Nprior/sum(sum(Nprior)));
+%i=find(isnan(Wkernel.F));
+%Wkernel.F(i)=zeros(size(i));
+Wkernel.y1=y1;
+Wkernel.y2=y2;
+
+%Displaying if desired
+if strcmp(Disp,'y') 
+    subplot(221)
+    plot(Wkernel.T1,Wkernel.k1,'k')
+    xlim([-T1 T2])
+    xlabel('Delay (msec)')
+    
+    subplot(222)
+    imagesc(Wkernel.T1,Wkernel.T2,Wkernel.k2),colorbar
+    axis([-T1 T2 -T1 T2])
+    xlabel('Delay1 (msec)')
+    ylabel('Delay2 (msec)')
+    
+    subplot(223)
+    plot(Wkernel.T1,V(:,2),'r')
+    hold on
+    plot(Wkernel.T1,V(:,1),'b')
+    xlim([-T1 T2])
+    
+    subplot(224)
+    imagesc(Wkernel.y1,Wkernel.y2,log10(Wkernel.F))
+    set(gca,'ydir','normal')
+    xlabel('y1')
+    ylabel('y2')
+end

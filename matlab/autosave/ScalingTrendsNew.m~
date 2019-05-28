@@ -1,0 +1,193 @@
+%Loading AN, IC and Ctx Data
+load ./figdata/ANSTRFAnalDataNEWp001    % AN Data from Kim and Young - see ~/escabi/data/EricYoung for details - this version does not use a power distribution squared. I did this because Kim used the wignar distribution to estimate the STRFs and thus the STRFs are in power units already
+load ./figdata/ANSTRFAnalDataX.mat	
+load ./figdata/CtxParam                %CTX Data From Miller et al. - analyzed by Chen et al  J Neurosci 2013
+load ./figdata/CTXTH534Param            %CTX / THAL Data Miller et al. - reanalyzed MAE July 2016 - need IER
+    RFParamCH2=rmfield(RFParamCH2,'IER');
+    RFParamCH2=rmfield(RFParamCH2,'tMTF');
+    RFParamCH2=rmfield(RFParamCH2,'sMTF');
+    RFParamCH2=rmfield(RFParamCH2,'Fm');
+    RFParamCH2=rmfield(RFParamCH2,'RD');
+    CtxParam=[CtxParam RFParamCH2];                %Cortex channel
+    ThalParam=RFParamCH1;               %Thalamus channel
+    
+load ./figdata/ICNParam                 %IC Data From Chen et al J Neurosci 2013. Reanalyzed by MAE Jul 2016
+%IC and Ctx STRF data does not have neurons below ~2000 Hz. Make sure all
+%are confined to the same frequency range, because bandwidths vary quite
+%significantly with frequency (Rodriguez et al 2010)
+iAN=find([ANData.BFHz]>1000 & X==1 & ~isnan([ANData.HalfEnvDuration]) & ~isnan([ANData.BW]) & ~isinf([ANData.BW]) &~isnan([ANData.HalfEnvBW]));       % X==1 corresponds to STRFs determined high quality based on visual inspection; see ~/escabi/data/EricYoung
+iIC=find([ICNParam.BFHz]>1000  & ~isnan([ICNParam.HalfEnvBW]))
+iCtx=find([CtxParam.BFHz]>1000 & ~isnan([CtxParam.HalfEnvBW]));
+iThal=find([ThalParam.BFHz]>1000 & ~isnan([ThalParam.HalfEnvBW]));
+ANData=ANData(iAN);
+ICNParam=ICNParam(iIC);
+CtxParam=CtxParam(iCtx);
+ThalParam=ThalParam(iThal);
+
+figure
+
+subplot(441)
+M_AN=mean([ANData.PeakEnvDelay]);
+M_IC=mean([ICNParam.PeakEnvDelay]-2.5);
+M_Ctx=mean([CtxParam.PeakEnvDelay]);
+M_Thal=mean([ThalParam.PeakEnvDelay]);
+% SEM_AN=std(bootstrp(1000,'mean',[ANData.PeakEnvDelay]));
+% SEM_IC=std(bootstrp(1000,'mean',[ICNParam.PeakEnvDelay]-2.5));
+% SEM_Ctx=std(bootstrp(1000,'mean',[CtxParam.PeakEnvDelay]));
+% SEM_Thal=std(bootstrp(1000,'mean',[ThalParam.PeakEnvDelay]));
+SD_AN=std([ANData.PeakEnvDelay]);         %Originally was using SEM, now switch to SD 
+SD_IC=std([ICNParam.PeakEnvDelay]);
+SD_Thal=std([ThalParam.PeakEnvDelay]);
+SD_Ctx=std([CtxParam.PeakEnvDelay]);
+bar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],'k')
+hold on
+errorbar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],[SEM_AN SEM_IC SEM_Thal SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+errorbar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],[SD_AN SD_IC SD_Thal SD_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+set(gca,'box','off')
+
+subplot(442)
+M_AN=mean([ANData.HalfEnvDuration]);
+M_IC=mean([ICNParam.HalfEnvDuration]);
+M_Thal=mean([ThalParam.HalfEnvDuration]);
+M_Ctx=mean([CtxParam.HalfEnvDuration]);
+% SEM_AN=std(bootstrp(1000,'mean',[ANData.HalfEnvDuration]));
+% SEM_IC=std(bootstrp(1000,'mean',[ICNParam.HalfEnvDuration]));
+% SEM_Thal=std(bootstrp(1000,'mean',[ThalParam.HalfEnvDuration]));
+% SEM_Ctx=std(bootstrp(1000,'mean',[CtxParam.HalfEnvDuration]));
+SD_AN=std([ANData.HalfEnvDuration]);         %Originally was using SEM, now switch to SD 
+SD_IC=std([ICNParam.HalfEnvDuration]);
+SD_Thal=std([ThalParam.HalfEnvDuration]);
+SD_Ctx=std([CtxParam.HalfEnvDuration]);
+bar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],'k')
+hold on
+%errorbar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],[SEM_AN SEM_IC SEM_Thal SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+errorbar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],[SD_AN SD_IC SD_Thal SD_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+set(gca,'box','off')
+
+%HalfEnvBW
+subplot(443)
+M_AN=mean([ANData.HalfEnvBW]);
+M_IC=mean([ICNParam.HalfEnvBW]);
+M_Thal=mean([ThalParam.HalfEnvBW]);
+M_Ctx=mean([CtxParam.HalfEnvBW]);
+% SEM_AN=std(bootstrp(1000,'mean',[ANData.HalfEnvBW]));         %Originally was using SEM, now switch to SD 
+% SEM_IC=std(bootstrp(1000,'mean',[ICNParam.HalfEnvBW]));
+% SEM_Thal=std(bootstrp(1000,'mean',[ThalParam.HalfEnvBW]));
+% SEM_Ctx=std(bootstrp(1000,'mean',[CtxParam.HalfEnvBW]));
+
+SD_AN=std([ANData.HalfEnvBW]);         %Originally was using SEM, now switch to SD 
+SD_IC=std([ICNParam.HalfEnvBW]);
+SD_Thal=std([ThalParam.HalfEnvBW]);
+SD_Ctx=std([CtxParam.HalfEnvBW]);
+
+bar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],'k')
+hold on
+%errorbar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],[SEM_AN SEM_IC SEM_Thal SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+errorbar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],[SD_AN SD_IC SD_Thal SD_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+set(gca,'box','off')
+
+% %Fractional Inhibition
+% subplot(444)
+% AN_IER=[ANData.IER];
+% IC_IER=[ICNParam.IER];
+% TH_IER=[ThalParam.IER];
+% CTX_IER=[CtxParam.IER];
+% i=find(AN_IER<0);
+% AN_IER(i)=-1./AN_IER(i);
+% i=find(IC_IER<0);
+% IC_IER(i)=-1./IC_IER(i);
+% i=find(TH_IER<0);
+% TH_IER(i)=-1./TH_IER(i);
+% i=find(CTX_IER<0);
+% CTX_IER(i)=-1./CTX_IER(i);
+% 
+% M_AN=mean(1./(1+1./AN_IER));
+% M_IC=mean(1./(1+1./IC_IER));
+% M_Thal=mean(1./(1+1./TH_IER));
+% M_Ctx=mean(1./(1+1./CTX_IER));
+% SEM_AN=std(bootstrp(1000,'mean',1./(1+1./AN_IER)));
+% SEM_IC=std(bootstrp(1000,'mean',1./(1+1./IC_IER)));
+% SEM_Thal=std(bootstrp(1000,'mean',1./(1+1./TH_IER)));
+% SEM_Ctx=std(bootstrp(1000,'mean',1./(1+1./CTX_IER)));
+% bar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],'k')
+% hold on
+% errorbar([1 2 3 4],[M_AN M_IC M_Thal M_Ctx],[SEM_AN SEM_IC SEM_Thal SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+% set(gca,'box','off')
+% ylim([0 .7])
+
+%
+% 
+% figure
+% subplot(231)
+% M_AN=mean([ANData.Delay]);
+% M_IC=mean([ICNParam.Delay]);
+% M_Ctx=mean([CtxParam.Delay]);
+% SEM_AN=std(bootstrp(1000,'mean',[ANData.Delay]));
+% SEM_IC=std(bootstrp(1000,'mean',[ICNParam.Delay]));
+% SEM_Ctx=std(bootstrp(1000,'mean',[CtxParam.Delay]));
+% bar([1 2 3],[M_AN M_IC M_Ctx],'k')
+% hold on
+% errorbar([1 2 3],[M_AN M_IC M_Ctx],[SEM_AN SEM_IC SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+% set(gca,'box','off')
+% 
+% subplot(232)
+% M_AN=mean([ANData.Duration]);
+% M_IC=mean([ICNParam.Duration]);
+% M_Ctx=mean([CtxParam.Duration]);
+% SEM_AN=std(bootstrp(1000,'mean',[ANData.Duration]));
+% SEM_IC=std(bootstrp(1000,'mean',[ICNParam.Duration]));
+% SEM_Ctx=std(bootstrp(1000,'mean',[CtxParam.Duration]));
+% bar([1 2 3],[M_AN M_IC M_Ctx],'k')
+% hold on
+% errorbar([1 2 3],[M_AN M_IC M_Ctx],[SEM_AN SEM_IC SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+% set(gca,'box','off')
+% 
+% subplot(233)
+% M_AN=mean([ANData.BW]);
+% M_IC=mean([ICNParam.BW]);
+% M_Ctx=mean([CtxParam.BW]);
+% SEM_AN=std(bootstrp(1000,'mean',[ANData.BW]));
+% SEM_IC=std(bootstrp(1000,'mean',[ICNParam.BW]));
+% SEM_Ctx=std(bootstrp(1000,'mean',[CtxParam.BW]));
+% bar([1 2 3],[M_AN M_IC M_Ctx],'k')
+% hold on
+% errorbar([1 2 3],[M_AN M_IC M_Ctx],[SEM_AN SEM_IC SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+% set(gca,'box','off')
+
+% 
+% figure
+% subplot(231)
+% M_AN=mean([ANData.Delay]);
+% M_IC=mean([ICNParam.Delay]);
+% M_Ctx=mean([CtxParam.Delay]);
+% SEM_AN=std(bootstrp(1000,'mean',[ANData.Delay]));
+% SEM_IC=std(bootstrp(1000,'mean',[ICNParam.Delay]));
+% SEM_Ctx=std(bootstrp(1000,'mean',[CtxParam.Delay]));
+% bar([1 2 3],[M_AN M_IC M_Ctx],'k')
+% hold on
+% errorbar([1 2 3],[M_AN M_IC M_Ctx],[SEM_AN SEM_IC SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+% set(gca,'box','off')
+% 
+% subplot(232)
+% M_AN=mean([ANData.Duration10]);
+% M_IC=mean([ICNParam.Duration10]);
+% M_Ctx=mean([CtxParam.Duration10]);
+% SEM_AN=std(bootstrp(1000,'mean',[ANData.Duration10]));
+% SEM_IC=std(bootstrp(1000,'mean',[ICNParam.Duration10]));
+% SEM_Ctx=std(bootstrp(1000,'mean',[CtxParam.Duration10]));
+% bar([1 2 3],[M_AN M_IC M_Ctx],'k')
+% hold on
+% errorbar([1 2 3],[M_AN M_IC M_Ctx],[SEM_AN SEM_IC SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+% set(gca,'box','off')
+% 
+% subplot(233)
+% M_AN=mean([ANData.BW10]);
+% M_IC=mean([ICNParam.BW10]);
+% M_Ctx=mean([CtxParam.BW10]);
+% SEM_AN=std(bootstrp(1000,'mean',[ANData.BW10]));
+% SEM_IC=std(bootstrp(1000,'mean',[ICNParam.BW10]));
+% SEM_Ctx=std(bootstrp(1000,'mean',[CtxParam.BW10]));
+% bar([1 2 3],[M_AN M_IC M_Ctx],'k')
+% hold on
+% errorbar([1 2 3],[M_AN M_IC M_Ctx],[SEM_AN SEM_IC SEM_Ctx],'.','color',[0.6 0.6 0.6],'linewidth',2)
+% set(gca,'box','off')

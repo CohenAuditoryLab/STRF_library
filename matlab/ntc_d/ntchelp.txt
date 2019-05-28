@@ -1,0 +1,215 @@
+Graphical interface to analyze (well, "measure" really) tuning curve data
+ 
+General information:
+--------------------
+ 
+output file formats:
+ -------------------
+N.B.: THE 'APPEND' BUTTON MUST BE CLICKED AT LEAST ONCE BEFORE ANY DATA 
+      WILL BE PLACED IN THE OUTPUT ARRAY.
+ 
+Output can be in MatLab (.mat) format or either of two types of ASCII text 
+  (.txt or .xls), selectable by the user at save time:
+ -- A .mat output file will contain a 1x1 cell array of user 'comments';  
+   an Ax1 cell array of 'column_labels', where A = the number of attributes 
+   in the output array (defined in INCLUDE_DEFS); and an NxA array of 'data', 
+   where N = the number of times that attributes were appended to the output;
+   ideally, this should equal the number of measured data files.
+ -- A .txt output file will contain two tab-separated columns of ASCII text:  
+   Attribute labels and the corresponding values.  Only the values from the
+   currently-loaded tuning curve are saved.
+ -- A .xls output file will contain multiple tab-separated columns of ASCII 
+   text:  One columnn of attribute labels and N columns of corresponding 
+   values, with N defined as above for .mat output.  Note:  '.xls' is the
+   default filetype extension for Excel for Windows.  Excel and most other 
+   spreadsheet programs will automatically recognize and import formatted
+   text from such files.
+  
+  The .mat output format is best if all subsequent analyses and statistical 
+  comparisons will be done using MatLab.  Text output formats allow the use 
+  of other programs (e.g. the UNIXstat package, StatGraphics, Excel, etc) for
+  subsequent analyses.
+ 
+ input file formats:
+ -------------------
+   dtc format --
+     binary format produced by you-know-what
+ 
+   ntc native matlab format --
+     must include matrix 'latencies', scalars 'fMin', 'nOctaves', 'extAtten',
+         'NAMPS', and 'NFREQS'
+       latencies:  Nx3 matrix  
+                   column 1 is spike latency 
+                   column 2 is frequency index (e.g., an integer from 1-45)
+                   column 3 is amplitude index (e.g., an integer from 1-15)
+       fMin:       lowest stimulus frequency (Hz)
+       nOctaves:   number of frequency octaves covered by stimuli
+       extAtten:   external attenuator setting (dB)
+       NAMPS:      number of stimulus amplitudes (e.g., 15)
+       NFREQS:     number of stimulus frequencies (e.g., 45)
+    optional: may include character string 'header', analogous to the comment
+      string entered when saving data file (e.g., 'U21 FTC -20C/-20I 1037UM')
+ 
+  matlab format from BrainWave --
+    must include scalars 'duration', vectors 'frequency' and 'amps', and a
+        bunch of time-slice matrices 't1' - 'tn'
+      duration:     integer indicating the last time slice matrix (msec)
+                    (e.g., duration=50 --> file holds time slice matrices t1-t50))
+      frequency:    vector containing stimulus frequencies (Hz, low to high)
+      amps:         vector containing stimulus amplitudes (dB, low to high)
+      t1, t2, etc.: logical (can be sparse) matrices, numeric part of name 
+                    indicates time slice (msec), 0 entries indicate no spikes
+                    for that stimulus, non-zero entries indicate spike(s) 
+                    occurred during that time slice for that stimulus.  one row
+                    per stimulus amplitude, one column per stimulus frequency.
+                    ***                                                    ***
+                    *** N.B. - during translation, any matrix entry > 0 is ***
+                    *** interpreted as a SINGLE spike                      ***
+                    ***                                                    ***
+ 
+Window-specific information:
+----------------------------
+ 
+Tuning Curve Window:  
+ 
+Display Menu:
+  Lines: quiver plot (our standard tuning curve plot); axes are stimulus frequency
+  and intensity, line length corresponds to number of spikes observed for a given
+  frequency/intensity combination in the indicated time window.  Scale to right
+  indicates number of spikes corresponding to minimum (0) and maximum line
+  lengths.
+  
+  PColor: same things as 'Lines', but using color rather than line length to
+  indicate number of spikes in window.  Colorbar at right indicates number of
+  spikes corresponding to each color.
+  
+  Contour: same information as 'PColor', but equi-response contours are
+  indicated.
+ 
+  Surface: oblique view of 3-D PColor plot.  Color and altitude indicate number
+  of spikes in time window.
+  
+  RasterByFreq: raster plot, one dot per spike: ordinate is time, abscissa is
+  stimulus, where major divisions of abscissa are frequency bins, and each
+  major division is subdivided by intensity (low at left to high at right). 
+  *Using 'Mark' with this display sets the time slice.
+ 
+  RasterByInt: raster plot, one dot per spike: abscissa is time, ordinate is
+  stimulus, where major divisions of ordinate are intensity bins, and each
+  major division is subdivided by frequency (low at bottom to high at top). 
+  *Using 'Mark' with this display sets the time slice.
+ 
+  TwoLines: copies currently displayed tuning curve to use a reference for
+  future files.  The 'apply preferences on file load' preference should be set
+  to 'no' to use this option.
+ 
+Smoothing Menu:
+  NoSmooth: Displayed data is the raw value.
+  Smooth1: Displayed data is a weighted average of the raw value and its 8
+  nearest neighbors.
+  Smooth2: Displayed data is a weighted average (different weighting) of the raw
+  value and its eight nearest neighbors *only if* there are three or more
+  neighbors.  If there are two neighbors, displayed data is the raw value.  If
+  there are no or one neighbor, zero is displayed.
+  MedianSmooth: Displayed data is the median of the raw value and 8 nearest
+  neighbors.
+  
+Preferences Menu:
+  Load: load a previously saved preference file.
+  Save: save current preferences to a file
+  Modify: change current preference settings
+  Apply: (re)apply current preference settings
+  
+Data: set directory and file name of input (data) file.  'Next' button assumes
+the last five characters in the file name (before the extension) are numeric,
+increments the number, and loads the new file.
+ 
+Attributes: 'Show new' shows values of current measurements (those made since
+last file was loaded).  'Append' appends these new measurements to the
+measurement matrix.  'Show files' shows the numeric part of the filenames of
+files analyzed so far (this is also known as the 'Spence-button').
+ 
+Output File: set directory and file name of output (measurements) file.  'Save
+to file' button saves current measurement matrix to the indicated file.  If the
+file already exists, the current measurement matrix is appended to the one
+already in the file.
+ 
+Measure: 'CF' and 'Qxx' provide tools for measuring CF & threshold, and Q &
+bandedges 10-40 dB from threshold.  'All' leads you through all of these
+measurements sequentially.  'Lat', 'Histo', and 'Rate' open new windows to
+measure latency, poststimulus time histogram, and rate parameters of
+responses.  'Point' provides a tool for measuring an arbitrary point on the
+axes in this figure.
+ 
+Time Slice: allows you to set the time window used for display (and consequent
+measurement) of these parameters.  Time slice can also be set by using the
+'Mark' button when either RasterByFreq or RasterByInt plots are displayed. 
+'rev', 'fwd', and 'half' buttons regress or advance the time slice by a full or
+half 'duration' setting.
+ 
+Film/Play: makes a movie of successive time slices.  you must 'Film' before you
+can 'Play'.  successive time slices are incremented by half of the 'duration'
+setting. 
+ 
+Display: 'Blind' turns off axes tick marks.  'Spont' counts the number of spikes
+in the lowest intensity row and removes a percentage of that number from each
+row.  'Float/Fixed' sets the number of spikes corresponding to a full-length
+line in the 'Lines' display; float sets the maximum number of spikes to the
+longest line, fixed sets the indicated number of spikes to the longest line.
+ 
+Range: 'Mark/Zoom' sets the function of click-dragging the left mouse button
+over the axes; 'zoom' will zoom into the dragged rectangle, 'mark' marks the
+dragged rectangle for use in the histogram, latency, and rate windows, or for
+zapping.
+ 
+Zap Points: remove all spikes in the selected frequency/intensity bin from the
+dataset.  Zap Range removes all spikes in the selected frequency/intensity range
+from the dataset.
+ 
+The following are read from the file header, but can be set manually:
+ 
+External Attenuation (contralateral and ipsilateral), recording Depth, Unit
+number.  Note: if the unit number is followed by a letter, the letter is
+recorded as a fractional addition to the unit number, where 0.01 corresponds to
+'A' and 0.26 to 'Z'.
+ 
+ 
+Latency Window:
+  (Note: CF or range must be marked before this window will operate properly.)
+  Each mark indicates one spike; 'x' indicates spikes at CF, '+' indicates
+  (possibly) non-CF frequencies.  For 'CF' display, red indicates frequency
+  one bin above CF, green indicates one frequency below CF.
+  CF/Range:
+  Zoom:
+  Accept:
+  
+Histogram Window: 
+  (Note: CF or range must be marked before this window will operate properly.) 
+  Axes display poststimulus time histogram (PSTH) summed over all (All) or
+  marked (Marked) stimuli.  Shaded range indicates one standard deviation. 
+  Horizontal line indicates mean response.
+  All/Marked: darker PSTH is of all stimuli or marked stimulus range.
+  Mark buttons (Peak1stPk, End1stPk, Strt2ndPk, End2ndPk): lit button indicates
+  how left mouse click on axes will be recorded: as peak or 
+  end of the first peak (start should be = latency),  or as start or end of the
+  (possibly nonexistent) second peak in the PSTH.
+  Zoom: if this button is lit, click & drag with left button to zoom in. 
+  (middle and right buttons also do stuff... the standard matlab zoom command). 
+  Accept: accept current PSTH measurements.
+ 
+Rate Window:
+  (Note: CF or range must be marked before this window will operate properly.)
+  Marker size corresponds to number of frequency bins with that number of
+  spikes.  Circles are (possibly) non-CF frequencies, 'x' indicates value for
+  CF.
+  CF/Marked: displayed values are for CF +/- on frequency bin, or marked
+  stimulus frequency range.
+  Mark buttons (Threshold, Trans Pt, Endpoint, Best Ampl): left mouse click will
+  be recorded as threshold, transition point, endpoint, or best amplitude.
+  Accept: accept current rate measurements.
+ 
+See also TCEXPLORE.
+
+----------------------------------------------------------
+Copyright (c) 1997-99 by The Regents of the University of California
+ 

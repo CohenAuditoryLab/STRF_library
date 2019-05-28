@@ -1,0 +1,82 @@
+%Aligns the optical and array maps. 
+%Searches over multiple shifts and angles to find the best map allignment.
+%We are doing this because the array appears to have moved during the
+%experiment (John Viventi fiddling with electronics!). 
+%
+
+%%%%%%%%%%%%%%%%%% 
+load Exp_07_27_2010_opticalmap.mat
+load Map_07_27_2010_Final.mat
+
+load Exp_07_28_2010_opticalmap.mat
+load Map_07_28_2010_Final.mat
+
+
+alpha=0.05
+A=MapData.BF;
+clear R
+
+%FINDING SIGNIFICANT MASK AND FREQUENCIES < 5 OCTAVES (OPTICAL FREQ < 5)
+i=find(MapData.tvalue>erfinv(1-alpha/2) & A<5 );
+i=find(MapData.tvalue>erfinv(1-alpha/2));
+%Mask=nan(14,14);
+%Mask(i)=ones(size(i));
+%A=A.*Mask;
+
+%RESOLUTION FOR OPTICAL (Ox) AND ARRAY (Ax)
+Ox=8.8*length(opticalmap)
+Ax=150*14
+DF=1/(150/8.8)  %Downsampling factor
+
+%Angles to search
+Angle=-10:.5:40;
+%Angle=0:.5:40;
+for j=1:length(Angle)
+    
+    O=imrotate(opticalmap,Angle(j));
+    O=imresize(O,DF);
+    NO=length(O);
+    NA=length(A);
+    
+    for k=1:NO-NA
+        for l=1:NO-NA
+            Ot=O(k:k+NA-1,l:l+NA-1);
+            i=(find(~isnan(A)));
+            r=corrcoef(Ot(i),A(i));
+            R(j,k,l)=r(1,2);
+%             subplot(221)
+%             imagesc(Ot)
+%             subplot(222)
+%             imagesc(A)
+%             subplot(223)
+%             imagesc(R)
+%             pause(.2)
+            
+        end
+    end
+end
+
+%Maximizing the correlation
+Max=max(max(max(R)));
+[j,k,l] = ind2sub(size(R),find(R == Max));
+
+%PLOTTING RESULTS
+O=imrotate(opticalmap,Angle(j));
+O=imresize(O,DF);
+Ot=O(k:k+NA-1,l:l+NA-1);
+figure
+subplot(221)
+imagesc(A)
+title('array map')
+subplot(222)
+imagesc(Ot)
+title('optimal rotated/shifted optical segment')
+subplot(223)
+imagesc(O)
+title('optimal rotated image')
+subplot(224)
+plot(A,Ot,'ro')
+xlabel('Array BF')
+ylabel('Optical BF')
+axis([0 5.5 0 5.5])
+title(['r=' num2str(max(max(max(R))))])

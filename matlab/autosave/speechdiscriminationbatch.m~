@@ -1,0 +1,63 @@
+%%%%%%%%%%%%%%%%%%%%%%%%% SIMULATING NETWORK %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Fs=1993
+Nlayer=5
+Ntrial=100
+Nnode=50
+Nsig=1.5
+SNR=5
+EIR=2
+List=dir('*AGram.mat');
+clear NetData
+
+clear NetData
+for k=1:length(List)
+    load(List(k).name)
+    for n=1:Ntrial
+    [k n]
+    
+    [X]=integratefirenetworkcontmulti2(AudData.S,Nnode,5,1,Nsig,SNR,.03,.06,EIR,Fs,3,'n','n');
+    NetData(1,k).Y(:,:,n)=X;
+        
+        for l=1:Nlayer
+            TauE(l) = 5*2^(l-1);
+            TauI(l) = 5*2*2^(l-1);
+            [Y]=integratefirenetworklayer2(NetData(l,k).Y(:,:,n),Nnode,TauE(l),TauI(l),EIR,Nsig,SNR,.03,.06,EIR,Fs,3,'y','n');
+            NetData(l+1,k).Y(:,:,n)=Y;
+        end
+    end
+end
+
+save NetworkModelResults NetData
+
+%%%%%%%%%%%%%% PLOTTING RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+Layer=2
+figure
+%for Layer=1:6
+    figure(Layer)
+    for k=1:length(List)
+
+        clear Y
+        for l=1:size(NetData,3)
+
+            Y(:,:,l)=full(NetData(Layer,k,l).Y);
+        end
+
+        subplot(4,4,k)
+        taxis=(0:size(NetData(Layer,1,1).Y,2)-1)/Fs*1000;
+        faxis=AudData.faxis;
+        imagesc(taxis,log2(faxis/100),mean(Y,3)),set(gca,'YDir','normal')
+        set(gca,'YTick',[0 2 4 6])
+        set(gca,'YTickLabel',[100 400 1600 6400])
+        set(gca,'YDir','normal')
+        set(gca,'XTick',[0 250 500 750 1000])
+
+    end
+%end
+x
+figure
+for k=1:length(List)
+    load(List(k).name)
+    subplot(4,4,k)
+    imagesc(AudData.taxis*1000,log2(AudData.faxis/100),AudData.S),set(gca,'YDir','normal')
+end

@@ -1,0 +1,78 @@
+load ./figdata2a/figdata2.mat
+gray=[0.8 .8 .8]
+
+
+
+%%%%%%%%%%%%%%%%%% Raa & Rab
+
+
+subplot(3,3,1)
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSig1.Raa,'color',gray)
+hold on
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSig1.Rab,'k')
+axis([-10 10 -50 800])
+set(gca,'Box','off')
+set(gca,'XTick',[-10 0 10])
+set(gca,'YTick',[0 500 1000])
+
+subplot(3,3,2)
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSigp5.Raa,'color',gray)
+hold on
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSigp5.Rab,'k')
+axis([-10 10 -100 1400])
+set(gca,'Box','off')
+set(gca,'XTick',[-10 0 10])
+set(gca,'YTick',[0 500 1000])
+
+
+%%%%%%%%%%%% ZOOM INTO REFRACTORY REGION
+
+subplot(3,3,4)
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSig1.Raa,'color',gray)
+hold on
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSig1.Rab,'k')
+axis([-10 10 -20 200])
+set(gca,'XTick',[-10 0 10])
+set(gca,'YTick',[0 100 200])
+
+subplot(3,3,5)
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSigp5.Raa,'color',gray)
+hold on
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSigp5.Rab,'k')
+axis([-10 10 0 200])
+set(gca,'Box','off')
+set(gca,'XTick',[-10 0 10])
+set(gca,'YTick',[0 100 200])
+
+%%%%%%%%%%%%%%% NOISE CORRELOGRAM
+
+
+subplot(3,3,7)
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSig1.Rmodel,'color',gray,'linewidth',3)
+hold on
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSig1.Rnoise,'k')
+axis([-10 10 0 700])
+set(gca,'Box','off')
+set(gca,'XTick',[-10 0 10])
+set(gca,'YTick',[0 500 1000])
+
+subplot(3,3,8)
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSigp5.Rmodel,'color',gray,'linewidth',3)
+hold on
+plot(JitterDataPoiss.Tau,JitterDataPoissRefSigp5.Rnoise,'k')
+axis([-10 10 0 1400])
+set(gca,'Box','off')
+set(gca,'XTick',[-10 0 10])
+set(gca,'YTick',[0 500 1000])
+
+
+%Estimated jitter by selecting correlated spikes above baseline correlation
+dt=mean(diff(JitterDataPoissRefSigp5.Tau))/1000;
+
+%%%Poisson, sig=0.5
+%sum(JitterDataPoiss.Rab(51-6:51+6)-100)*dt/10
+%%%sig=0.5, , 0.185
+sum(JitterDataPoissRefSigp5.Rab(51-6:51+6)-100)*dt/10
+%%%sig=1; 0.1836
+sum(JitterDataPoissRefSig1.Rab(51-6:51+6)-100)*dt/10
+

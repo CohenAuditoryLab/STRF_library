@@ -1,0 +1,48 @@
+f1=200;
+f2=8000;
+Fm1=0;
+Fm2=50;
+Fs=44100;
+NS=300;
+RP=0;
+BP='F';
+alpha=.25;
+M=44100*4;
+
+FM=2
+RD=0
+outfile='Vripple_FM2_RD0'
+vripplebinsqrsqr(outfile,f1,f2,Fm1,Fm2,FM,RD,M,Fs,NS,RP,BP,alpha)
+[Y,Fs]=wavread([outfile '.wav']);
+YY(2:2:length(Y)*2)=Y(:,1);
+wavwri(YY,Fs,16,2,[outfile 'Left.wav'])
+
+
+FM=4
+RD=0
+outfile='Vripple_FM4_RD0'
+vripplebinsqrsqr(outfile,f1,f2,Fm1,Fm2,FM,RD,M,Fs,NS,RP,BP,alpha)
+
+[Y,Fs]=wavread([outfile '.wav']);
+YY(2:2:length(Y)*2)=Y(:,1);
+wavwri(YY,Fs,16,2,[outfile 'Left.wav'])
+
+FM=6
+RD=0
+outfile='Vripple_FM6_RD0'
+vripplebinsqrsqr(outfile,f1,f2,Fm1,Fm2,FM,RD,M,Fs,NS,RP,BP,alpha)
+[Y,Fs]=wavread([outfile '.wav']);
+YY(2:2:length(Y)*2)=Y(:,1);
+wavwri(YY,Fs,16,2,[outfile 'Left.wav'])
+
+
+% FM=2
+% RD=.25
+% outfile='Vripple_FM2_RD.25'
+% vripplebinsqrsqr(outfile,f1,f2,Fm1,Fm2,FM,RD,M,Fs,NS,RP,BP,alpha)
+% 
+% FM=-2
+% RD=.25
+% outfile='Vripple_FMN2_RD.25'
+% vripplebinsqrsqr(outfile,f1,f2,Fm1,Fm2,FM,RD,M,Fs,NS,RP,BP,alpha)
+

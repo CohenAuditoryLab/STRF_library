@@ -1,0 +1,61 @@
+N=100 %Number of cycles to show
+Fsd1=10
+Fsd2=50
+Fsd3=250
+Fsd4=1250
+
+load RAS10Hz
+[RASsamc]=raster2cycleraster(RASsam,10,1,0,0);
+[RASpnbc]=raster2cycleraster(RASpnb,10,1,0,0);
+
+C=colormap('bone');
+C=flipud(C);
+
+%Cycle rasters at Fsd = 10
+[SAMc,Fs]=rasterexpand(RASsamc,Fsd1,.1);
+[PNBc,Fs]=rasterexpand(RASpnbc,Fsd1,.1);
+subplot(241)
+imagesc(SAMc(1:N,1:end-1)),colormap(C)
+set(gca,'XTick',[])
+set(gca,'YTick',[])
+subplot(245)
+imagesc(PNBc(1:N,1:end-1)),colormap(C)
+set(gca,'visible','off')
+set(gca,'XTick',[])
+set(gca,'YTick',[])
+
+%Cycle rasters at Fsd = 50
+[SAMc,Fs]=rasterexpand(RASsamc,Fsd2,.1);
+[PNBc,Fs]=rasterexpand(RASpnbc,Fsd2,.1);
+subplot(242)
+imagesc(SAMc(1:N,1:end-1)),colormap(C)
+set(gca,'XTick',[])
+set(gca,'YTick',[])
+subplot(246)
+imagesc(PNBc(1:N,1:end-1)),colormap(C)
+set(gca,'XTick',[])
+set(gca,'YTick',[])
+
+%Cycle rasters at Fsd = 250
+[SAMc,Fs]=rasterexpand(RASsamc,Fsd3,.1);
+[PNBc,Fs]=rasterexpand(RASpnbc,Fsd3,.1);
+subplot(243)
+imagesc(SAMc(1:N,1:end-1)),colormap(C)
+set(gca,'XTick',[])
+set(gca,'YTick',[])
+subplot(247)
+imagesc(PNBc(1:N,1:end-1)),colormap(C)
+set(gca,'XTick',[])
+set(gca,'YTick',[])
+
+%Cycle rasters at Fsd = 1250
+[SAMc,Fs]=rasterexpand(RASsamc,Fsd4,.1);
+[PNBc,Fs]=rasterexpand(RASpnbc,Fsd4,.1);
+subplot(244)
+imagesc(SAMc(1:N,1:end-1)),colormap(C)
+set(gca,'XTick',[])
+set(gca,'YTick',[])
+subplot(248)
+imagesc(PNBc(1:N,1:end-1)),colormap(C)
+set(gca,'XTick',[])
+set(gca,'YTick',[])

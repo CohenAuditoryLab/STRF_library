@@ -1,0 +1,78 @@
+load RAT012512_Block5.mat
+
+
+[FTCn] = ftcgenerateecogn(Data5,0,300,6,10,250,[],90)
+
+
+for k=1:8
+    for l=1:4
+        subplot(4,8,k+(l-1)*8)
+        imagesc(log2(FTCn(l,k).Freq/1000),FTCn(l,k).Level,FTCn(l,k).Rpp')
+        set(gca,'XTick',[0:6])
+        set(gca,'XTickLabel',[1 2 4 8 16 32 64])
+        set(gca,'YDir','normal')
+    end
+end
+
+
+%%
+
+subplot(221)
+for k=1:7
+plot(reshape(squeeze([FTC(1).Rhist(:,k,:)])',1,41*611)+500*k,'k')
+hold on
+end
+
+%for k=1:7
+%plot(reshape(squeeze([FTC(1).pcv1(:,k,:)])',1,41*611)+1*k)
+%hold on
+%end
+
+
+
+subplot(222)
+Freq=FTC(1).Freq;
+Level=FTC(1).Level+85;
+F=FTC(2).Rpp';
+M1=size(F,1);
+M2=size(F,2);
+F=[fliplr(flipud(F)) flipud(F) fliplr(flipud(F)); fliplr(F) F fliplr(F); fliplr(flipud(F)) flipud(F) fliplr(flipud(F));];
+Y=(ifft2(fft2(F).*fft2(ones(2,2)/4,size(F,1),size(F,2))));
+Y=Y(M1+1:2*M1,M2+1:2*M2);
+
+imagesc(log2(Freq/1000),Level,Y);
+set(gca,'XTick',[0:1:5])
+set(gca,'XTickLabel',[1 2 4 8 16 32])
+set(gca,'YDir','normal')
+
+subplot(223)
+Freq=FTC(1).Freq;
+Level=FTC(1).Level+85;
+F=FTC(11).Rpp';
+M1=size(F,1);
+M2=size(F,2);
+F=[fliplr(flipud(F)) flipud(F) fliplr(flipud(F)); fliplr(F) F fliplr(F); fliplr(flipud(F)) flipud(F) fliplr(flipud(F));];
+Y=(ifft2(fft2(F).*fft2(ones(2,2)/4,size(F,1),size(F,2))));
+Y=Y(M1+1:2*M1,M2+1:2*M2);
+
+imagesc(log2(Freq/1000),Level,Y);
+set(gca,'XTick',[0:1:5])
+set(gca,'XTickLabel',[1 2 4 8 16 32])
+set(gca,'YDir','normal')
+
+
+subplot(224)
+Freq=FTC(1).Freq;
+Level=FTC(1).Level+85;
+F=FTC(k).Rpp';
+M1=size(F,1);
+M2=size(F,2);
+F=[fliplr(flipud(F)) flipud(F) fliplr(flipud(F)); fliplr(F) F fliplr(F); fliplr(flipud(F)) flipud(F) fliplr(flipud(F));];
+Y=(ifft2(fft2(F).*fft2(ones(2,2)/4,size(F,1),size(F,2))));
+Y=Y(M1+1:2*M1,M2+1:2*M2);
+
+imagesc(log2(Freq/1000),Level,Y);
+set(gca,'XTick',[0:1:5])
+set(gca,'XTickLabel',[1 2 4 8 16 32])
+set(gca,'YDir','normal')
+

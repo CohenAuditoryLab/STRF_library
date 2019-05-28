@@ -1,0 +1,23 @@
+function ydata = adjustedIntegrateFirePSTH(Beta,Xdata)
+
+Ntau= 100;
+
+%Extracting input data and parameters
+PSTH1=Xdata.PSTH1;
+PSTH2=Xdata.PSTH2;
+X=Xdata.X;
+Fs=Xdata.Fs;
+Ntrials=Xdata.Ntrials;
+
+%Generaqting input data for INTEGRATEFIREPSTH
+IFinput=[Fs Ntrials X];
+
+%Running INTEGRATEFIREPSTH two times for estimating noise statistics
+IFout1 = integratefirepsth(Beta, IFinput);
+
+%Generating Cross Correlation Between PSTH and Error signal
+R2e=xcorr(PSTH2,PSTH1-IFout1,L);
+%R2e=xcorr(PSTH2,PSTH1,L)-xcorr(PSTH2-IFout1,L);
+
+%Returned Output
+ydata = R2e;

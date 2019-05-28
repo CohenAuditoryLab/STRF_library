@@ -1,0 +1,75 @@
+
+FsA=1/(.3/611)
+FsB=297.6
+
+
+load SNR26 SNRData
+load /Users/escabi/data/YaleCohen/FRAAnalysis/BFBWMapData/MapMask_07_26_2010_Final.mat
+SNR26=[];
+for k=1:14*14
+    if A1Mask(k)==1
+        SNR26=[SNR26;SNRData(k).SNR];
+    end
+end
+
+load  SNR27 SNRData
+load /Users/escabi/data/YaleCohen/FRAAnalysis/BFBWMapData/MapMask_07_27_2010_Final.mat
+SNR27=[];
+for k=1:14*14
+    if A1Mask(k)==1
+        SNR27=[SNR27;SNRData(k).SNR];
+    end
+end
+FaxisB=SNRData(1,1).Faxis;
+
+load  ~/data/ElectricalStimulation/Rat103013/FigData/Rat103013_RegionMask
+load SNRRAT103013Block2
+load SNRRAT103013Block2AC
+SNR1=[];
+for k=1:32
+    if RegionMask(k)==1
+        SNR1=[SNR1;SNRData(k).SNR];
+    end
+end
+load  ~/data/ElectricalStimulation/Rat102213/FigData/Rat102213_RegionMask
+load SNRRAT102213Block4
+load SNRRAT102213Block2AC
+SNR2=[];
+for k=1:32
+    if RegionMask(k)==1
+        SNR2=[SNR2;SNRData(k).SNR];
+    end
+end
+load  ~/data/ElectricalStimulation/Rat072213/FigData/Rat072213_RegionMask
+load  SNRRAT072213Block2
+SNR3=[];
+for k=1:32
+    if RegionMask(k)==1
+        SNR3=[SNR3;SNRData(k).SNR];
+    end
+end
+FaxisA=SNRData(1,1).Faxis;
+
+%Computing average SNR
+i=max(find(FaxisA<100));
+SNRA=[mean(mean(SNR1(:,1:i))); mean(mean(SNR2(:,1:i))); mean(mean(SNR3(:,1:i)))];
+i=max(find(FaxisB<100));
+SNRB=[mean(mean(SNR26(:,1:i))); mean(mean(SNR27(:,1:i)))];
+
+%plot((0:89)/90*FsB,mean(SNR26))
+%hold on
+%plot((0:89)/90*FsB,mean(SNR27))
+plot((0:89)/90*FsB,mean([SNR27;SNR26]))
+hold on
+plot((0:610)/611*FsA,mean([SNR1;SNR2(:,1:611);SNR3]),'k')
+xlim([0 100])
+%plot((0:611)/611*FsA,mean(SNR2),'k')
+%plot((0:610)/611*FsA,mean(SNR3),'k')
+
+
+
+%Plotting Average SNR
+% plot((0:610)/611*FsA,mean([SNR1;SNR3]),'k')
+% plot((0:610)/611*FsA,mean([SNR1;SNR3]),'k')
+% i1=find(SNR26(:,10)>1);
+% i2=find(SNR27(:,10)>1);

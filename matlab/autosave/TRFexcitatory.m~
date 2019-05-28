@@ -1,0 +1,91 @@
+
+
+
+%Temporal DoG
+
+beta1=4
+beta2=4
+beta3=4
+beta4=4
+beta5=1
+beta6=.5
+
+alpha=1.1
+dt=0.25
+taxis=-100:dt:500;
+
+for k=0:30
+   
+    %Generating TRF
+    beta=[beta1*alpha^k 2*beta2*alpha^k beta3*alpha^k beta4*alpha^k beta5 beta6];
+    [TRF,TRFe,TRFi]=trfdogmodel(beta,taxis);
+   
+    %Generating MTF
+    N=1024*8;
+    size(TRF)
+    MTF=abs(fft(TRF,N));
+    MTFe=abs(fft(TRFe,N));
+    MTFi=abs(fft(TRFi,N));
+
+    %Truncated TRF & MTFs
+    TRFet=TRF;
+    i=find(TRF<0);
+    TRFet(i)=zeros(size(i));
+    MTFet=abs(fft(TRFet,N));
+    TRFit=TRF;
+    i=find(TRF>0);
+    TRFit(i)=zeros(size(i));
+    MTFit=abs(fft(TRFit,N));
+    
+    %Computing Bandwidth
+    M=floor(N/2)
+    FmAxis=(0:N-1)/N/dt*1000;
+    MTFe=MTFe(1:M)/max(MTFe(1:M));
+    i=max(find(MTFe.^2>0.5));
+    BWe(k+1)=FmAxis(i);
+%    BWe(k+1)=sum(MTFe.*FmAxis(1:M));
+     MTFi=MTFi(1:M)/max(MTFi(1:M));
+    i=max(find(MTFi.^2>0.5));
+    BWi(k+1)=FmAxis(i);
+    %     BWi(k+1)=sum(MTFi.*FmAxis(1:M));
+     MTFet=MTFet(1:M)/max(MTFet(1:M));
+     i=max(find(MTFet.^2>0.5));
+     BWet(k+1)=FmAxis(i);
+%     BWet(k+1)=sum(MTFet.*FmAxis(1:M));
+     MTFit=MTFit(1:M)/max(MTFit(1:M));
+     i=max(find(MTFit.^2>0.5));
+    BWit(k+1)=FmAxis(i);
+%     BWit(k+1)=sum(MTFit.*FmAxis(1:M));
+    
+     subplot(311)
+    plot(TRF,'k')
+    subplot(312)
+    plot(TRFet,'r-.')
+    hold on
+    plot(TRFe,'r')
+    hold off
+    subplot(313)
+    plot(TRFit,'b-.')
+    hold on
+    plot(TRFi,'b')
+    hold off
+    pause(0.1)
+    
+end
+
+
+figure
+loglog(BWe,BWet,'ro')
+hold on
+loglog(BWi,BWit,'bo')
+plot([1 400],[1 400],'k-.')
+axis([1 400 1 400])
+set(gca,'XTick',[1 10 100])
+set(gca,'YTick',[1 10 100])
+set(gca,'XTicklabel',[1 10 100])
+set(gca,'YTicklabel',[1 10 100])
+
+xlabel('Temporal Modulation Bandwidth (Hz)','fontsize',16)
+ylabel('Estimated Temporal Modulation Bandwidth (Hz)','fontsize',16)
+title('Excitatory = red, Inhibitory = blue','fontsize',16)
+

@@ -1,0 +1,68 @@
+%
+% function [MTF] = mtfgenerate(RASTER,Fsd,FMAxis,OnsetT)
+%
+%	FILE NAME 	: MTF GENERATE
+%	DESCRIPTION : Generates a MTF on the TDT system
+%
+%   RASTER      : Rastergram array of data structure, spet format
+%                 RASTER(k).spet - Spike event time array
+%                 RASTER(k).Fs   - Sampling Frequency (Hz)
+%                 RASTER(k).T    - Stimulus duration
+%
+%   Fsd         : Sampling rate for correlation analysis (Hz)
+%   FMAxis      : Modulation Rate Axis Array (Hz)
+%   OnsetT      : Time to remove at onset (sec)
+%
+% RETURNED DATA
+%	MTF	        : MTF Data Structure
+%                 MTF.FMAxis    - Modulation Frequency Axis
+%                 MTF.Rate      - Rate MTF
+%                 MTF.VS        - Vector Strength MTF
+%
+%   (C) Monty A. Escabi, November 2006 (Edit Feb 2012)
+%
+function [MTF] = mtfgenerate2(RASTER,Fsd,FMAxis,OnsetT)
+
+%Data Parameters
+%N=length(RASTER)/length(FMAxis);
+
+%Generating Rate MTF
+MTF.FMAxis=FMAxis;
+MTF.Rate=zeros(size(MTF.FMAxis));
+for k=1:length(MTF.FMAxis)
+ 
+    i=find(FMAxis(k)==RASTER.Fm);
+    %Computing Rate MTF
+    for n=1:N
+        %Counting Number of Spikes
+        SpikeTime=RASTER(n+(k-1)*N).spet/RASTER(1).Fs;
+        index=find(SpikeTime<RASTER((k-1)*N+1).T & SpikeTime>OnsetT);
+        MTF.Rate(k)=length(index)+MTF.Rate(k);
+    end
+    
+    %Normalizing By Total Stimulus Duration=TD*N
+    MTF.Rate(k)=MTF.Rate(k)/RASTER((k-1)*N+1).T/N;
+    
+end
+
+%Generating Vector Strength MTF
+MTF.VS=zeros(size(MTF.FMAxis));
+for k=1:length(MTF.FMAxis)
+
+    Phase=[];
+    for n=1:N
+        
+        %Extracting Spike Times
+        SpikeTime=RASTER(n+(k-1)*N).spet/RASTER(1).Fs;
+        index=find(SpikeTime<RASTER((k-1)*N+1).T & SpikeTime>OnsetT);
+        SpikeTime=SpikeTime(index);
+        
+        %Spike Time Phase Relative to Modulation Cycle 
+        Phase=[Phase SpikeTime*MTF.FMAxis(k)*2*pi];
+        
+    end
+    
+    %Vector Strength - Golberg & Brown
+    MTF.VS(k)=sqrt( sum(sin(Phase)).^2 + sum(cos(Phase)).^2 )/length(Phase);
+    
+end

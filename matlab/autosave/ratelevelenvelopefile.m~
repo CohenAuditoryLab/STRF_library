@@ -1,0 +1,97 @@
+%
+%function []=ratelevelenvelopefile(FileHeader,T,Tpause,CurrentLevel,Fs,Order,rt,p,seed)
+%
+%       FILE NAME       : COMOD ENVELOPE FILE
+%       DESCRIPTION     : Generates an envelope used to modulation
+%                         electrical stimulation signals. Three types of
+%                         commodulation signals can be generated. 
+%
+%       FileHeader      : File name header (No extension)
+%       T               : On time for each stimulus  (msec)
+%       Tpause          : Pause time between stimuli (msec)
+%       CurrentAmp      : Vector containing the desired current amplitudes
+%                         (micro Amps)
+%       Order           : Ordering for stimulus presentation
+%                         'rand'        = random
+%                         'trialrand'   = trial randomized
+%                         'seq'         = sequential
+%       Ntrials         : Number of trials
+%       Fs              : Sampling Rate (Hz, Default=12207.03125)
+%       rt              : Rise time for 'sqr' and 'mls' (ms, optional, 
+%                         default==5). Not used for 'sin' option.
+%       p               : Bslpline order for rise time (Default==5). Not
+%                         used for 'sin' option
+%       seed            : Seed for random number generator
+%                         (Default = 0)
+%        
+%RETURNED VARIABLES
+%
+%       No returned values. Saves data to file.
+%
+% (C) Monty A. Escabi, Jan 2012
+%
+function []=ratelevelenvelopefile(FileHeader,T,Tpause,CurrentAmp,Order,Ntrials,Fs,rt,p,seed)
+
+%Input Args
+if nargin<7
+    Fs=12207.03125;
+end
+if nargin<8
+    rt=5;
+end
+if nargin<9
+    p=5;
+end
+if nargin<10
+    seed=0;    
+end
+
+%Smoothing Window
+rt=rt/1000;
+W1=ones(1,round(rt*Fs/p));
+W=ones(1,round(rt*Fs/p));
+for k=1:p-1
+	W=conv(W,W1);
+end
+
+%Generating Envelope Sequence
+for k=1:Ntrials
+
+    if strcmp(Order,'trialrand')
+        index=randperm(length(CurrentAmp));
+        List.CurentAmp=[List.CurrentAmp; CurrentAmp(index)];
+    else
+        List.CurrentAmp=[List.CurrentAmp; CurrentAmp];
+    end
+
+end
+
+%Randomizing All Trials
+if strcmp(Order,'rand')
+    index=randperm(length(List.CurrentAmp));
+    List.CurrentAmp=[CurrentAmp(index)];
+end
+
+%Generating Envelope
+[W]=window(Fs,p,T,rt);
+Xpause=zeros(1,round(Fs*Tpause/1000));
+X=[];
+for k=1:length(List)
+   Ec=[Ec; W*CurrentAmp(k) Xpause]; 
+end
+
+%Parameters
+Param.seed=seed;
+Param.Fs=Fs;
+Param.W=W;
+Param.Xpause=Xpause;
+Param.T=T;
+Param.Tpause=Tpause;
+Param.rt=rt;
+Param.p=p;
+Param.Order=Order;
+Param.CurrentAmp=CurrentAmp;
+
+%Saving Envelope to File
+f=['save ' FileHeader 'Env Ec Param'];
+eval(f)

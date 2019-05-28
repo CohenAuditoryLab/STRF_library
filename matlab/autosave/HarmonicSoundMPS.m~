@@ -1,0 +1,29 @@
+load HarmonicAnalysisMPSData.mat
+
+subplot(231)
+imagesc(RipSpec100.FmAxis,RipSpec100.RDAxis,RipSpec100.P1)
+axis([0 500 0 4])
+set(gca,'YDir','normal')
+subplot(232)
+imagesc(RipSpec200.FmAxis,RipSpec200.RDAxis,RipSpec200.P1)
+axis([0 500 0 4])
+set(gca,'YDir','normal')
+subplot(233)
+imagesc(RipSpec300.FmAxis,RipSpec300.RDAxis,RipSpec300.P1)
+axis([0 500 0 4])
+set(gca,'YDir','normal')
+
+
+figure
+subplot(231)
+imagesc(RipSpecSTFT100.FmAxis,RipSpecSTFT100.RDAxis,(RipSpecSTFT100.P1))
+axis([0 500 0 4])
+set(gca,'YDir','normal')
+subplot(232)
+imagesc(RipSpecSTFT200.FmAxis,RipSpecSTFT200.RDAxis,(RipSpecSTFT200.P1))
+axis([0 500 0 4])
+set(gca,'YDir','normal')
+subplot(233)
+imagesc(RipSpecSTFT300.FmAxis,RipSpecSTFT300.RDAxis,(RipSpecSTFT300.P1))
+axis([0 500 0 4])
+set(gca,'YDir','normal')

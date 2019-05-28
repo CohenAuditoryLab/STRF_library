@@ -1,0 +1,143 @@
+%Generates data that is used to measure discrimination performance using the population
+%covariance matrix
+
+load Textures_Param.mat
+
+%%%% TEXTURE RECORDING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+load RabbitTextures5.mat
+
+%Cleaning up spikes - removing movement artifacts
+Mean=mean(Data5.Snips(:,3000:4000)');
+Std=std(Data5.Snips(:,3000:4000)');
+T=4.5E-4;
+Fs=Data5.Fs;
+Max=max(Data5.Snips);
+i=find(Max<T);
+
+%Extracting relevant variables
+spet=round(Data5.SnipTimeStamp(i)*Data5.Fs);
+ChannelNumber=Data5.ChannelNumber(i);
+Trig=round(Data5.Trig*Data5.Fs);
+Trig=[Trig max(Trig)+round(mean(diff(Trig)))];
+ChanOrder=[9 8 10 7 13 4 12 5 15 2 16 1 14 3 11 6];
+Order=Order(1:279);     %Truncate because sound was stopped at 18 min
+
+%Generating RASTERS for each channel and sound
+for n=1:16  %CHANNEL
+    for k=1:9   %SOUND
+        i=find(Order==k);   %SOUND ORDER
+        for l=1:length(i) %TRIAL
+            
+            m=find(spet<Trig(i(l)+1) & spet>Trig(i(l)) & ChanOrder(n)==ChannelNumber);
+            spetL=spet(m)-Trig(i(l));
+            Data16(n).Texture(k).RAS(l).spet=spetL;
+            Data16(n).Texture(k).RAS(l).Fs=Fs;
+            Data16(n).Texture(k).RAS(l).T=4;
+
+        end
+    end
+end
+
+
+
+
+
+%Computing Covariance matrix for two halfs (classification and template) of the data and bootstrapping
+N=20
+R=zeros(N,N);
+for k=1:N
+    for l=k+1:N
+        
+            R(k,l)=1;
+    end
+end
+i=find(R);      %Used to select Upper Diagonal
+
+Fsd=200
+T=4
+NB=10
+for n=1:NB
+    for k=1:9
+        [n k]
+        Trial=randperm(20);
+        tA=Trial(1:10);
+        tB=Trial(11:20);
+        for l=1:16  %channel
+            for m=1:16  %channel
+                RAS1A=Data16(l).Texture(k).RAS(tA);
+                RAS2A=Data16(m).Texture(k).RAS(tA);
+                RAS1B=Data16(l).Texture(k).RAS(tB);
+                RAS2B=Data16(m).Texture(k).RAS(tB);
+                [CovDataA]=rastershuffledxcovfast(RAS1A,RAS2A,Fsd,20);
+                [CovDataB]=rastershuffledxcovfast(RAS1B,RAS2B,Fsd,20);
+                C12A(l,m,k,n)=max(CovDataA.R12);
+                C12B(l,m,k,n)=max(CovDataB.R12);
+                if l==m
+                    C12A(l,m,k,n)=0;
+                    C12B(l,m,k,n)=0;
+                end
+            end
+        end
+    end
+end
+
+
+
+
+%Using Minimum Distance Classifier to test discrimination - applied to the
+%population covarinace matrix
+
+%Spectrum , Marginals, All
+%852 - PAPER
+%963 - WATER
+%741 - HELI
+
+sound=[8 9 7]
+for n=1:10
+    for k=1:3
+        for l=1:3
+          D(k,l)=norm(C12B(:,:,sound(k),n) - C12A(:,:,sound(l),n))
+
+          Correct(n)=mean(min(D')'==diag(D))
+
+        end
+    end
+end
+CorrectSpectrum=Correct;
+
+sound=[5 6 4]
+for n=1:10
+    for k=1:3
+        for l=1:3
+          D(k,l)=norm(C12B(:,:,sound(k),n) - C12A(:,:,sound(l),n))
+
+          Correct(n)=mean(min(D')'==diag(D))
+
+        end
+    end
+end
+CorrectMarginal=Correct;
+
+sound=[2 3 1]
+for n=1:10
+    for k=1:3
+        for l=1:3
+          D(k,l)=norm(C12B(:,:,sound(k),n) - C12A(:,:,sound(l),n))
+
+          Correct(n)=mean(min(D')'==diag(D))
+
+        end
+    end
+end
+CorrectAll=Correct;
+
+
+PC=[mean(CorrectSpectrum) mean(CorrectMarginal) mean(CorrectAll)];
+SD=[std(CorrectSpectrum) std(CorrectMarginal) std(CorrectAll)];
+bar(1:3,PC*100,'k')
+hold on
+errorbar(1:3,PC*100,SD*100,'.','color',[0.5 .5 .5],'linewidth',2)
+
+
+
+save Fig13DiscrimnationData PC SD C12A C12B

@@ -1,0 +1,37 @@
+alpha=0.05
+C=colormap
+C(1,:)=[1 1 1];
+
+%load Map_07_26_2010.mat
+load Map_07_27_2010.mat
+%load Map_07_28_2010.mat
+
+i=find(MapData.tvalue>erfinv(1-alpha/2));
+Mask=zeros(14,14);
+Mask(i)=ones(size(i));
+
+
+subplot(221)
+imagesc(MapData.BF.*Mask)
+colorbar
+colormap(C)
+title('Best Frequency (octave)')
+
+subplot(222)
+imagesc(MapData.BW.*Mask)
+colorbar
+colormap(C)
+title('Bandwidth (octave)')
+
+subplot(223)
+imagesc((MapData.PeakDelay-100).*Mask)
+caxis([10 30])
+colorbar
+colormap(C)
+title('Response Delay (msec)')
+
+subplot(224)
+imagesc(MapData.cSMF.*Mask)
+colorbar
+colormap(C)
+title('Best spectral modulation (cycles/octave)')

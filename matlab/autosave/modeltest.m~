@@ -1,0 +1,69 @@
+X=DataF.Xt_env;
+Y=VelData.Sh_real;
+V=VelData.Sh_real;
+
+X=resample(X-mean(X),1,20);
+Y=resample(Y-mean(Y),1,20);
+V=resample(V,1,20);
+
+beta=5;
+N=70
+%[H] = wienerfft(X,Y,beta,N)
+
+NFFT=length(X);
+XX=fft(X,NFFT);
+YY=fft(Y,NFFT);
+H=real(ifft(XX.*conj(YY)./abs(XX).^2,NFFT));
+H=fliplr(H);
+H=[H(length(H)) H(1:N-1)];
+
+
+Yp=conv(H,X);
+
+
+Yp=Yp(18:end);
+Yp=Yp(1:length(Y));
+
+plot(Y)
+hold on
+plot(Yp,'r')
+
+
+Nx=15
+
+
+dV=floor(max(V)-min(V))/15;
+Vaxis=round(min(V)):dV:round(max(V));
+dY=floor(max(Yp)-min(Yp))/15;
+Ypaxis=round(min(Yp)):dY:round(max(Yp));
+
+[Ypaxis,Vaxis,N]=hist2(Yp,V,Ypaxis,Vaxis,'n');
+
+Nx=size(N,1);
+G=[N'*Vaxis']./[N'*ones(Nx,1)];
+%Max=max(N);
+%for k=1:size(N,1)
+%    i=find(N(:,k)==Max(k));
+%end
+
+corrcoef(Yp,Y)
+corrcoef(Ypp,Y)
+
+
+for k=1:length(Yp)
+   
+    i=find(abs(Yp(k)-Ypaxis)==min(abs(Yp(k)-Ypaxis)));
+    Ypp(k)=G(i);
+    
+end
+
+
+figure
+imagesc(Ypaxis,Vaxis,N),set(gca,'YDir','normal')
+hold on
+plot(Ypaxis,G,'linewidth',2)
+
+figure
+plot(Ypp,'r')
+hold on
+plot(V)

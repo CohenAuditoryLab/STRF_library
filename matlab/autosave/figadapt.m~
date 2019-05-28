@@ -1,0 +1,17 @@
+
+
+
+
+load psth
+taxis=(1:61)/.1;
+
+plot(taxis,mean(psth),'k','linewidth',3)
+xlabel('Time (sec)')
+ylabel('Firing Rate (spikes/sec)')
+
+
+psth2=mean(psth(:,1:20));
+taxis2=taxis(1:20);
+beta = lsqcurvefit(@(beta,taxis) beta(1)+beta(2)*exp(-taxis2/beta(3)),[10 20 30],taxis2,psth2)
+hold on
+plot(taxis2,beta(1)+beta(2)*exp(-taxis2/beta(3)),'r')

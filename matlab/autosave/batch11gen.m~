@@ -1,0 +1,74 @@
+clear all
+load Textures_Param.mat
+MaxTauB=5
+MaxTau=250
+Fsd=500
+
+%%%% TEXTURE RECORDING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+load RabbitTextures5.mat
+
+%Cleaning up spikes - removing movement artifacts
+Mean=mean(Data5.Snips(:,3000:4000)');
+Std=std(Data5.Snips(:,3000:4000)');
+T=4.5E-4;
+Fs=Data5.Fs;
+Max=max(Data5.Snips);
+i=find(Max<T);
+
+%Extracting relevant variables
+spet=round(Data5.SnipTimeStamp(i)*Data5.Fs);
+ChannelNumber=Data5.ChannelNumber(i);
+Trig=round(Data5.Trig*Data5.Fs);
+Trig=[Trig max(Trig)+round(mean(diff(Trig)))];
+ChanOrder=[9 8 10 7 13 4 12 5 15 2 16 1 14 3 11 6];
+Order=Order(1:279);     %Truncate because sound was stopped at 18 min
+
+%Generating RASTERS for each channel and sound
+for n=1:16  %CHANNEL
+    for k=1:9   %SOUND
+        i=find(Order==k);   %SOUND ORDER
+        for l=1:length(i) %TRIAL
+            
+            m=find(spet<Trig(i(l)+1) & spet>Trig(i(l)) & ChanOrder(n)==ChannelNumber);
+            spetL=spet(m)-Trig(i(l));
+            Data16(n).Texture(k).RAS(l).spet=spetL;
+            Data16(n).Texture(k).RAS(l).Fs=Fs;
+            Data16(n).Texture(k).RAS(l).T=4;
+
+        end
+    end
+end
+
+
+dT=0.25     %BREAK UP SOUND INTO 250 msec segments - compute COVARIANCE FOR EACH MATRIX and subsequently measure population D' based on the covariance
+dN=round(dT*Fsd);
+T=Data16(1).Texture(1).RAS(1).T;
+RASTER=rasterexpand(Data16(1).Texture(1).RAS,Fsd,T);  
+N=floor(size(RASTER,2)/dN);
+
+for k=1:9   %SOUND
+    for l=1:16  %CHANNEL
+        for m=1:16  %CHANNEL
+            
+            RASTER1=rasterexpand(Data16(l).Texture(k).RAS,Fsd,T);
+            RASTER2=rasterexpand(Data16(m).Texture(k).RAS,Fsd,T);  
+            
+            for n=1:N %Blocked into dT segments
+                 
+            RAS1=RASTER1(:,(n-1)*dN+1:n*dN);
+            [RAS1]=rastercompress(RAS1,Fsd,dT);
+            RAS2=RASTER2(:,(n-1)*dN+1:n*dN);
+            [RAS2]=rastercompress(RAS2,Fsd,dT);
+            [Cov]=rastershuffledxcovfast(RAS1,RAS2,Fsd,MaxTauB);
+            TextureCov(k).CovMatrixBlocked(l,m,n)=max(Cov.R12);
+        
+            end
+            
+            [TextureCov(k).CovData(l,m)]=rastershuffledxcovfast(Data16(l).Texture(k).RAS,Data16(m).Texture(k).RAS,Fsd,MaxTau);
+            TextureCov(k).CovMatrix(l,m)=max(TextureCov(k).CovData(l,m).R12);.
+            
+        end
+    end
+end
+
+save Figure11Data TextureCov

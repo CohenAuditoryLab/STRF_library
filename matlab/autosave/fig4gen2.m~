@@ -1,0 +1,279 @@
+Tau=20
+Tref=2
+Vtresh=-50
+Vrest=-65
+Nsig=.65
+SNR=10
+Fs=4000;
+flag=3
+detrendin='n'
+detrendim='n'
+
+M=Fs*60*5;
+%[Im,XEf,XIf,NEf,NIf]=synapticnoise2(10,1,1,10,100,100,1,1,0,1,Fs,M);
+%In=randn(1,M);
+%[X,Vm,R,C,sigma_m,sigma_i]=integratefire(Im,Tau,Tref,Vtresh,Vrest,Nsig,SNR,Fs,flag,In,detrendim,detrendin);
+%spet=impulse2spet(X,Fs,Fs);
+L=100
+ [spet]=poissongenstat(50,5*60,Fs,5,1);
+
+subplot(331)
+p=.8
+sigma=.5
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+Fsd=4000;
+T=max(spet)/Fs;
+MaxTau=20;
+Disp='n';
+[JitterData1]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData1.Tau,JitterData1.Rnoise,'k')
+hold on
+plot(JitterData1.Tau,JitterData1.Rmodel,'k-.')
+axis([-10 10 -1000 12000])
+
+subplot(332)
+p=.8
+sigma=1
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+Fsd=4000;
+T=max(spet)/Fs;
+MaxTau=20;
+Disp='n';
+[JitterData2]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData2.Tau,JitterData2.Rnoise,'k')
+hold on
+plot(JitterData2.Tau,JitterData2.Rmodel,'k-.')
+axis([-10 10 -1000 12000])
+
+
+subplot(333)
+p=.8
+sigma=2
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+Fsd=4000;
+T=max(spet)/Fs;
+MaxTau=20;
+Disp='n';
+[JitterData3]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData3.Tau,JitterData3.Rnoise,'k')
+hold on
+plot(JitterData3.Tau,JitterData3.Rmodel,'k-.')
+axis([-10 10 -1000 12000])
+
+subplot(334)
+p=.8
+sigma=1
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+T=max(spet)/Fs;
+MaxTau=20;
+Disp='n';
+[JitterData4]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData4.Tau,JitterData4.Rnoise,'k')
+hold on
+plot(JitterData4.Tau,JitterData4.Rmodel,'k-.')
+axis([-10 10 -200 4000])
+
+subplot(335)
+p=.4
+sigma=1
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+T=max(spet)/Fs;
+MaxTau=20;
+Disp='n';
+[JitterData5]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData5.Tau,JitterData5.Rnoise,'k')
+hold on
+plot(JitterData5.Tau,JitterData5.Rmodel,'k-.')
+axis([-10 10 -200 4000])
+
+subplot(336)
+p=.2
+sigma=1
+[spetA]=spetaddjitter(spet,sigma,p,0,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,0,Fs);
+T=max(spet)/Fs;
+MaxTau=20;
+Disp='n';
+[JitterData6]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+plot(JitterData6.Tau,JitterData6.Rnoise,'k')
+hold on
+plot(JitterData6.Tau,JitterData6.Rmodel,'k-.')
+axis([-10 10 -200 4000])
+
+pause(1)
+
+save FigData4SigP
+
+
+
+%Measurement Error versus number of spikes
+
+%Parameters to Test
+sig=10.^(-1:0.2:1);
+pp=0.1:0.1:1;
+%alpha=10.^(1/4)
+%N=100*alpha.^(0:8);
+T=1;    %1 second segments, allow for bootstrapping up to N segments
+MaxTau=50
+L=25
+N=1280;
+Fs=4000
+Fsd=4000;
+
+%Generating Jitter Estimates Using Correlogram Estimators
+cd JitterData
+for k=1:length(sig)
+    for l=1:length(pp)
+        
+        N=ceil(12800/pp(l)/L);
+        for i=1:N
+            
+            [spet]=poissongenstat(L,T,Fs,5);
+            [i sig(k) pp(l)]
+
+            p=pp(l);
+            sigma=sig(k);
+            lambda=L;
+
+            [spetA]=spetaddjitter(spet,sig(k),pp(l),0,Fs);
+            [spetB]=spetaddjitter(spet,sig(k),pp(l),0,Fs);
+
+            Disp='n';
+            [JitterData(i)]=jittercorr(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+           
+        end
+
+        f=['save JitterDataK' num2str(k) 'L' num2str(l)   ' JitterData sigma p lambda T L N']
+        eval(f)
+
+        clear JitterData p sigma lambda
+    end
+end
+
+%Generating Jitter Estimates Using Spectral Estimator
+
+
+%Parameters to Test
+sig=10.^(-1:0.2:1);
+pp=0.1:0.1:1;
+%alpha=10.^(1/4)
+%N=100*alpha.^(0:8);
+T=1;    %1 second segments, allow for bootstrapping up to N segments
+L=50
+Fs=4000
+Fsd=4000;
+df=10
+for k=1:length(sig)
+    for l=1:length(pp)
+        
+        N=ceil(12800/pp(l)/L);
+        for i=1:N
+            
+            [spet]=poissongenstat(L,T,Fs,5);
+            [i sig(k) pp(l)]
+
+            p=pp(l);
+            sigma=sig(k);
+            lambda=L;
+
+            [spetA]=spetaddjitter(spet,sig(k),pp(l),0,Fs);
+            [spetB]=spetaddjitter(spet,sig(k),pp(l),0,Fs);
+
+            Disp='n';
+            [JitterSpecData(i)]=jitterspectrum(spetA,spetB,Fs,Fsd,df,T,Disp);
+           
+        end
+
+        f=['save JitterSpecDataK' num2str(k) 'L' num2str(l)   ' JitterSpecData sigma p lambda T L N']
+        eval(f)
+
+        clear JitterSpecData p sigma lambda
+    end
+end
+
+
+%Generate Errors
+Nspikes=100*2.^(1:7)
+
+for k=1:length(sig)
+    for l=1:length(pp)
+        
+        f=['load JitterDataK' num2str(k) 'L' num2str(l) ];
+        eval(f)
+
+        Tau=JitterData(1).Tau;
+        for i=1:length(Nspikes)
+            
+            [k l i]
+            
+            NS=ceil(Nspikes(i)/lambda/p);     %Number of 1 second segments, equal to the total time
+           
+            Rnoise=mean(reshape([JitterData(1:NS).Rab]-[JitterData(1:NS).Raa],length(Tau),NS)');
+            lambdap=mean([JitterData(1:NS).lambdap]);
+            [JitterModel]=corrmodelfit(Rnoise,lambdap,Tau,'n');  
+          
+            Sigmag(k,l,i)=JitterModel.sigmag;
+            Pg(k,l,i)=JitterModel.pg;
+            Sigma(k,l,i)=JitterModel.sigma;
+            P(k,l,i)=JitterModel.p;
+            Sig(k,l)=sig(k);
+            PP(k,l)=pp(l);
+            
+            Err_sigmag(k,l,i)=abs(sigma-JitterModel.sigmag)/sigma*100;
+            Err_sigma(k,l,i)=abs(sigma-JitterModel.sigma)/sigma*100;
+            Err_pg(k,l,i)=abs(p-JitterModel.pg)/p*100;
+            Err_p(k,l,i)=abs(p-JitterModel.p)/p*100;
+            Err_lambdag(k,l,i)=abs(p*lambda-JitterModel.lambdag.*JitterModel.pg)/p/lambda*100;
+            Err_lambda(k,l,i)=abs(p*lambda-JitterModel.lambda.*JitterModel.p)/p/lambda*100;
+            
+        end
+    end
+end
+
+
+%Generate Spectral Estimation Errors
+Nspikes=100*2.^(1:7)
+
+for k=1:length(sig)
+    for l=1:length(pp)
+        
+        f=['load JitterSpecDataK' num2str(k) 'L' num2str(l) ];
+        eval(f)
+
+        Faxis=JitterSpecData(1).F;
+        for i=1:length(Nspikes)
+            
+            [k l i]
+            
+            NS=ceil(Nspikes(i)/lambda/p);     %Number of 1 second segments, equal to the total time
+           
+            lambdap=mean([JitterSpecData(1:NS).lambda].*[JitterSpecData(1:NS).p]);
+            Pnoise=mean(real(reshape([JitterSpecData(1:NS).Pkl]-[JitterSpecData(1:NS).Pkk],length(Faxis),NS)')+lambdap)';
+            
+            [JitterSpecModel]=jitterspectrummodelfit(Pnoise,lambdap,Faxis,'n')
+          
+            SigmaSpec(k,l,i)=JitterSpecModel.sigma;
+            PSpec(k,l,i)=JitterSpecModel.p;
+            Sig(k,l)=sig(k);
+            PP(k,l)=pp(l);
+            
+            ErrSpec_sigma(k,l,i)=abs(sigma-JitterSpecModel.sigma)/sigma*100;
+            ErrSpec_p(k,l,i)=abs(p-JitterSpecModel.p)/p*100;
+            ErrSpec_lambda(k,l,i)=abs(p*lambda-JitterSpecModel.lambda.*JitterSpecModel.p)/p/lambda*100;
+            
+        end
+    end
+end
+
+
+cd ..
+save FigData4Err Err_sigmag Err_sigma Err_pg Err_p Err_lambdag Err_lambda Nspikes pp sig Sig PP Sigma P Sigmag Pg
+save FigData4ErrSpec ErrSpec_sigma  ErrSpec_p ErrSpec_lambda  Nspikes pp sig Sig PP PSpec  SigmaSpec 
+
+
+

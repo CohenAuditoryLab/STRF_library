@@ -1,0 +1,316 @@
+
+load all_exp_param_noRTF.mat
+%load allRTF_noRTF
+
+%Extracting BRD and bFM
+for k=1:length(index)
+   if length(RTF(index(k)).Max)==1
+       bfm(k)=max(abs(RTF(index(k)).BestFm));
+       brd(k)=max(RTF(index(k)).BestRD);
+   else
+       if RTF(index(k)).Max(1)>RTF(index(k)).Max(2)
+           bfm(k)=abs(RTF(index(k)).BestFm(1));
+           brd(k)=RTF(index(k)).BestRD(1);
+       else
+           bfm(k)=abs(RTF(index(k)).BestFm(2));
+           brd(k)=RTF(index(k)).BestRD(2);
+       end
+   end
+end
+
+%Selecting Cleaned RTFs
+RTF=RTF(index);
+
+
+index=find(~isnan([RTF.FmUpperCutoff]));        %%%%CHANGE - REMOVE NAN!!!!!!!!
+RTF=RTF(index);
+
+dX=.5
+count=1;
+
+%BF versus BFM
+for k=1:dX:4
+   
+    i=find([RTF.BF]<k+dX & [RTF.BF]>k);
+    %MeanFm(k)=mean(bfm(i));
+    %MeanFm(k)=median([RTF(i).cTMF]);
+    
+    %MeanFm(k)=mode(bfm(i));
+    
+    ModecTMF(count)=mode(round([RTF(i).cTMF]/10)*10);     %USes 10 Hz Resolution
+    ModecSMF(count)=mode(round([RTF(i).cSMF]/.2)*.2);     %Uses .2 cyc/oct resolution
+    MediancTMF(count)=median([RTF(i).cTMF]);
+    MediancSMF(count)=median([RTF(i).cSMF]);
+    GeoMeancTMF(count)=10 ^ mean( log10([RTF(i).cTMF]));
+    GeoMeancSMF(count)=10 ^ mean( log10([RTF(i).cSMF]));
+    SEMediancTMF(count)=std(bootstrp(1000,'median',[RTF(i).cTMF]));
+    SEMediancSMF(count)=std(bootstrp(1000,'median',[RTF(i).cSMF]));
+    
+    ModebTMF(count)=mode(round([RTF(i).bTMF]/10)*10);     %USes 10 Hz Resolution
+    ModebSMF(count)=mode(round([RTF(i).bSMF]/.2)*.2);     %Uses .2 cyc/oct resolution
+    MedianbTMF(count)=median([RTF(i).bTMF]);
+    MedianbSMF(count)=median([RTF(i).bSMF]);
+    MeanbTMF(count)=mean([RTF(i).bTMF]);
+    MeanbSMF(count)=mean([RTF(i).bSMF]);
+    GeoMeanbTMF(count)=10 ^ mean( log10([RTF(i).bTMF]));
+    GeoMeanbSMF(count)=10 ^ mean( log10([RTF(i).bSMF]));
+    SEMedianbTMF(count)=std(bootstrp(1000,'median',[RTF(i).bTMF]));
+    SEMedianbSMF(count)=std(bootstrp(1000,'median',[RTF(i).bSMF]));
+    SEMeanbTMF(count)=std(bootstrp(1000,'mean',[RTF(i).bTMF]));
+    SEMeanbSMF(count)=std(bootstrp(1000,'mean',[RTF(i).bSMF]));
+
+    
+    
+    
+    MedianbTMF(count)=median([RTF(i).bTMF]);
+    MedianbSMF(count)=median([RTF(i).bSMF]);
+    ModebTMF(count)=mode(round([RTF(i).bTMF]/10)*10);     %USes 10 Hz Resolution
+    ModebSMF(count)=mode(round([RTF(i).bSMF]/.2)*.2);     %Uses .2 cyc/oct resolution
+    
+    
+    
+    MedianbFm(count)=median(bfm(i));
+    MedianbRD(count)=median(brd(i));
+    SEMedianbFm(count)=std(bootstrp(1000,'median',[RTF(i).Duratio));
+    SEMedianbRD(count)=std(bootstrp(1000,'median',brd(i)));
+    
+    MedianDuration(count)=median([RTF(i).Duration]);
+    MedianBW(count)=median([RTF(i).BW]);
+    SEMedianDuration(count)=std(bootstrp(1000,'median',[RTF(i).Duration]));
+    SEMedianBW(count)=std(bootstrp(1000,'median',[RTF(i).BW]));
+    
+    GeoMeanDuration(count)=geomean([RTF(i).Duration]);
+    GeoMeanBW(count)=geomean([RTF(i).BW]);
+    SEGeoMeanDuration(count)=std(bootstrp(1000,'geomean',[RTF(i).Duration]));
+    SEGeoMeanBW(count)=std(bootstrp(1000,'geomean',[RTF(i).BW]));
+    
+    
+    
+    
+    
+    
+    
+    MedianFmUpperCutoff(count)=median([RTF(i).FmUpperCutoff]);
+    MedianRDUpperCutoff(count)=median([RTF(i).RDUpperCutoff]);
+    SEMedianFmUpperCutoff(count)=std(bootstrp(1000,'median',[RTF(i).FmUpperCutoff]));
+    SEMedianRDUpperCutoff(count)=std(bootstrp(1000,'median',[RTF(i).RDUpperCutoff]));
+
+    MeanFmUpperCutoff(count)=mean([RTF(i).FmUpperCutoff]);
+    MeanRDUpperCutoff(count)=mean([RTF(i).RDUpperCutoff]);
+    SEMeanFmUpperCutoff(count)=std(bootstrp(1000,'mean',[RTF(i).FmUpperCutoff]));
+    SEMeanRDUpperCutoff(count)=std(bootstrp(1000,'mean',[RTF(i).RDUpperCutoff]));
+    
+    MedianFmLowerCutoff(count)=median([RTF(i).FmLowerCutoff]);
+    MedianRDLowerCutoff(count)=median([RTF(i).RDLowerCutoff]);
+    SEMedianFmLowerCutoff(count)=std(bootstrp(1000,'median',[RTF(i).FmLowerCutoff]));
+    SEMedianRDLowerCutoff(count)=std(bootstrp(1000,'median',[RTF(i).RDLowerCutoff]));
+    
+    MeanFmLowerCutoff(count)=mean([RTF(i).FmLowerCutoff]);
+    MeanRDLowerCutoff(count)=mean([RTF(i).RDLowerCutoff]);
+    SEMeanFmLowerCutoff(count)=std(bootstrp(1000,'mean',[RTF(i).FmLowerCutoff]));
+    SEMeanRDLowerCutoff(count)=std(bootstrp(1000,'mean',[RTF(i).RDLowerCutoff]));
+
+    MedianPeakDelay(count)=median([RTF(i).PeakDelay]);
+    MedianDelay(count)=median([RTF(i).Delay]);
+    MedianPeakEnvDelay(count)=median([RTF(i).PeakEnvDelay]);
+    SEMedianPeakDelay(count)=std(bootstrp(1000,'median',[RTF(i).PeakDelay]));
+    SEMedianDelay(count)=std(bootstrp(1000,'median',[RTF(i).Delay]));
+    SEMedianPeakEnvDelay(count)=std(bootstrp(1000,'median',[RTF(i).PeakEnvDelay]));
+   
+    MeanPeakDelay(count)=mean([RTF(i).PeakDelay]);
+    MeanDelay(count)=mean([RTF(i).Delay]);
+    MeanPeakEnvDelay(count)=mean([RTF(i).PeakEnvDelay]);
+    SEMeanPeakDelay(count)=std(bootstrp(1000,'mean',[RTF(i).PeakDelay]));
+    SEMeanDelay(count)=std(bootstrp(1000,'mean',[RTF(i).Delay]));
+    SEMeanPeakEnvDelay(count)=std(bootstrp(1000,'mean',[RTF(i).PeakEnvDelay]));
+   
+    %MinPeakDelay(count)=mean([RTF(i).PeakDelay]);
+    %MinDelay(count)=mean([RTF(i).Delay]);
+    %MeanPeakEnvDelay(count)=mean([RTF(i).PeakEnvDelay]);
+    %SEMeanPeakDelay(count)=std(bootstrp(1000,'mean',[RTF(i).PeakDelay]));
+    %SEMeanDelay(count)=std(bootstrp(1000,'mean',[RTF(i).Delay]));
+    %SEMeanPeakEnvDelay(count)=std(bootstrp(1000,'mean',[RTF(i).PeakEnvDelay]));
+   
+    
+    GeoMeanDelay(count)=10 ^ mean( log10([RTF(i).Delay]));
+    
+    MeanBF(count)=k+.5;
+    count=count+1;
+    
+end
+
+
+BarColor=[.7 .7 .7];
+FaceColor=[0 0 0];
+
+figure
+subplot(211)
+bar(MeanBF,ModecTMF)
+xlabel('Mean BF')
+ylabel('Mode cTMF')
+
+subplot(212)
+bar(MeanBF,ModecSMF)
+xlabel('Mean BF')
+ylabel('Mode cSMF')
+
+
+figure
+subplot(211)
+bar(MeanBF,MediancTMF,'k')
+hold on
+errorbar(MeanBF,MediancTMF,SEMediancTMF,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Median cTMF')
+
+subplot(212)
+bar(MeanBF,MediancSMF,'k')
+hold on
+errorbar(MeanBF,MediancSMF,SEMediancSMF,'.','color',BarColor)
+xlabel('Median BF')
+ylabel('Median cSMF')
+
+figure
+subplot(211)
+bar(MeanBF,MedianbTMF,'k')
+hold on
+errorbar(MeanBF,MedianbTMF,SEMedianbTMF,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Median bTMF')
+
+subplot(212)
+bar(MeanBF,MedianbSMF,'k')
+hold on
+errorbar(MeanBF,MedianbSMF,SEMedianbSMF,'.','color',BarColor)
+xlabel('Median BF')
+ylabel('Median bSMF')
+
+
+figure
+subplot(211)
+bar(MeanBF,MeanbTMF,'k')
+hold on
+errorbar(MeanBF,MeanbTMF,SEMeanbTMF,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Mean bTMF')
+
+subplot(212)
+bar(MeanBF,MeanbSMF,'k')
+hold on
+errorbar(MeanBF,MeanbSMF,SEMeanbSMF,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Mean bSMF')
+
+
+
+
+figure
+subplot(211)
+bar(MeanBF,ModebTMF)
+xlabel('Mean BF')
+ylabel('Mode bTMF')
+
+subplot(212)
+bar(MeanBF,ModebSMF)
+xlabel('Median BF')
+ylabel('Mode bSMF')
+
+figure
+subplot(211)
+bar(MeanBF,MedianDuration,'k')
+hold on
+errorbar(MeanBF,MedianDuration,SEMedianDuration,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Median Duration')
+
+subplot(212)
+bar(MeanBF,MedianBW,'k')
+hold on
+errorbar(MeanBF,MedianBW,SEMedianBW,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Median BW')
+
+
+
+figure
+subplot(211)
+bar(MeanBF,GeoMeanDuration,'k')
+hold on
+errorbar(MeanBF,GeoMeanDuration,SEGeoMeanDuration,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('GeoMean Duration')
+
+subplot(212)
+bar(MeanBF,GeoMeanBW,'k')
+hold on
+errorbar(MeanBF,GeoMeanBW,SEGeoMeanBW,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('GeoMean BW')
+
+
+
+
+
+figure
+subplot(211)
+bar(MeanBF,MedianFmUpperCutoff,'k')
+hold on
+errorbar(MeanBF,MedianFmUpperCutoff,SEMedianFmUpperCutoff,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Median Fm Upper Cutoff')
+
+subplot(212)
+bar(MeanBF,MedianRDUpperCutoff,'k')
+hold on
+errorbar(MeanBF,MedianRDUpperCutoff,SEMedianRDUpperCutoff,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Median RD Upper Cutoff')
+
+
+figure
+subplot(211)
+bar(MeanBF,MeanFmUpperCutoff,'k')
+hold on
+errorbar(MeanBF,MeanFmUpperCutoff,SEMeanFmUpperCutoff,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Mean Fm Upper Cutoff')
+
+subplot(212)
+bar(MeanBF,MeanRDUpperCutoff,'k')
+hold on
+errorbar(MeanBF,MeanRDUpperCutoff,SEMeanRDUpperCutoff,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Mean RD Upper Cutoff')
+
+figure
+subplot(211)
+bar(MeanBF,MedianFmLowerCutoff,'k')
+hold on
+errorbar(MeanBF,MedianFmLowerCutoff,SEMedianFmLowerCutoff,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Median Fm Lower Cutoff')
+
+subplot(212)
+bar(MeanBF,MedianRDLowerCutoff,'k')
+hold on
+errorbar(MeanBF,MedianRDLowerCutoff,SEMedianRDLowerCutoff,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Median RD Lower Cutoff')
+
+figure
+subplot(211)
+bar(MeanBF,MeanPeakDelay,'k')
+hold on
+errorbar(MeanBF,MeanPeakDelay,SEMeanPeakDelay,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Mean Peak Delay')
+
+subplot(212)
+bar(MeanBF,MeanPeakEnvDelay,'k')
+hold on
+errorbar(MeanBF,MeanPeakEnvDelay,SEMeanPeakEnvDelay,'.','color',BarColor)
+xlabel('Mean BF')
+ylabel('Mean Peak Env Delay')
+
+
+

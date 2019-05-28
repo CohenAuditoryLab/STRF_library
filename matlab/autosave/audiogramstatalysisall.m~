@@ -1,0 +1,63 @@
+%
+%function [] = audiogramstatanalysisall(METAData,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save)
+%	
+%	FILE NAME   : AUDIOGRAM STAT ANALYSIS ALL
+%	DESCRIPTION : Analyzes the spectro-temproal statistics of a sound
+%                 database. The METAData contains information of the sound
+%                 database that will be analyzed. See XLS2METADATA for
+%                 details. The program first generates and audiogram for
+%                 each sound. Subsequently it will measure statistics from
+%                 the audiogram including: the amplitude statistcs,
+%                 multi-scale statistics, channel correlations, and
+%                 modualtion spectrum.
+%
+%   METAData    : Data structure containing all of the META data for the
+%                 sound database to be analyzed
+%
+%RETURNED VARIABLES
+%
+%
+%
+% (C) Monty A. Escabi, January 2013
+%
+function [] = audiogramstatalysisall(METAData,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save)
+
+for k=1:length(METAData)
+    
+     %Getting filenames
+     List=dir(['Track' int2strconvert(METAData(k).Track,3) '*.wav']);
+     filename=List.name;
+       
+     %Analyzing Data from different segments
+      if ~isnan(METAData(k).Segment1(1))
+          T1=METAData(k).Segment1(1);
+          T2=METAData(k).Segment1(2);
+          [AudStatsData,AudData,AudDataMS] = audiogramstatalysis(filename,T1,T2,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save,'SEG1');
+      end
+      if ~isnan(METAData(k).Segment2(1))
+          T1=METAData(k).Segment2(1);
+          T2=METAData(k).Segment2(2);
+          [AudStatsData,AudData,AudDataMS] = audiogramstatalysis(filename,T1,T2,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save,'SEG2');
+      end
+      if ~isnan(METAData(k).Segment3(1))
+          T1=METAData(k).Segment3(1);
+          T2=METAData(k).Segment3(2);
+          [AudStatsData,AudData,AudDataMS] = audiogramstatalysis(filename,T1,T2,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save,'SEG3');
+      end
+      if ~isnan(METAData(k).Segment4(1))
+          T1=METAData(k).Segment4(1);
+          T2=METAData(k).Segment4(2);
+          [AudStatsData,AudData,AudDataMS] = audiogramstatalysis(filename,T1,T2,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save,'SEG4');
+      end
+      if ~isnan(METAData(k).Soundscape1(1))
+          T1=METAData(k).Soundscape1(1);
+          T2=METAData(k).Soundscape1(2);
+          [AudStatsData,AudData,AudDataMS] = audiogramstatalysis(filename,T1,T2,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save,'SNDSCP1');
+      end
+      if ~isnan(METAData(k).Soundscape2(1))
+          T1=METAData(k).Soundscape2(1);
+          T2=METAData(k).Soundscape2(2);
+          [AudStatsData,AudData,AudDataMS] = audiogramstatalysis(filename,T1,T2,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save,'SNDSCP2');
+      end
+      
+end

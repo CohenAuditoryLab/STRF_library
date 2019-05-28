@@ -1,0 +1,72 @@
+function [Data]=rpkdata(filename);
+% RPK - reads and displays Peter Kim's processed revcor and strf files.
+%   rpk(filename);
+% Filename is 'b30', actual file is 'b30all.revcor' and 'b30all.out', for
+% the revcor and strf, respectively.
+%
+
+% Get revcor
+[fid,msg] = fopen([filename,'all.revcor'], 'r', 'ieee-be'); % open file
+iserror = 0;
+if fid<0
+    fprintf('*** Error opening %s, %s. ***\n', filename, msg)
+    iserror = 1;
+else
+    rvh = fread(fid,256,'int16');    % Read the header, 256 16 bit integers
+    sf = rvh(1)*1000;       % Sample frequency, Hz
+    rvd = fread(fid,inf,'double');   % Read revcor as the rest of the file
+    fclose('all');
+    nl = length(rvd);
+    figure(1); clf; subplot(2,1,1)
+    plot(1000*[0:1/sf:(nl-1)/sf]', flipud(rvd))  % Plot fwd-time revcor
+    xlabel('Time, ms.'); ylabel('Revcor')
+    title(['File ',filename,', revcor, sf=',num2str(sf/1000),' kHz.'])
+    subplot(2,1,2)
+    rvdfm = abs(fft(rvd));
+    rvdfm1 = max(rvdfm, max(rvdfm)/100000); rvddB = 20*log10(rvdfm1);
+    plot([0:sf/nl:(nl/2-1)*sf/nl]/1000, ...
+              rvddB(1:nl/2))             % Plot dB FT of revcor
+    xlabel('Frequency, kHz.'); ylabel('FT(revcor), dB')
+    [rmax,inmx] = max(rvdfm(5:nl/2));   % Find BF (skip freqs near 0)
+    title(['BF = ',num2str((4+inmx-1)*sf/nl),' Hz.'])
+    axval = axis; axis([axval(1:2), axval(4)-60, axval(4)]);
+end
+
+% Get STRF
+if iserror == 0
+    [fid,msg] = fopen([filename,'all.out'], 'r', 'ieee-be'); % open file
+    if fid<0
+        fprintf('*** Error opening %s, %s. ***\n', filename, msg)
+        iserror = 1;
+    else
+        strfh = fread(fid,256,'int16');    % Read the header, 256 16 bit integers
+        sf = strfh(1)*1000;       % Sample frequency, Hz
+        strfd = fread(fid,inf,'double');   % Read revcor as the rest of the file
+        fclose('all');
+% The data seem to have been stored as a 2D array with frequency along the
+% 2^(N-2) rows and time along the 2^N columns, so that 2^(2N-2) = the number
+% of elements in the vector strfd. The sampling rate sf seems to apply to
+% the time axis, but the frequency axis seems to be off by a factor of 2.
+        theL = round(log(length(strfd))/log(2));
+        theN = round((theL + 2)/2);
+        if 2^theN * 2^(theN-2) ~= length(strfd)
+        	fprintf('*** Panic, the strf is not stored as expected. ***\n')
+        end
+        strf = reshape(strfd, 2^(theN-2), 2^theN);  % Freq on rows, time on columns
+        figure(3); clf;
+        xv = 1000*[0:1/sf:(2^theN-1)/sf];  % Time axis in ms
+        yv = [0:sf/2^(theN-1):(2^(theN-2)-1)*sf/2^(theN-1)]/1000; % in kHz
+        imagesc(xv, yv, fliplr(strf))
+        axis xy; shading flat;
+        cax = caxis; caxis([-cax(2)/4 cax(2)]); colorbar;  % jet sucks
+        xlabel('Time, ms'); ylabel('Frequency, kHz')
+        title(['File ',filename,', STRF, sf=',num2str(sf/1000),' kHz.'])
+    end
+end
+
+%Appending Data to Structure (Escabi, July 2009)
+Data.strf=strf;
+Data.delay=xv;
+Data.freq=yv;
+Data.
+

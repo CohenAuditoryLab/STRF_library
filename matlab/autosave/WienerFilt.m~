@@ -1,0 +1,56 @@
+%%%%%%%%%% SINGLE INPUT SINGLE OUTPUT WIENER FILTER\
+Fs=1000;                            %Sampling rate
+[Input(1).X]=noiseunif(Fs/2,Fs,1024*32);      %Input noise, X
+H1=[0 .1 .2 .4 .5 .4 .2 .1 0 ];      %A simple model filter which we want to recover 
+Y1=conv(Input(1).X,H1);                        %Model output, Y
+
+[Input(2).X]=noiseunif(Fs/2,Fs,1024*32);      %Input noise, X
+H2=[0 .25 .5 .25 0 -.25 -.5 -.25 0];      %A simple model filter which we want to recover 
+Y2=conv(Input(2).X,H2);                        %Model output, Y
+
+[Input(3).X]=noiseunif(Fs/2,Fs,1024*32);      %Input noise, X
+H3=[0 .5 -.5 0.5 -.5 .5 -.5 .5 0];      %A simple model filter which we want to recover 
+Y3=conv(Input(3).X,H3);                        %Model output, Y
+
+
+Output(1).Y=Y1+Y2+Y3 + 1*randn(1,length(Y3));
+Output(2).Y=Y1+.5*Y2 + 1*randn(1,length(Y3));
+Output(3).Y=.5*Y1+Y2+3*Y3 + 1*randn(1,length(Y3));  %Add some noise to the modeled response 
+
+
+N=20;
+
+%Cross-Covariance Matrix
+clear Cxx Ryx
+for k=1:3
+    for l=1:3
+        Ctemp=toeplitz(xcorr(Input(k).X,Input(l).X,N));
+        Cxxtemp=Ctemp(N+1:2*N+1,1:N+1);             %Input covariance matrix
+        Cxx((k-1)*(N+1)+1:k*(N+1),(l-1)*(N+1)+1:l*(N+1))=Cxxtemp;
+    end
+end
+
+%Cross-Correlatin Matrix
+for k=1:3
+    for l=1:3
+
+        %rxytemp=xcorr(Input(k).X,Output(l).Y,N/2)';
+        ryxtemp=xcorr(Output(l).Y,Input(k).X,N/2)';
+        %Rxy((k-1)*(N+1)+1:k*(N+1),l)=rxytemp;
+        Ryx((k-1)*(N+1)+1:k*(N+1),l)=ryxtemp;
+    end
+end
+
+
+
+%H=pinv(Cxx)*Rxy;
+H=pinv(Cxx)*Ryx;
+
+
+C=toeplitz(xcorr(X,X,N));
+Cxx=C(N+1:2*N+1,1:N+1);             %Input covariance matrix
+ryx=xcorr(Y,X,N/2)';                %cross correlation between input and output
+Hest=pinv(Cxx)*ryx;                 %Wiener filter - Im using pseudo inverse in case the matrix inversion is ill posed. works reasonably well for this example with inv(). But will likely not work well when the input is spike trains
+plot((-N/2:N/2)/Fs,Hest)
+hold on
+plot((0:8)/Fs,H,'r')

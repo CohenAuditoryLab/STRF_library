@@ -1,0 +1,62 @@
+FileHeader='Mod25HzCarrier200HzJitter95LogAmp'
+fm=25
+PulseJitter=95
+PW=200
+PulseType=2
+ChArray=ones(1,16);
+Nchord=4
+Fs=12207.03125
+M=524288 %~5.7 minutess
+MaxAmp=1;
+MaxdB=45;
+AmpDist='Log'
+NB=524288
+seed=0
+
+%Generating Spatiotemporal envelope
+spatiotemporalelectricalsparsechordfile(FileHeader,fm,PW,PulseType,ChArray,Nchord,Fs,M,MaxAmp,MaxdB,AmpDist,NB,seed)
+
+%Generating MultiTrial Signal
+FileName=[FileHeader '_Block1.mat']
+T=5
+spatiotemporalelectricalmultitrialfile(FileName,T)
+
+%Generating MLS Commodulation Envelope
+FileHeader='ComodMLS'
+Fm=1;
+Beta=1;
+rt=5
+p=5
+EnvType='mls'
+seed=0
+comodenvelopefile(FileHeader,Fm,Beta,M,EnvType,Fs,rt,p,seed);
+
+%Generating SINE Commodulation Envelope
+FileHeader='ComodSIN'
+Fm=0.5;
+Beta=1;
+rt=5
+p=5
+EnvType='sin'
+comodenvelopefile(FileHeader,Fm,Beta,M,EnvType,Fs,rt,p,seed);
+
+%Generating SQR Commodulation Envelope
+FileHeader='ComodSQR'
+Fm=0.5;
+Beta=1;
+rt=5
+p=5
+EnvType='sqr'
+comodenvelopefile(FileHeader,Fm,Beta,M,EnvType,Fs,rt,p,seed);
+
+%Generating RATELEVEL Envelope
+FileHeader='ComodRateLevel'
+T=1000
+Tpause=500
+L=10
+alpha=10.^(log10(100)/L);
+CurrentAmp=1*alpha.^((0:L))
+Order='trialrand'
+rt=5
+p=5
+ratelevelenvelopefile(FileHeader,T,Tpause,CurrentAmp,Order,M,Fs,rt,p,seed);

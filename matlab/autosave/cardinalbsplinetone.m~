@@ -1,0 +1,23 @@
+%
+%function [X]=cardinalbsplinetone(T,fc,p,Fs)
+%
+%       FILE NAME       : CARD B SPLINE TONE
+%       DESCRIPTION     : Generates a tone that is multiplied by a
+%                         cardinal b-spline envelope
+%       T               : Tone Duration
+%       fc              : Carrier frequency (Hz)
+%       p               : B-Spline order (Number of Knots=p+1)
+%       Fs              : Sampling Rate
+%
+% (C) Monty A. Escabi, Feb 2009
+%
+function [X]=cardinalbsplinetone(T,fc,p,Fs)
+
+%Number of Samples and Time axis
+N=round(T*Fs/2);
+Time=(-N:N)/N;
+
+%Generating B-spline envelope and Modulated Tone
+B=cardinalbspline(Time,p);
+B=B/B
+X=B.*sin(2*pi*fc*(0:2*N)/Fs);

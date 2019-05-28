@@ -1,0 +1,42 @@
+fc=100
+Fs=44100
+M=Fs*3
+L=4         %Number of Periods
+N=round(L/fc*Fs)
+taxis=(1:M)/Fs;
+
+
+
+Fm=100
+subplot(411)
+X=zeros(size(taxis));
+for k=1:32
+    X=X+cos(2*pi*(fc*k)*taxis);
+end
+plot(taxis(1:N),X(1:N),'r','linewidth',3)
+set(gca,'visible','off')
+wavwri(X,Fs,16,1,'ToneComplex8.wav')
+ylim([min(X)*1.1 max(X)*1.1])
+
+
+Fm=200
+subplot(411)
+X=zeros(size(taxis));
+for k=1:16
+    X=X+cos(2*pi*(fc*k)*taxis);
+end
+plot(taxis(1:N),X(1:N),'r','linewidth',3)
+set(gca,'visible','off')
+wavwri(X,Fs,16,1,'ToneComplex8.wav')
+ylim([min(X)*1.1 max(X)*1.1])
+
+Fm=400
+subplot(411)
+X=zeros(size(taxis));
+for k=1:8
+    X=X+cos(2*pi*(fc*k)*taxis);
+end
+plot(taxis(1:N),X(1:N),'r','linewidth',3)
+set(gca,'visible','off')
+wavwri(X,Fs,16,1,'ToneComplex8.wav')
+ylim([min(X)*1.1 max(X)*1.1])

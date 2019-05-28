@@ -1,0 +1,58 @@
+
+
+
+subplot(221)
+ 
+FmBW=[RTF.FmUpperCutoff]-[RTF.FmLowerCutoff];
+%loglog([RTF.bTMF],FmBW,'k.')
+loglog([RTF.cTMF],FmBW,'k.')
+%plot([RTF.bTMF],[RTF.FmUpperCutoff],'k.')
+hold on
+plot([0 500],[0 500],'k-.')
+axis([0 500 0 500])
+ii=find(~isnan(FmBW))
+corrcoef([RTF(ii).cTMF],FmBW(ii))
+
+subplot(222)
+RDBW=[RTF.RDUpperCutoff]-[RTF.RDLowerCutoff];
+%loglog([RTF.bSMF],RDBW,'k.')
+loglog([RTF.cSMF],RDBW,'k.')
+%plot([RTF.bSMF],[RTF.RDUpperCutoff],'k.')
+hold on
+plot([0 4],[0 4],'k-.')
+axis([0 4 0 4])
+corrcoef([RTF.cSMF],RDBW)
+
+subplot(223)
+plot([RTF.cTMF],[RTF.Duration],'r.')
+
+subplot(224)
+plot([RTF.cSMF],[RTF.BW],'r.')
+
+figure
+subplot(221)
+loglog([RTF.Duration],FmBW,'k.')
+%plot([RTF.Duration],FmBW,'k.')
+corrcoef(log10([RTF(ii).Duration]),log10(FmBW(ii)))
+Fm=10:500;
+hold on
+plot(1./Fm*1000*.707,Fm,'r','linewidth',3)
+
+subplot(222)
+loglog([RTF.BW],RDBW,'k.')
+%plot([RTF.BW],RDBW,'k.')
+corrcoef(log10([RTF.BW]),log10(RDBW))
+RD=.1:4;
+hold on
+plot(1./RD*.707,RD,'r','linewidth',3)
+plot(1./RD,RD,'r-.','linewidth',3)
+plot(1./RD.25,RD,'r-.','linewidth',3)
+
+
+subplot(223)
+loglog([RTF.Delay],[RTF.HalfEnvDuration],'k.')
+%corrcoef(log10([RTF.Delay]),log10([RTF.HalfEnvDuration]))
+
+subplot(224)
+loglog([RTF.BF],[RTF.HalfEnvBW],'k.')
+

@@ -1,0 +1,65 @@
+clear all
+Fs=44100 
+dX=1/10
+f1=200
+fN=16000
+Fm=500
+fm1=.5
+dfm=1
+Nms=10
+OF=2
+Norm='Amp'
+MSflag=1
+dis='log'
+ATT=30
+dT=0.05
+Overlap=0.9
+GDelay='y'
+dFm=10;
+
+%JackHammer
+XJack=wavread('norm_CSE-22 Pneumatic drills at road works.wav');
+XJack=XJack(19000:2.9E5,1);
+XJack=XJack/std(XJack);
+[AudDataJack]=audiogram(XJack,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSJack]=audiogrammultiscale(AudDataJack,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT)
+[AmpDataJack]=audiogramampdist(AudDataJack,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSJack]=audiogramchancorrmultiscale(AudDataMSJack,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataJack]=audiogramchancorr(AudDataJack,Fs,dX,f1,fN,Fm,OF,Norm,dis,ATT);
+[RipSpecJack]=ripplespec(AudDataJack,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT)
+
+%Water Example
+%
+%Possible Tracks - Smoky Mts. Summer -28, 45, 46, 51, 67, 81, 89, 90, 94
+%
+%XWater=wavread('/Users/escabi/data/Natural Sounds/Smoky Winter/13 - Track 13.WAV');
+%XWater=XWater(:,1);
+%XWater=wavread('/Users/escabi/data/Natural Sounds/Smoky Summer/45 - Track 45.WAV');
+%XWater=XWater(1:44100*5,1);
+
+%Babling Brook
+XBrook=wavread('norm_ASE-08 Bubbling Water.wav	');
+XBrook=XBrook(1:44100*10,1);
+XBrook=XBrook/std(XBrook);
+[AudDataBrook]=audiogram(XBrook,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSBrook]=audiogrammultiscale(AudDataBrook,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT)
+[AmpDataBrook]=audiogramampdist(AudDataBrook,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSBrook]=audiogramchancorrmultiscale(AudDataMSBrook,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataBrook]=audiogramchancorr(AudDataBrook,Fs,dX,f1,fN,Fm,OF,Norm,dis,ATT);
+[RipSpecBrook]=ripplespec(AudDataBrook,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+
+%Helicopter 
+XHeli=wavread('/Users/escabi/data/Natural Sounds/Smoky Summer/46 - Track 46.WAV');
+XHeli=XHeli(44100*5:44100*15,1);
+%XHeli=XHeli(1:44100*10,1);
+XHeli=XHeli/std(XRain);
+[AudDataRain]=audiogram(XRain,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSRain]=audiogrammultiscale(AudDataRain,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT)
+[AmpDataRain]=audiogramampdist(AudDataRain,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSRain]=audiogramchancorrmultiscale(AudDataMSRain,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataRain]=audiogramchancorr(AudDataRain,Fs,dX,f1,fN,Fm,OF,Norm,dis,ATT);
+[RipSpecRain]=ripplespec(AudDataRain,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+
+
+save Fig1Data XBrook AudDataBrook AmpDataBrook CorrDataBrook CorrDataMSBrook AudDataMSBrook RipSpecBrook XRain AudDataRain AmpDataRain CorrDataRain CorrDataMSRain AudDataMSRain RipSpecRain XJack AudDataJack AmpDataJack CorrDataJack CorrDataMSJack AudDataMSJack RipSpecJack
+save Fig1Data

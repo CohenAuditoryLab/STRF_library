@@ -1,0 +1,95 @@
+load all_paramJan14nortf.mat
+RTFall=RTF;
+load single_units_param_march12.mat
+RTFsu=RTF;
+
+
+i_all=find([RTFall.flag]==1 & [RTFall.PLI]>0.15 & ~isnan([[RTFall.FmUpperCutoff]-[RTFall.FmLowerCutoff]]));
+i_su=find([RTFsu.flag]==1 & [RTFsu.PLI]>0.15 & ~isnan([[RTFsu.FmUpperCutoff]-[RTFsu.FmLowerCutoff]]));
+
+
+%Is there a problem with FmLowerCutoff - when you plot bTMF versus lower
+%cutoff some sites bTMF<FmLowerCutoff???????
+
+
+%Fairly good results r=0.69 MU, 0.56 SU
+%If I use cTMF and bwTMF I get around 0.7 for SU and MU
+
+%bSMF Histogram - Multiple peaks
+
+%This gives awesome results, this might be OK to compare - very high
+%correlation
+subplot(221)
+loglog([RTFall(i_all).cTMF2],[RTFall(i_all).FmUpperCutoff]-[RTFall(i_all).FmLowerCutoff],'k.')
+hold on
+loglog([RTFsu(i_su).cTMF2],[RTFsu(i_su).FmUpperCutoff]-[RTFsu(i_su).FmLowerCutoff],'r.')
+xlabel('cTMF2')
+ylabel('3 dB Fm Bandwidth')
+Rsu=bootstrapcorrcoef([RTFsu(i_su).cTMF2],[RTFsu(i_su).FmUpperCutoff]-[RTFsu(i_su).FmLowerCutoff],1000);
+Rall=bootstrapcorrcoef([RTFall(i_all).cTMF2],[RTFall(i_all).FmUpperCutoff]-[RTFall(i_all).FmLowerCutoff],1000);
+title(['SU (r=' num2str(mean(Rsu),2) '+/-' num2str(std(Rsu),2) '),   ALL (r=' num2str(mean(Rall),2) '+/-' num2str(std(Rall),2) ')'])
+
+
+%Not quite as nice for RD if using SU, OK for MU
+%loglog([RTF(i).cSMF2],[RTF(i).RDUpperCutoff]-[RTF(i).RDLowerCutoff],'b.')
+subplot(222)
+loglog([RTFall(i_all).cSMF2],[RTFall(i_all).RDUpperCutoff]-[RTFall(i_all).RDLowerCutoff],'k.')
+hold on
+loglog([RTFsu(i_su).cSMF2],[RTFsu(i_su).RDUpperCutoff]-[RTFsu(i_su).RDLowerCutoff],'r.')
+xlabel('cSMF2')
+ylabel('3 dB RD Bandwidth')
+Rsu=bootstrapcorrcoef([RTFsu(i_su).cSMF2],[RTFsu(i_su).RDUpperCutoff]-[RTFsu(i_su).RDLowerCutoff],1000);
+Rall=bootstrapcorrcoef([RTFall(i_all).cSMF2],[RTFall(i_all).RDUpperCutoff]-[RTFall(i_all).RDLowerCutoff],1000);
+title(['SU (r=' num2str(mean(Rsu),2) '+/-' num2str(std(Rsu),2) '),   ALL (r=' num2str(mean(Rall),2) '+/-' num2str(std(Rall),2) ')'])
+axis([.1 5 .1 5])
+
+
+
+
+%This gives awesome results, this might be OK to compare - very high
+%correlation
+subplot(223)
+loglog([RTFall(i_all).cTMF2],[RTFall(i_all).bwTMF2],'k.')
+hold on
+loglog([RTFsu(i_su).cTMF2],[RTFsu(i_su).bwTMF2],'r.')
+xlabel('cTMF2')
+ylabel('3 dB Fm Bandwidth')
+Rsu=bootstrapcorrcoef([RTFsu(i_su).cTMF2],[RTFsu(i_su).bwTMF2],1000);
+Rall=bootstrapcorrcoef([RTFall(i_all).cTMF2],[RTFall(i_all).bwTMF2],1000);
+title(['SU (r=' num2str(mean(Rsu),2) '+/-' num2str(std(Rsu),2) '),   ALL (r=' num2str(mean(Rall),2) '+/-' num2str(std(Rall),2) ')'])
+
+
+%Not quite as nice for RD if using SU, OK for MU
+%loglog([RTF(i).cSMF2],[RTF(i).RDUpperCutoff]-[RTF(i).RDLowerCutoff],'b.')
+subplot(224)
+loglog([RTFall(i_all).cSMF2],[RTFall(i_all).bwSMF2],'k.')
+hold on
+loglog([RTFsu(i_su).cSMF2],[RTFsu(i_su).bwSMF2],'r.')
+xlabel('cSMF2')
+ylabel('3 dB RD Bandwidth')
+Rsu=bootstrapcorrcoef([RTFsu(i_su).cSMF2],[RTFsu(i_su).bwSMF2],1000);
+Rall=bootstrapcorrcoef([RTFall(i_all).cSMF2],[RTFall(i_all).bwSMF2],1000);
+title(['SU (r=' num2str(mean(Rsu),2) '+/-' num2str(std(Rsu),2) '),   ALL (r=' num2str(mean(Rall),2) '+/-' num2str(std(Rall),2) ')'])
+axis([.01 5 .01 5])
+
+
+
+
+figure
+plot([RTFall(i_all).bTMF],[RTFall(i_all).FmLowerCutoff],'k.')
+hold on
+plot([RTFsu(i_su).bTMF],[RTFall(i_a).FmLowerCutoff],'r.')
+plot([0 500], [0 500])
+
+
+%I think the problem is with bTMF- because of linear sampling!!! At low
+%frequencies you cannot see scaling. You need octave resolution to see
+%effects????????
+% 
+% 
+% B=log2([RTF(i).FmUpperCutoff]-[RTF(i).FmLowerCutoff])
+% A=log2([RTF(i).cTMF2])
+% plot(A,B)
+% hist(A./B,30)
+% Q=2.^A./2.^B    %Quality factor
+% hist(Q,30)

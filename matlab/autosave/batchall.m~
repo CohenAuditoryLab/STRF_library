@@ -1,0 +1,10 @@
+cd AmpMod25HzCarrier100HzJitter95LinAmp	
+batch25.m
+cd ../AmpMod25HzCarrier200HzJitter95LogAmp
+batch25.m
+cd ../AmpMod25HzCarrier100HzJitter95LogAmp
+batch25.m
+cd ../AmpMod25HzCarrier200HzJitter95LinAmp
+batch25.m
+
+

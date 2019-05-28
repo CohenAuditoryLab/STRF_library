@@ -1,0 +1,82 @@
+fig=figure;
+set(fig,'position',[700,400,560,560],'paperposition',[.25 1  8 8.5]);
+%Remove for Biological Cybernetics
+
+cd ~/data/figure/SFN98/figdata2
+load movingrip
+cd ..
+cd figdata8
+load Spike.mat
+
+subplot(8,1,1)
+Spike=-(norm1d(Spike)-.5)*2;
+Noise=(randn(1,1024)-.5)*.1/2;
+Noise(351:395)=Spike;
+Noise(551:595)=Spike;
+Noise(901:945)=Spike;
+plot(Noise,'k')
+axis([1 1024 -1.25 1.25])
+set(gca,'XTickLabels',[])
+set(gca,'YTickLabels',[])
+set(gca,'visible','off')
+
+subplot(312)
+cd ../../SCI99/figdata1
+load movingrip
+max(taxis)
+taxis=taxis/max(taxis)*.4;
+imagesc(taxis,log2(faxis/500),X),shading flat,colormap jet,axis([0 .4 0 3.01])
+set(gca,'YDir','normal')
+cd ../../SFN98/figdata8
+set(gca,'XTick',[0 .2 .4])
+set(gca,'YTick',[0 1 2 3])
+%Pos=get(gca,'Position')
+%set(gca,'Position',[Pos(1) Pos(2)+.21 Pos(3) Pos(4)])
+
+
+subplot(4,3,11)
+axis xy
+load icg315t3_f17_ch1_u0_dB.mat
+Max=max(max(STRF1*sqrt(PP)));
+imagesc(-taxis*1000,log2(faxis/500),STRF1*sqrt(PP))
+axis([-100 0 0 3])
+set(gca,'Ydir','normal')
+set(gca,'XTick',[-100 -50 0])
+set(gca,'XTickLabel',[100 50 0])
+Pos=get(gca,'Position')
+%set(gca,'Position',[Pos(1) Pos(2)+.05 Pos(3) Pos(4)])
+caxis([-Max Max])
+
+%orient landscape
+
+
+cd ../../SCI99/figdata1
+load movingrip
+max(taxis)
+taxis=taxis/max(taxis)*.4;
+i=find(Noise==max(Noise));
+M=length(Noise);
+spet=round(3000*i/M);
+N=round(.1/.4*3000);
+
+fig=figure;
+set(fig,'position',[700,400,560,560],'paperposition',[.25 1  8 8.5]);
+subplot(4,3,1)
+S1=X(:,spet(1)-N:spet(1));
+imagesc(((0:size(S1,2)-1)/3000*.4-.1)*1000,log2(faxis/500),S1),shading flat,colormap jet,ylim([0 3]),set(gca,'YDir','normal')
+subplot(4,3,2)
+S2=S1+X(:,spet(2)-N:spet(2));
+imagesc(((0:size(S1,2)-1)/3000*.4-.1)*1000,log2(faxis/500),S2),shading flat,colormap jet,ylim([0 3]),set(gca,'YDir','normal')
+subplot(4,3,3)
+S3=S2+X(:,spet(3)-N:spet(3));
+imagesc(((0:size(S1,2)-1)/3000*.4-.1)*1000,log2(faxis/500),S3),shading flat,colormap jet,ylim([0 3]),set(gca,'YDir','normal')
+
+
+figure 
+subplot(521)
+Fs=44100
+plot((0:length(Y)-1)/Fs,Y,'k')
+set(gca,'visible','off')
+xlim([0 .1])
+
+cd '~/Documents/Monty Escabi/Auditory Presentations/UCHC Retreat 2011'

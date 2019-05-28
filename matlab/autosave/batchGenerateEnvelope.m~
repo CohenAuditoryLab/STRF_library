@@ -1,0 +1,15 @@
+%Generates the random envelopes used in shigs lab; parameters were provided
+%by Brian
+
+outfile='RandomICEnvelopePredictionShig'
+Fu = 400
+gamma = 30
+ModType = 'dB'
+T = 9.5
+Tp = 4.5
+L = 20
+rt = 4
+Fs = 97656.25
+mtfmodnoiseunifgenvshig(outfile,Fu,gamma,ModType,T,Tp,L,rt,Fs)
+
+

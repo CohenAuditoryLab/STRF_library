@@ -1,0 +1,264 @@
+cd PopulationMTF/
+load 3d_data
+cd ..
+load data_for_gainplot_new.mat
+
+
+%
+%Gain plots with mod gain function from IC.
+% i=find(Fm>0);
+% Fm=Fm(i);
+% u=mean(u);
+% u=u(i);
+%Temporal Poly:0.7946    0.3986
+%Spectral  Poly:0.7571    0.0656
+
+
+%Speech
+Fm=result(1).Xt;
+RD=result(1).Xs;
+v=mean(abs(result(1).V),2);
+u=mean(abs(result(1).U),2);
+BW=10^(0.3986)*Fm.^(0.7946);%BW=Fm;
+BWs=10^(0.0656)*RD.^(0.7571);%BW=Fm;
+k=2;
+
+while Fm(k)+BW(k)/2<max(Fm)
+    i=find(Fm>Fm(k)-BW(k)/2 & Fm<Fm(k)+BW(k)/2);
+    V1(k/2)=sum(v(i));
+    FM(k/2)=Fm(k);
+    k=k+2;
+end
+subplot(3,2,1);
+semilogx(result(1).Xt,10*log10(mean(abs(result(1).V),2)'),'--','Color',[0.5,0.5,0.5]);
+hold on;
+semilogx(FM,10*log10(V1),'k')
+
+ Xt=FM;
+ i=find(Xt<=400 & Xt>=2);
+ Vt=V1;
+ betat=lsqcurvefit(@(betat,Freq) (betat(1)*Freq.^betat(2)),[1 -1],Xt(i),Vt(i));
+ semilogx(Xt,10*log10(betat(1)*Xt.^betat(2)),'r');
+ [betat]
+ 
+
+[P11,S11]=polyfit(log10(Xt(i)),10*log10(Vt(i)),1);
+semilogx(Xt(i),P11(1)*log10(Xt(i))+P11(2),'g');
+axis([0 400 -40 10]);
+P11
+
+set(gca,'XTick',[0 1 5 10 100 400],'XTickLabel',[0 1 5 10 100 400]);
+dRD=RD(2)-RD(1);
+k=2;
+while RD(k)+BWs(k)/2<max(RD)
+    i=find(RD>RD(k)-BWs(k)/2 & RD<RD(k)+BWs(k)/2);
+    
+ 
+%[RD(k) BWs(k)]    
+%Gain(k/2)=-RD(k)+BWs(k)/2+RD(k)+BWs(k)/2;
+    U1(k/2)=sum(u(i))*dRD;
+    Rd(k/2)=RD(k);
+    k=k+2;
+end
+subplot(3,2,2);
+semilogx(result(1).Xs,10*log10(mean(abs(result(1).U),2)'),'--','Color',[0.5,0.5,0.5]);
+hold on;
+
+semilogx(Rd,10*log10(U1),'k')
+Xs=Rd;
+i=find(Rd>=.2 & Rd<=1.5);
+[P12,S12]=polyfit(log10(Rd(i)),10*log10(U1(i)),1);
+semilogx(Rd(i),P12(1)*log10(Xs(i))+P12(2),'g')
+axis([0.25 4 -40 10]);
+set(gca,'XTick',[0.1 0.25 0.5 1 2 4],'XTickLabel',[0.1 0.25 0.5 1 2 4]);
+P12
+
+ Xs=Rd;
+ i=find(Xs>=.2 & Xs<=1.5);
+ Vs=U1;
+ betas=lsqcurvefit(@(betas,Freq) (betas(1)*Freq.^betas(2)),[1 -1],Xs(i),Vs(i));
+  semilogx(Xs,10*log10(betas(1)*Xs.^betas(2)),'r');
+  [betas]
+
+
+%Efficiency 
+k=1
+TemporalEfficiency(k,:)=(mean(abs(result(k).V),2)'/max(mean(abs(result(k).V),2)'));
+TemporalEfficiencyIC(k,:)=(V1/max(V1));
+SpectralEfficiency(k,:)=(mean(abs(result(k).U),2)'/max(mean(abs(result(k).U),2)'));
+SpectralEfficiencyIC(k,:)=(U1/max(U1));
+  
+%Vocalizations
+Fm=result(2).Xt;
+RD=result(2).Xs;
+v=mean(abs(result(2).V),2);
+u=mean(abs(result(2).U),2);
+BW=10^(0.3986)*Fm.^(0.7946);%BW=Fm;
+BWs=10^(0.0656)*RD.^(0.7571);%BW=Fm;
+k=2;
+
+while Fm(k)+BW(k)/2<max(Fm)
+    i=find(Fm>Fm(k)-BW(k)/2 & Fm<Fm(k)+BW(k)/2);
+    V1(k/2)=sum(v(i));
+    FM(k/2)=Fm(k);
+    k=k+2;
+end
+subplot(3,2,3);
+
+semilogx(result(2).Xt,10*log10(mean(abs(result(2).V),2)'),'--','Color',[0.5,0.5,0.5]);
+hold on;
+semilogx(FM,10*log10(V1),'k')
+
+
+ Xt=FM;
+ i=find(Xt<=400 & Xt>=2);
+ Vt=V1;
+ betat=lsqcurvefit(@(betat,Freq) (betat(1)*Freq.^betat(2)),[1 -1],Xt(i),Vt(i));
+ semilogx(Xt,10*log10(betat(1)*Xt.^betat(2)),'r');
+ [betat]
+ 
+
+Xt=FM;
+ i=find(FM<=400 & FM>=2);
+[P21,S21]=polyfit(log10(FM(i)),10*log10(V1(i)),1);
+semilogx(Xt(i),P21(1)*log10(Xt(i))+P21(2),'g');
+axis([0 400 -40 10]);
+P21
+
+set(gca,'XTick',[0 1 5 10 100 400],'XTickLabel',[0 1 5 10 100 400]);
+k=2;
+while RD(k)+BWs(k)/2<max(RD)
+    i=find(RD>RD(k)-BWs(k)/2 & RD<RD(k)+BWs(k)/2);
+    U1(k/2)=sum(u(i));
+    Rd(k/2)=RD(k);
+    k=k+2;
+end
+subplot(3,2,4);
+semilogx(result(2).Xs,10*log10(mean(abs(result(2).U),2)'),'--','Color',[0.5,0.5,0.5]);
+hold on;
+semilogx(Rd,10*log10(U1),'k')
+i=find(Rd>.2 & Rd<1.5);
+[P22,S22]=polyfit(log10(Rd(i)),10*log10(U1(i)),1);
+P22
+axis([0.25 4 -40 10]);
+set(gca,'XTick',[0.1 0.25 0.5 1 2 4],'XTickLabel',[0.1 0.25 0.5 1 2 4]);
+hold on
+semilogx(Rd,P22(1)*log10(Rd)+P22(2),'g')
+hold off
+
+  
+ Xs=Rd;
+ i=find(Xs>=.2 & Xs<=1.5);
+ Vs=U1;
+ betas=lsqcurvefit(@(betas,Freq) (betas(1)*Freq.^betas(2)),[1 -1],Xs(i),Vs(i));
+ hold on
+  semilogx(Xs,10*log10(betas(1)*Xs.^betas(2)),'r');
+  [betas]
+
+%Efficiency 
+k=2
+TemporalEfficiency(k,:)=(mean(abs(result(k).V),2)'/max(mean(abs(result(k).V),2)'));
+TemporalEfficiencyIC(k,:)=(V1/max(V1));
+SpectralEfficiency(k,:)=(mean(abs(result(k).U),2)'/max(mean(abs(result(k).U),2)'));
+SpectralEfficiencyIC(k,:)=(U1/max(U1));
+  
+  
+%Background
+Fm=result(3).Xt;
+RD=result(3).Xs;
+v=mean(abs(result(3).V),2);
+u=mean(abs(result(3).U),2);
+BW=10^(0.3986)*Fm.^(0.7946);%BW=Fm;
+BWs=10^(0.0656)*RD.^(0.7571);%BW=Fm;
+k=2;
+
+while Fm(k)+BW(k)/2<max(Fm)
+    i=find(Fm>Fm(k)-BW(k)/2 & Fm<Fm(k)+BW(k)/2);
+    V1(k/2)=sum(v(i));
+    FM(k/2)=Fm(k);
+    k=k+2;
+end
+subplot(3,2,5);
+
+semilogx(result(3).Xt,10*log10(mean(abs(result(3).V),2)'),'--','Color',[0.5,0.5,0.5]);
+hold on;
+semilogx(FM,10*log10(V1),'k');
+
+ Xt=FM;
+ i=find(Xt<=400 & Xt>=2);
+ Vt=V1;
+ betat=lsqcurvefit(@(betat,Freq) (betat(1)*Freq.^betat(2)),[1 -1],Xt(i),Vt(i));
+ semilogx(Xt,10*log10(betat(1)*Xt.^betat(2)),'r');
+ [betat]
+
+i=find(FM>2 & FM<400);
+[P31,S31]=polyfit(log10(FM(i)),10*log10(V1(i)),1);
+semilogx(Xt(i),P31(1)*log10(Xt(i))+P31(2),'g');
+P31
+axis([0 400 -40 10]);
+set(gca,'XTick',[0 1 5 10 100 400],'XTickLabel',[0 1 5 10 100 400]);
+k=2;
+while RD(k)+BWs(k)/2<max(RD)
+    i=find(RD>RD(k)-BWs(k)/2 & RD<RD(k)+BWs(k)/2);
+    U1(k/2)=sum(u(i));
+    Rd(k/2)=RD(k);
+    k=k+2;
+end
+subplot(3,2,6);
+semilogx(result(3).Xs,10*log10(mean(abs(result(3).U),2)'),'--','Color',[0.5,0.5,0.5]);
+hold on;
+semilogx(Rd,10*log10(U1),'k')
+i=find(Rd>.2 & Rd<1.5);
+[P32,S32]=polyfit(log10(Rd(i)),10*log10(U1(i)),1);
+axis([0.25 4 -40 10]);
+set(gca,'XTick',[0.1 0.25 0.5 1 2 4],'XTickLabel',[0.1 0.25 0.5 1 2 4]);
+hold on
+semilogx(Rd,P22(1)*log10(Rd)+P22(2),'g')
+P32
+
+ Xs=Rd;
+ i=find(Xs>=.2 & Xs<=1.5);
+ Vs=U1;
+ betas=lsqcurvefit(@(betas,Freq) (betas(1)*Freq.^betas(2)),[1 -1],Xs(i),Vs(i));
+  semilogx(Xs,10*log10(betas(1)*Xs.^betas(2)),'r');
+  [betas]
+  
+%Efficiency 
+k=3
+TemporalEfficiency(k,:)=(mean(abs(result(k).V),2)'/max(mean(abs(result(k).V),2)'));
+TemporalEfficiencyIC(k,:)=(V1/max(V1));
+SpectralEfficiency(k,:)=(mean(abs(result(k).U),2)'/max(mean(abs(result(k).U),2)'));
+SpectralEfficiencyIC(k,:)=(U1/max(U1));
+
+
+
+
+
+
+
+
+figure
+TemporalEfficiency=100*reshape(TemporalEfficiency,1,numel(TemporalEfficiency));
+TemporalEfficiencyIC=100*reshape(TemporalEfficiencyIC,1,numel(TemporalEfficiencyIC));
+SpectralEfficiency=100*reshape(SpectralEfficiency,1,numel(SpectralEfficiency));
+SpectralEfficiencyIC=100*reshape(SpectralEfficiencyIC,1,numel(SpectralEfficiencyIC));
+
+TemporalEfficiencyB=bootstrp(1000,'mean',TemporalEfficiency);
+TemporalEfficiencyICB=bootstrp(1000,'mean',TemporalEfficiencyIC);
+SpectralEfficiencyB=bootstrp(1000,'mean',SpectralEfficiency);
+SpectralEfficiencyICB=bootstrp(1000,'mean',SpectralEfficiencyIC);
+
+
+ES=[mean(SpectralEfficiency) mean(SpectralEfficiencyIC)];
+ET=[mean(TemporalEfficiency) mean(TemporalEfficiencyIC)];
+stdES=[std(SpectralEfficiencyB) std(SpectralEfficiencyICB)];
+stdET=[std(TemporalEfficiencyB) std(TemporalEfficiencyICB)];
+
+Efficiency=[ET;ES];
+stdEfficiency=[stdET;stdES];
+H=bar(Efficiency)
+set(H(1),'FaceColor','k')
+set(H(2),'FaceColor',[0.5 .5 .5])
+hold on
+H=errorbar([.85 1.15; 1.85 2.15],Efficiency,stdEfficiency,'k.')
+set(H(1),'color',[.5 .5 .5])

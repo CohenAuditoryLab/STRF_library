@@ -1,0 +1,71 @@
+%%%%%%%%%%%%%%%%%%%% NEURON WITH UNRELIABLE BURST %%%%%%%%%%%%%%%%%%%%%%%%%
+clear 
+
+Fsd=5000;
+Fs=5000;
+T=300
+MaxTau=25
+refractory=5;
+L=40
+lambdan=10
+[spet]=poissongenstat(L,T,Fsd,refractory);
+sigma=1
+p=.25
+
+
+N=100
+lambdan=0
+for k=1:N
+    k
+    [spetA]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [spetB]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [JitterDataLambdan0(k)]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'n');
+end
+lambdan=5
+for k=1:N
+    k
+    [spetA]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [spetB]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [JitterDataLambdan5(k)]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'n');
+end
+lambdan=10
+for k=1:N
+    k
+    [spetA]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [spetB]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [JitterDataLambdan10(k)]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'n');
+end
+
+
+
+lambdan=5
+sigma=2
+for k=1:N
+    k
+    [spetA]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [spetB]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [JitterDataSigma2(k)]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'n');
+end
+lambdan=5
+sigma=4
+for k=1:N
+    k
+    [spetA]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [spetB]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [JitterDataSigma4(k)]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'n');
+end
+lambdan=5
+sigma=8
+for k=1:N
+    k
+    [spetA]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [spetB]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+    [JitterDataSigma8(k)]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'n');
+end
+
+
+
+
+
+save DataSpontaneous.mat
+

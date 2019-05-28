@@ -1,0 +1,71 @@
+%Definitions
+Cm=[100E-9 10E-9 1E-9]
+R=1.035E6
+Et=-66.9/1000   %In units of Volts
+freq=1:1:1000;
+Im_peak=100E-9;
+Fs=10000;
+dt=1/Fs;
+t=(1:Fs)/Fs;    %One second of input signal
+
+
+%Change capacitance / fix resistance
+figure(1)
+for m=1:length(Cm)
+    
+    C=Cm(m);
+    tau=R*C;
+for k=1:length(freq)
+   
+    Im=Im_peak*sin(2*pi*freq(k)*t);
+    
+    Vm(1)=0;
+    for l=1:length(t)-1
+       
+        Vm(l+1)=Vm(l)*(1-dt/tau)+dt*Im(l)/C;
+        
+    end
+    
+    Voutpp(k)=max(abs(Vm(Fs/2:Fs)));
+end
+
+    
+    semilogx(freq,20*log10(Voutpp))
+    hold on
+    xlabel('Frequency')
+    ylabel('Magnitude (dB rel 1 V)')
+    
+end
+
+
+
+%Change resistance / fix capacitance
+C=10E-9
+Rm=[1 10 100]*1E6
+
+figure(2)
+for m=1:length(Rm)
+    
+    R=Rm(m);
+    tau=R*C;
+    Voutpp=[];
+for k=1:length(freq)
+   
+    Im=Im_peak*sin(2*pi*freq(k)*t);
+    
+    Vm(1)=0;
+    for l=1:length(t)-1
+       
+        Vm(l+1)=Vm(l)*(1-dt/tau)+dt*Im(l)/C;
+        
+    end
+    
+    Voutpp(k)=max(abs(Vm(Fs/2:Fs)));
+end
+
+    semilogx(freq,20*log10(Voutpp))
+    hold on
+    xlabel('Frequency')
+    ylabel('Magnitude (dB rel 1 V)')
+   
+end

@@ -1,0 +1,26 @@
+%Theoretical Result
+dt=0.0001;                              %Sampling Resolution
+Fs=1/dt;                                %Sampling Rate
+time=0:dt:.5;                           %5-second time-axis
+Tau=0.01;                               %Cell Membrane Time Constant
+A=100;
+y=A*Tau*(1-exp(-time/Tau));                         %Closed Form Output Equantion
+plot(time,y,'color',[.75 .75 .75],'linewidth',3)    %Plotting Theoretical Output
+hold on
+
+%Simulated Output
+h=A*exp(-time/Tau);                     %Impulse Response
+x=[zeros(1,Fs) ones(1,Fs*4)];           %Step Input
+y=conv(h,x)*dt;                         %Step Response, obtained by convolving: y=h*x
+
+%Plotting Simulated Results
+time=(0:length(x)-1)*dt-1;
+plot(time,x,'k-.')                      %Plotting Input
+hold on
+time=(0:length(y)-1)*dt-1;
+plot(time,y,'k')                        %Plotting Output
+axis([-.1 .1 0 1.2])
+xlabel('time (sec)','fontsize',14)
+ylabel('Amplitude','fontsize',14)
+set(gca,'XTick',[-.1 -0.05 0 0.05 .1 ])
+set(gca,'YTick',[0:.2:1.2])

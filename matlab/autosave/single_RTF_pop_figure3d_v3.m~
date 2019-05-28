@@ -1,0 +1,131 @@
+
+%Finding the population average RTF for NEW Data, either normalized to MAX
+%or AREA
+load tetrodesingleunits_updated.mat
+%i=find([RFParam.SNR]>14 & [RFParam.wvSNR]>15 & [RFParam.BFHz]>2e3 & [RFParam.BFHz]<32e3 );
+i=find([RFParam.SNR]>14 & [RFParam.wvSNR]>15);
+ripple=RFParam(i);
+    Fm=ripple(1).Fm;RD=ripple(1).RD;
+    RTFm=0;RTFs=0;Max=0;Sum=0;tsum=0;usum=0;tmul=1;umul=1;
+    for k=1:length(ripple)
+        Max=max(max(ripple(k).RTF));
+        Sum=sum(sum(ripple(k).RTF));
+        tsum=tsum+(ripple(k).RTF/Max);
+        usum=usum+(ripple(k).RTF/Sum);
+        tmul=tmul.*ripple(k).RTF/Max;
+        umul=umul.*ripple(k).RTF/Sum;
+        Params(k).BestFm=[ripple(k).BestFm];
+        Params(k).BestRD=[ripple(k).BestRD];
+        Params(k).peakBF=[ripple(k).PeakBF]; 
+        Params(k).BFHz=[ripple(k).BFHz]; 
+        Params(k).cTMF=[ripple(k).cTMF];
+        Params(k).cSMF=[ripple(k).cSMF];
+        Params(k).bwTMF=[ripple(k).bwTMF];
+        Params(k).bwSMF=[ripple(k).bwSMF];
+        Params(k).FmUpperCutoff=[RTF(index(k)).FmUpperCutoff];
+        Params(k).RDUpperCutoff=[RTF(index(k)).RDUpperCutoff];
+    end
+   
+%Finding the population average RTF for OLD Data, either normalized to MAX or AREA
+load Old_data_paramters_07_03.mat 
+RTF=RFParam1;
+Fma=RTF(1).Fm;RDa=RTF(1).RD;
+%index=find([RTF.BFHz]>1e3 & [RTF.BFHz]<32e3 & [RTF.flag]==1 & [RTF.PLI]>0.078);
+index=find([RTF.flag]==1 & [RTF.PLI]>0.078);
+    
+RTFm1=0;RTFs1=0;Max1=0;Sum1=0;
+t1sum=0;u1sum=0;
+t1mul=1;u1mul=1;
+    for k=1:length(index)
+        Max1=max(max(RTF(index(k)).RTF));
+        Sum1=sum(sum(RTF(index(k)).RTF));
+        t1temp=interp2(RTF(index(k)).Fm,RTF(index(k)).RD,RTF(index(k)).RTF,Fma,RDa');
+         t1sum=t1sum+(t1temp/Max1);
+         u1sum=u1sum+(t1temp/Sum1);
+         
+        Params1(k).BestFm=[RTF(index(k)).BestFm];
+        Params1(k).BestRD=[RTF(index(k)).BestRD];
+        Params1(k).peakBF=[RTF(index(k)).PeakBF]; 
+        Params1(k).BFHz=[RTF(k).BFHz];
+        Params1(k).cTMF=[RTF(index(k)).cTMF];
+        Params1(k).cSMF=[RTF(index(k)).cSMF];
+        Params1(k).bwTMF=[RTF(index(k)).bwTMF];
+        Params1(k).bwSMF=[RTF(index(k)).bwSMF];
+        Params1(k).FmUpperCutoff=[RTF(index(k)).FmUpperCutoff];
+        Params1(k).RDUpperCutoff=[RTF(index(k)).RDUpperCutoff];
+        
+        
+    end
+  
+ %Averaging OLD and NEW Dataset and Normalizing for the total number of neurons
+  N=length(Params1)+length(Params);
+  u2tempsum=interp2(Fm,RD,usum,Fma,RDa');       %OLD Data needs to be interpolated to match NEW size
+  uRTFsum=(u2tempsum+u1sum)/N;
+  t2tempsum=interp2(Fm,RD,tsum,Fma,RDa');       %OLD Data needs to be interpolated to match NEW size
+  tRTFsum=(t2tempsum+t1sum)/N;
+ 
+  %Converting RTF to dB
+  tRTFsum=10*log10(tRTFsum);
+  uRTFsum=10*log10(uRTFsum);
+  uRTFsum=uRTFsum-max(max(uRTFsum)); %Normalize so that maximum is at 0 dB
+  
+%Finding Contours for 90% of the RTF Power
+RTF=tRTFsum;        %RTF in dB
+RTFp=10.^(RTF/10);  %Power RTF
+dBt=0;              %Threshold in dB
+i=find(RTF>dBt & ~isnan(RTF)); 
+ii=find(~isnan(RTF));
+while sum(RTFp(i))./sum(RTFp(ii))<0.9
+    
+    dBt=dBt-0.1;
+   i=find(RTF>dBt & ~isnan(RTF));
+   disp(['Threshold=' num2str(dBt) 'dB, Power='  num2str(sum(RTFp(i))./sum(RTFp(ii)))])
+       
+end
+
+%Finding Contours for 90% of the RTF Power
+RTF=uRTFsum;        %RTF in dB
+RTFp=10.^(RTF/10);  %Power RTF
+dBu=0;              %Threshold in dB
+i=find(RTF>dBu & ~isnan(RTF)); 
+ii=find(~isnan(RTF));
+while sum(RTFp(i))./sum(RTFp(ii))<0.9
+    
+    dBu=dBu-0.1;
+   i=find(RTF>dBu & ~isnan(RTF));
+   disp(['Threshold=' num2str(dBu) 'dB, Power='  num2str(sum(RTFp(i))./sum(RTFp(ii)))])
+       
+end
+
+
+%Plotting Results
+    figure;
+    subplot(2,1,1);
+    imagesc(Fma,RDa,(tRTFsum));colorbar
+    axis([-500 500 0 4])
+    set(gca,'YDir','normal');
+    hold on
+    contour(Fma,RDa,tRTFsum,dBt*[1 1],'k')
+    plot([Params1.cTMF],[Params1.cSMF],'k.')
+    plot([Params.cTMF],[Params.cSMF],'k.')
+    hold on
+    plot(-[Params1.cTMF],[Params1.cSMF],'k.')
+    plot(-[Params.cTMF],[Params.cSMF],'k.')
+    title('Norm to Max')
+    %caxis([-25 0]) 
+    
+    subplot(2,1,2);
+    imagesc(Fma,RDa,(uRTFsum));colorbar
+    axis([-500 500 0 4])
+    set(gca,'YDir','normal');
+    hold on
+    contour(Fma,RDa,uRTFsum,dBu*[1 1],'k')
+    plot([Params1.cTMF],[Params1.cSMF],'k.')
+    plot([Params.cTMF],[Params.cSMF],'k.')
+    hold on
+    plot(-[Params1.cTMF],[Params1.cSMF],'k.')
+    plot(-[Params.cTMF],[Params.cSMF],'k.')
+    title('Norm to Area')
+    %caxis([-25 0]) 
+    %set(gca,'visible','off');
+ 

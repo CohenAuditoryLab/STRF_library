@@ -1,0 +1,192 @@
+%
+%MODEL RESULTS SHOWING ERRORS IN CORRELATION MEASUREMENTS AS A FUNCTION OF
+%NUMBER OF SPIKES
+%
+
+%Plot Erro Boxplots for Correlation Estimates - Direct and Model
+cd figdata4
+load FigData4Err
+load FigData4ErrSpec
+figure
+for k=1:length(Nspikes)
+
+    Ep(k)=mean(reshape(Err_p(:,:,k),1,11*10));
+    Epg(k)=mean(reshape(Err_pg(:,:,k),1,11*10));
+    Esigma(k)=mean(reshape(Err_sigma(:,:,k),1,11*10));
+    Esigmag(k)=mean(reshape(Err_sigmag(:,:,k),1,11*10));
+
+         
+    EpSpec(k)=mean(reshape(ErrSpec_p(:,:,k),1,11*10));
+    EsigmaSpec(k)=mean(reshape(ErrSpec_sigma(:,:,k),1,11*10));
+
+%     EpMed(k)=median(reshape(Err_p(:,:,k),1,11*10));
+%     EpgMed(k)=median(reshape(Err_pg(:,:,k),1,11*10));
+%     EsigmaMed(k)=median(reshape(Err_sigma(:,:,k),1,11*10));
+%     EsigmagMed(k)=median(reshape(Err_sigmag(:,:,k),1,11*10));
+    
+    
+end
+
+%subplot(332)
+%loglog(Nspikes,Esigmag,'ko-')
+%hold on
+%loglog(Nspikes,EsigmagMed,'ko-')
+%loglog(Nspikes,Esigma,'k^-')
+%loglog(Nspikes,EsigmaMed,'k^-')
+
+
+%subplot(333)
+%loglog(Nspikes,Epg,'ko-')
+%hold on
+%loglog(Nspikes,EpgMed,'ko-')
+%loglog(Nspikes,Ep,'k^-')
+%loglog(Nspikes,EpMed,'k^-')
+
+Ep=reshape(Err_p,11*10,7);
+Epg=reshape(Err_pg,11*10,7);
+Esigma=reshape(Err_sigma,11*10,7);
+Esigmag=reshape(Err_sigmag,11*10,7);
+
+subplot(221)
+boxplot(log10(Epg),'notch','on','color','k','sym','k+')
+set(gca,'YTick',[-2 -1 0 1 2])
+set(gca,'YTickLabel',[.01 .1 1 10 100])
+set(gca,'XTick',[1:7])
+set(gca,'XTickLabel',[2 4 8 16 32 64 128])
+xlabel('Number of Spikes (x 100)')
+ylabel('Percent Error')
+ylim(log10([0.01 600]))
+
+subplot(222)
+boxplot(log10(Ep),'notch','on','color','k','sym','k+')
+set(gca,'YTick',[-2 -1 0 1 2])
+set(gca,'YTickLabel',[.01 .1 1 10 100])
+set(gca,'XTick',[1:7])
+set(gca,'XTickLabel',[2 4 8 16 32 64 128])
+ylim(log10([0.01 600]))
+set(gca,'XTick',[1:7])
+set(gca,'XTickLabel',[2 4 8 16 32 64 128])
+xlabel('Number of Spikes (x 100)')
+ylabel('Percent Error')
+
+subplot(223)
+boxplot(log10(Esigmag),'notch','on','color','k','sym','k+')
+set(gca,'YTick',[-2 -1 0 1 2])
+set(gca,'YTickLabel',[.01 .1 1 10 100])
+ylim(log10([0.01 600]))
+set(gca,'XTick',[1:7])
+set(gca,'XTickLabel',[2 4 8 16 32 64 128])
+xlabel('Number of Spikes (x 100)')
+ylabel('Percent Error')
+
+subplot(224)
+boxplot(log10(Esigma),'notch','on','color','k','sym','k+')
+set(gca,'YTick',[-2 -1 0 1 2])
+set(gca,'YTickLabel',[.01 .1 1 10 100])
+ylim(log10([0.01 600]))
+set(gca,'XTick',[1:7])
+set(gca,'XTickLabel',[2 4 8 16 32 64 128])
+xlabel('Number of Spikes (x 100)')
+ylabel('Percent Error')
+
+
+
+%Spectral Errors
+figure
+Ep=reshape(ErrSpec_p,11*10,7);
+Esigma=reshape(ErrSpec_sigma,11*10,7);
+
+subplot(221)
+boxplot(log10(Ep),'notch','on','color','k','sym','k+')
+set(gca,'YTick',[-2 -1 0 1 2])
+set(gca,'YTickLabel',[.01 .1 1 10 100])
+set(gca,'XTick',[1:7])
+set(gca,'XTickLabel',[2 4 8 16 32 64 128])
+ylim(log10([0.01 600]))
+set(gca,'XTick',[1:7])
+set(gca,'XTickLabel',[2 4 8 16 32 64 128])
+xlabel('Number of Spikes (x 100)')
+ylabel('Percent Error')
+
+subplot(223)
+boxplot(log10(Esigma),'notch','on','color','k','sym','k+')
+set(gca,'YTick',[-2 -1 0 1 2])
+set(gca,'YTickLabel',[.01 .1 1 10 100])
+ylim(log10([0.01 600]))
+set(gca,'XTick',[1:7])
+set(gca,'XTickLabel',[2 4 8 16 32 64 128])
+xlabel('Number of Spikes (x 100)')
+ylabel('Percent Error')
+
+
+
+
+
+
+
+
+
+
+
+figure
+k=1
+subplot(331)
+plot(reshape(Pg(:,:,k),1,11*10),reshape(PP,1,11*10),'ko')
+axis([0.05 1.1 0.05 1.1])
+subplot(334)
+loglog(reshape(Sigmag(:,:,k),1,11*10),reshape(Sig,1,11*10),'ko')
+axis([0.08 12 0.08 12])
+
+k=4
+subplot(332)
+plot(reshape(Pg(:,:,k),1,11*10),reshape(PP,1,11*10),'ko')
+axis([0.05 1.1 0.05 1.1])
+subplot(335)
+loglog(reshape(Sigmag(:,:,k),1,11*10),reshape(Sig,1,11*10),'ko')
+axis([0.08 12 0.08 12])
+
+k=7
+subplot(333)
+plot(reshape(Pg(:,:,k),1,11*10),reshape(PP,1,11*10),'ko')
+axis([0.05 1.1 0.05 1.1])
+subplot(336)
+loglog(reshape(Sigmag(:,:,k),1,11*10),reshape(Sig,1,11*10),'ko')
+axis([0.08 12 0.08 12])
+
+%%%%%%%%%
+
+
+
+figure
+k=1
+subplot(331)
+plot(reshape(P(:,:,k),1,11*10),reshape(PP,1,11*10),'ko')
+axis([0.05 1.1 0.05 1.1])
+subplot(334)
+loglog(reshape(Sigma(:,:,k),1,11*10),reshape(Sig,1,11*10),'ko')
+axis([0.08 12 0.08 12])
+set(gca,'XTick',[0.1 1 10])
+set(gca,'YTick',[0.1 1 10])
+
+k=4
+subplot(332)
+plot(reshape(P(:,:,k),1,11*10),reshape(PP,1,11*10),'ko')
+axis([0.05 1.1 0.05 1.1])
+subplot(335)
+loglog(reshape(Sigma(:,:,k),1,11*10),reshape(Sig,1,11*10),'ko')
+axis([0.08 12 0.08 12])
+set(gca,'XTick',[0.1 1 10])
+set(gca,'YTick',[0.1 1 10])
+
+k=7
+subplot(333)
+plot(reshape(P(:,:,k),1,11*10),reshape(PP,1,11*10),'ko')
+axis([0.05 1.1 0.05 1.1])
+subplot(336)
+loglog(reshape(Sigma(:,:,k),1,11*10),reshape(Sig,1,11*10),'ko')
+axis([0.08 12 0.08 12])
+set(gca,'XTick',[0.1 1 10])
+set(gca,'YTick',[0.1 1 10])
+
+
+cd ..

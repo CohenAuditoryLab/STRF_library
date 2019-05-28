@@ -1,0 +1,51 @@
+%load ./FigData/ECoGFRARAT072213Tank2.mat
+
+L1=size(FTCn,1);
+L2=size(FTCn,2);
+N1=size(FTCn(1).Rpp,1);
+N2=size(FTCn(1).Rpp,2);
+for k=1:L1
+    for l=1:L2
+            
+            FRA=FTCn(k,l).Rpp;
+            FRAs=reshape(FTCns(k,l).Rpp,1,N1*N2);
+            i=find(FRA<mean(FRAs)+std(FRAs)*2);
+            FRA(i)=zeros(size(i));
+            %FTC(k,l).data=(FRA-mean(FRAs))/std(FRAs)*sqrt(6)/sqrt(10);
+            %%six trials vs. 10; normalized SD above baseline for figure
+            FTC(k,l).data=FRA;
+            FTC(k,l).Freq=FTCn(k,l).Freq;
+            FTC(k,l).Level=FTCn(k,l).Level;
+            
+            [FTCStats] = ftccentroid2(FTC(k,l));
+            
+            Mean(k,l,:)=FTCStats.Mean;
+            Std(k,l,:)=FTCStats.Std;
+    end
+end
+
+imagesc(rot90(rot90(log2(Mean(:,:,7)./1000)))),set(gca,'YDir','normal'),caxis([0 5]),c=colorbar;
+set(gca,'YTick',[0:4])
+set(c,'YTick',[1  3  5])
+set(c,'YTickLabel',[ 2  8  32])
+
+
+figure
+
+
+count=32    %Ploting upside down because of array orientation
+for k=1:4
+    for l=1:8
+        
+            subplot(4,8,count)
+            imagesc(log2(FTC(1,1).Freq/1000),FTC(1,1).Level+85,FTC(k,l).data');
+            caxis([0 15])
+            set(gca,'YDir','normal')
+            set(gca,'XTick',[1 3 5])
+            set(gca,'XTickLabel',[2 8 32])
+            count=count-1;
+            
+    end
+end
+
+

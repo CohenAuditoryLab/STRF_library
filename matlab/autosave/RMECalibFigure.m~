@@ -1,0 +1,70 @@
+[X,Fs]=wavread('testripple.wav');
+[Y,Fs]=wavread('testripplerecord.wav');
+Nx=length(X);
+
+%Find Delay
+R=xcorr(Y,X,1024*8);
+delay=find(R==max(R))-1024*8-1;
+
+%Truncate to same length and remove delay=1216, noise=1236
+Ny=length(Y);
+Y=Y(delay+1:length(X));
+X=X(1:length(Y));
+
+%Plotting Temporal Waveform
+subplot(211)
+Fs=96000
+L=1024*8;
+plot((1:L)/Fs,X(1:L))
+hold on
+plot((1:L)/Fs,Y(1:L)/std(Y(1:L))*std(X(1:L)),'r')
+
+%White Noise to find TF
+[X,Fs]=wavread('testnoise.wav');
+[Y,Fs]=wavread('testnoiserecord.wav');
+
+%Find Delay
+R=xcorr(Y,X,1024*8);
+delay=find(R==max(R))-1024*8-1;
+
+%Truncate to same length and remove delay=1216, noise=1236
+Ny=length(Y);
+Y=Y(delay+1:length(X));
+X=X(1:length(Y));
+
+%Plotting Coherence
+subplot(223)
+NFFT=512
+[Cyx,F]=cohere(Y,X,NFFT,Fs/1000);
+cohere(Y,X,NFFT,Fs/1000);
+%plot(F,Cyx)
+axis([1 48 .9 1.1])
+set(gca,'XTick',[0 10 20 30 40])
+title('Coherence')
+
+%Plotting SNR
+subplot(224)
+plot(F,10*log10(1./(1./Cyx-1)))    
+axis([1 48 0 80])
+title('SNR (dB)')
+xlabel('Freq. (kHZ)')
+
+%Find Delay
+R=xcorr(Y,X,1024*8);
+delay=find(R==max(R))-1024*8-1;
+
+
+%Computing the transfer function
+figure
+subplot(221)
+X=(X-mean(X))/std(X);
+Y=(Y-mean(Y))/std(Y);
+Pxx=csd(X,X,1024*8,96000);
+Pyx=csd(Y,X,1024*8,96000);
+H=(Pyx./Pxx);               %Note that this is TF for DA + AD
+Faxis=(0:1024*4)/1024/8*Fs'/1000;
+plot(Faxis,20*log10(abs(H)))    %10*log10() to measure only DA . Assumes that the transfer function is identical for both
+axis([1 48 -50 5])
+set(gca,'XTick',[0 10 20 30 40])
+title('Transfer Function')
+xlabel('Freq. (kHZ)')

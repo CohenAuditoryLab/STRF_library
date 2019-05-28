@@ -1,0 +1,43 @@
+clear all
+
+%Generating Harmonic Sounds
+Fs=44100
+df=100
+[X100]=amharmonicnoise(100,22050,df,0,0,0,1,Fs);
+df=200
+[X200]=amharmonicnoise(200,22050,df,0,0,0,1,Fs);
+df=300
+[X300]=amharmonicnoise(300,22050,df,0,0,0,1,Fs);
+
+%Ripple Spectrum Calculation
+Fs=44100
+dX=1/32
+dFm=5
+f1=250
+fN=16000
+Fm=500
+OF=2
+GDelay='y'
+Norm='Amp'
+dis='y'
+ATT=30
+[RipSpec100]=ripplespec(X100,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpec200]=ripplespec(X200,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpec300]=ripplespec(X300,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+
+%STFFT Ripple Spectrum Calculation (a la Sighn & Theunissen)
+Fs=44100
+df=150
+dFm=5
+f1=250
+fN=16000
+UT=8
+UF=2
+win='gauss'
+method='chui'
+method='3dB'
+[RipSpecSTFT100]=ripplespecstfft(X100,Fs,df,dFm,f1,fN,UT,UF,win,ATT,method);
+[RipSpecSTFT200]=ripplespecstfft(X200,Fs,df,dFm,f1,fN,UT,UF,win,ATT,method);
+[RipSpecSTFT300]=ripplespecstfft(X300,Fs,df,dFm,f1,fN,UT,UF,win,ATT,method);
+
+save HarmonicAnalysisMPSData

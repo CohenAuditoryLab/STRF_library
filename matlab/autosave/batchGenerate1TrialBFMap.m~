@@ -1,0 +1,95 @@
+clear all
+
+%load 26n
+%FTC=FTCn;
+%clear FTCn
+%load 26y
+%load MapMask_07_26_2010_Final.mat
+
+load 27n
+FTC=FTCn;
+clear FTCn
+load 27y
+load MapMask_07_26_2010_Final.mat
+
+
+
+% i=find(A1Mask);
+% for m=1:length(i)
+%     FTC(i(m)).data=zeros(length(FTC(1).Freq),length(FTC(1).Level));
+%     for k=1:length(FTC(1).Freq)
+%         for l=1:length(FTC(1).Level)
+%             FTC(i(m)).data(k,l)=max(squeeze(FTC(i(m)).Rtrial(k,l,3,:)))-min(squeeze(FTC(i(m)).Rtrial(k,l,3,:)));
+%             FTCn(i(m)).data(k,l)=max(squeeze(FTCn(i(m)).Rtrial(k,l,3,:)))-min(squeeze(FTCn(i(m)).Rtrial(k,l,3,:)));
+%         end
+%     end
+% end
+
+
+f0=FTC(1,1).Freq(1);
+X=log2(FTC(1,1).Freq/f0);
+for k=1:14
+    for l=1:14
+   
+    ([k l])
+    %6 Trial Average Data
+       N1=size(FTCn(k,l).Rpp,1);
+       N2=size(FTCn(k,l).Rpp,2);
+       M=mean(reshape(FTCn(k,l).Rpp,1,N1*N2));
+       S=std(reshape(FTCn(k,l).Rpp,1,N1*N2));
+        
+       Rpp=FTC(k,l).Rpp;
+       i=find(Rpp<M+3*S);
+       Rpp(i)=zeros(size(i));
+       
+       %Finding BF
+       bf=Rpp'*X'./sum(Rpp)';
+       bfhz=f0*2.^(bf);
+
+    %   %Computing Standard Deviation
+    %   XX=ones(length(bf),1)*X - bf*ones(size(X));  
+    %   sd=sqrt( sum(Rpp'.*XX.^2,2) ./sum(Rpp)' ) ;
+
+       BF(k,l,:)=bf;
+       BFHz(k,l,:)=bfhz;
+    %   Std(k,l,:)=sd;
+    
+    %1 Trial Average Data
+%      
+%     R=squeeze(FTCn(k,l).Rtrial(:,:,3,:));
+%     Rpp=max(R)-mean(R);
+    Rnoise=[];
+    for m=1:size(FTCn(1,1).Rtrial,1)
+        for n=1:size(FTCn(1,1).Rtrial,2)    
+            Rnoise=[Rnoise max(FTCn(k,l).Rtrial(m,n,3,:))-min(FTCn(k,l).Rtrial(m,n,3,:))];
+        end
+    end
+    M=mean(Rnoise);
+    S=std(Rnoise);
+    
+    for m=1:size(FTC(1,1).Rtrial,1)
+        for n=1:size(FTC(1,1).Rtrial,2)    
+            Rpp(m,n)=[max(FTC(k,l).Rtrial(m,n,5,:))-min(FTC(k,l).Rtrial(m,n,5,:))];
+        end
+    end
+    FTC(k,l).Rpp1trial=Rpp;
+    i=find(Rpp<M+3*S);
+    Rpp(i)=zeros(size(i));
+   
+       %Finding BF
+       bf=Rpp'*X'./sum(Rpp)';
+       bfhz=f0*2.^(bf);
+
+    %   %Computing Standard Deviation
+    %   XX=ones(length(bf),1)*X - bf*ones(size(X));  
+    %   sd=sqrt( sum(Rpp'.*XX.^2,2) ./sum(Rpp)' ) ;
+
+               BF1(k,l,:)=bf;
+               BFHz1(k,l,:)=bfhz;
+    
+
+    end
+end
+
+%save AC102610SingleTrialBFMap BF BFHz BF1 BFHz1 A1Mask FTC
+save AC102710SingleTrialBFMap BF BFHz BF1 BFHz1 A1Mask FTC

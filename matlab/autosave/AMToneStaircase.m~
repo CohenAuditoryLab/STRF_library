@@ -1,0 +1,20 @@
+fc=1000
+Fs=44100
+M=Fs
+L=8 %NUMBER OF TONES
+DX=.3333;  %SPACING IN OCTAVES
+
+Fm=100*2.^(DX*[0:L-1]);
+taxis=(1:M)/Fs;
+N=round(L/Fm(1)*Fs)
+
+XX=[];
+for k=1:L
+    E=(1-cos(2*pi*Fm(k)*taxis));
+    X=E.*sin(2*pi*fc*taxis);
+    XN=E.*2.*(rand(1,length(E))-0.5);
+
+    
+    XX=[XX X];
+    
+end

@@ -1,0 +1,126 @@
+M=log2(1500/1);
+x=(-1:M/25:M)
+sig=2.^x
+T=4
+B=10;
+M=1
+
+
+
+RAS=Texture(3).RAS;
+Fsd=1000;
+for k=1:length(sig)
+    %[RASsh]=shufflerandraster(RAS);
+    %[RASj]=rasteraddjitterunifcirc(RAS,sig(k),1,0);
+    [RASj]=rasteraddjitterpanzeri(RAS,sig(k))
+    [RASsh]=shuffleraster(RAS);
+    [RASj]=rasterexpand(RASj,Fsd,T);
+    [RASsh]=rasterexpand(RASsh,Fsd,T);
+    RASj=RASj/Fsd;
+    RASj=ceil(RASj/max(max(RASj))); %Need to fix this, getting multiple spikes per bin, biases the information big time.
+    
+    RASsh=RASsh/Fsd;
+    taxis=(1:size(RASj,2))/Fsd;
+    [HWordt,HSpiket,HSect,HWord,HSpike,HSec,Rate]=infwordraster(RASj,taxis,Fsd,B,M);
+    [HWordtSH,HSpiketSH,HSectSH,HWordSH,HSpikeSH,HSecSH,RateSH]=infwordraster(RASsh,taxis,Fsd,B,M);
+    
+    N=length(HWord);
+    InfoData3(k).HWord=HWord(N);
+    InfoData3(k).HWordt=mean(HWordt);
+    InfoData3(k).HSpike=HSpike(N);
+    InfoData3(k).HSpiket=mean(HSpiket);
+    InfoData3(k).HSec=HSec(N);
+    InfoData3(k).HSect=mean(HSect);
+    InfoData3(k).Rate=Rate;
+    InfoData3(k).sig=sig(k);
+    
+    InfoData3SH(k).HWord=HWordSH(N);
+    InfoData3SH(k).HWordt=mean(HWordtSH);
+    InfoData3SH(k).HSpike=HSpikeSH(N);
+    InfoData3SH(k).HSpiket=mean(HSpiketSH);
+    InfoData3SH(k).HSec=HSecSH(N);
+    InfoData3SH(k).HSect=mean(HSectSH);
+    InfoData3SH(k).Rate=RateSH;
+    InfoData3SH(k).sig=sig(k);
+    
+end
+
+RAS=Texture(6).RAS;
+Fsd=1000;
+for k=1:length(sig)
+    %[RASsh]=shufflerandraster(RAS);
+    %[RASj]=rasteraddjitterunifcirc(RAS,sig(k),1,0);
+    [RASj]=rasteraddjitterpanzeri(RAS,sig(k))
+    [RASsh]=shuffleraster(RAS);
+    [RASj]=rasterexpand(RASj,Fsd,T);
+    [RASsh]=rasterexpand(RASsh,Fsd,T);
+    RASj=RASj/Fsd;
+    RASj=ceil(RASj/max(max(RASj))); %Need to fix this, getting multiple spikes per bin, biases the information big time.
+    
+    RASsh=RASsh/Fsd;
+    taxis=(1:size(RASj,2))/Fsd;
+    [HWordt,HSpiket,HSect,HWord,HSpike,HSec,Rate]=infwordraster(RASj,taxis,Fsd,B,M);
+    [HWordtSH,HSpiketSH,HSectSH,HWordSH,HSpikeSH,HSecSH,RateSH]=infwordraster(RASsh,taxis,Fsd,B,M);
+    
+    N=length(HWord);
+    InfoData6(k).HWord=HWord(N);
+    InfoData6(k).HWordt=mean(HWordt);
+    InfoData6(k).HSpike=HSpike(N);
+    InfoData6(k).HSpiket=mean(HSpiket);
+    InfoData6(k).HSec=HSec(N);
+    InfoData6(k).HSect=mean(HSect);
+    InfoData6(k).Rate=Rate;
+    InfoData6(k).sig=sig(k);
+    
+    InfoData6SH(k).HWord=HWordSH(N);
+    InfoData6SH(k).HWordt=mean(HWordtSH);
+    InfoData6SH(k).HSpike=HSpikeSH(N);
+    InfoData6SH(k).HSpiket=mean(HSpiketSH);
+    InfoData6SH(k).HSec=HSecSH(N);
+    InfoData6SH(k).HSect=mean(HSectSH);
+    InfoData6SH(k).Rate=RateSH;
+    InfoData6SH(k).sig=sig(k);
+    
+end
+
+
+
+RAS=Texture(9).RAS;
+Fsd=1000;
+for k=1:length(sig)
+    %[RASsh]=shufflerandraster(RAS);
+    %[RASj]=rasteraddjitterunifcirc(RAS,sig(k),1,0);
+    [RASj]=rasteraddjitterpanzeri(RAS,sig(k))
+    [RASsh]=shuffleraster(RAS);
+    [RASj]=rasterexpand(RASj,Fsd,T);
+    [RASsh]=rasterexpand(RASsh,Fsd,T);
+    RASj=RASj/Fsd;
+    RASj=ceil(RASj/max(max(RASj))); %Need to fix this, getting multiple spikes per bin, biases the information big time.
+    
+    RASsh=RASsh/Fsd;
+    taxis=(1:size(RASj,2))/Fsd;
+    [HWordt,HSpiket,HSect,HWord,HSpike,HSec,Rate]=infwordraster(RASj,taxis,Fsd,B,M);
+    [HWordtSH,HSpiketSH,HSectSH,HWordSH,HSpikeSH,HSecSH,RateSH]=infwordraster(RASsh,taxis,Fsd,B,M);
+    
+    N=length(HWord);
+    InfoData9(k).HWord=HWord(N);
+    InfoData9(k).HWordt=mean(HWordt);
+    InfoData9(k).HSpike=HSpike(N);
+    InfoData9(k).HSpiket=mean(HSpiket);
+    InfoData9(k).HSec=HSec(N);
+    InfoData9(k).HSect=mean(HSect);
+    InfoData9(k).Rate=Rate;
+    InfoData9(k).sig=sig(k);
+    
+    InfoData9SH(k).HWord=HWordSH(N);
+    InfoData9SH(k).HWordt=mean(HWordtSH);
+    InfoData9SH(k).HSpike=HSpikeSH(N);
+    InfoData9SH(k).HSpiket=mean(HSpiketSH);
+    InfoData9SH(k).HSec=HSecSH(N);
+    InfoData9SH(k).HSect=mean(HSectSH);
+    InfoData9SH(k).Rate=RateSH;
+    InfoData9SH(k).sig=sig(k);
+    
+end
+
+save InformationData InfoData3 InfoData6 InfoData9 InfoData3SH InfoData6SH InfoData9SH

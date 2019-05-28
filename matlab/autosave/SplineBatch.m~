@@ -1,0 +1,78 @@
+
+
+%VARIABLE SHAPE AND PERIODICITY - THESE SOUNDS COVER ALL COMBINATIONS
+cd ShapePeriodicity
+
+BW=inf
+Fm=[8 16 32 64 128 256 512]
+gamma=1
+p=8
+T=4
+Fs=125000
+
+count=1;
+for k=1:length(Fm)
+    for l=k:length(Fm)
+        Fc=Fm(l);
+        seed=count;
+        [X,Env]=pnbsplinemodnoise(BW,Fm(k),gamma,Fc,p,T,Fs,seed);
+        [Fc Fm(k)]
+        
+        SoundData(count).T=T;
+        SoundData(count).Fm=Fm(k);
+        SoundData(count).Fc=Fc;
+        SoundData(count).p=p;
+        SoundData(count).gamma=gamma;
+        SoundData(count).Fs=Fs;
+        SoundData(count).X=X;
+        SoundData(count).Env=Env;
+        
+        filename=['ModulatedSplineFm' num2str(Fm) 'Fc' num2str() '.wav']
+        wavwri(X,Fs,16,1,filename)
+       
+        count=count+1;
+    end
+end
+
+save ModulatedSpline_Param SoundData
+cd ..
+
+%VARIABLE SHAPE AND FIXED PERIODICITY 
+cd FixedPeriodicity
+clear all
+
+BW=inf
+Fm=[8 32 128]
+Fc=[8 16 32 64 128 256 512]
+gamma=1
+p=8
+T=4
+Fs=125000
+
+count=1;
+for k=1:length(Fm)
+    i=find(Fc>=Fm(k));
+    for l=min(i):length(Fc)
+        seed=count;
+        [X,Env]=pnbsplinemodnoise(BW,Fm(k),gamma,Fc(l),p,T,Fs,seed);
+        [Fc(l) Fm(k)]
+        
+        SoundData(count).T=T;
+        SoundData(count).Fm=Fm(k);
+        SoundData(count).Fc=Fc(l);
+        SoundData(count).p=p;
+        SoundData(count).gamma=gamma;
+        SoundData(count).Fs=Fs;
+        SoundData(count).X=X;
+        SoundData(count).Env=Env;
+        
+        filename=['ModulatedSpline' num2str(count) '.wav']
+        wavwri(X,Fs,16,1,filename)
+       
+        count=count+1;
+    end
+end
+
+save ModulatedSpline_Param SoundData
+cd ..
+

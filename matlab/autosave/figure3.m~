@@ -1,0 +1,53 @@
+%RAT VOCALIZATIONS from http://www.avisoft.com/rats.htm
+%
+%
+%Examples of rat ultrasonic vocalizations (USV)
+%Norwegian Rat (Rattus norvegicus), Wistar albino strain, Males
+%
+%The following recordings have been made with Avisoft-UltraSoundGate 116-200 at a sample rate of 214.285 kHz. In order to make the recordings audible, the sample rate of the original wav files has been set to 11.025 kHz (providing a time expansion factor of 19.44).
+%
+
+[Y,Fs]=wavread('rat_40.wav');
+Fs=214285
+
+[taxis,faxis,stft]=stfft(Y,Fs,50,2,2,'sinc',30);
+Envelope.stft=stft;
+Envelope.taxis=taxis;
+Envelope.faxis=faxis;
+  
+figure
+subplot(2,1,2)
+imagesc(taxis,faxis/1000,20*log10(abs(stft)))
+caxis([-50 20])
+set(gca,'YDir','normal')
+xlim([0 2.0])
+subplot(4,1,2)
+plot((1:length(Y))/Fs,Y,'k')
+set(gca,'visible','off')
+xlim([0 2.0])
+    
+
+[Y,Fs]=wavread('rat_22.wav');
+Fs=214285
+
+[taxis,faxis,stft]=stfft(Y,Fs,50,2,2,'sinc',30);
+Envelope.stft=stft;
+Envelope.taxis=taxis;
+Envelope.faxis=faxis;
+  
+figure
+subplot(2,1,2)
+imagesc(taxis,faxis/1000,20*log10(abs(stft)))
+caxis([-40 20])
+axis([0 1.18 0 50])
+set(gca,'YDir','normal')
+subplot(4,1,2)
+plot((1:length(Y))/Fs,Y,'k')
+set(gca,'visible','off')
+xlim([0 1.18])
+    
+figure
+subplot(2,1,2)
+imagesc(taxis,faxis/1000,20*log10(abs(stft)))
+caxis([-50 20])
+colorbar

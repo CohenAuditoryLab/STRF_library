@@ -1,0 +1,13 @@
+
+ load data_03_24_09.mat
+ load psychomtfic_param.mat
+ Data=DataPSYMTF11;
+ TD=.5
+ OnsetT=0
+ Unit=0
+ Fsd=1000
+ tc=[2.^(1/4*(0:36))];
+ 
+[MTF] = mtfpsychogenerateoptfast(Data,Fsd,tc,FM,GAMMA,TD,OnsetT,0);
+
+save PsychMTFDataMultipleTC MTF 

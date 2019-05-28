@@ -1,0 +1,31 @@
+
+load 0'9I01j seq44.mat'
+
+A=data.azimuths;
+for l=1:17
+    for k=1:4
+        RAS((l-1)*4+k).Fs=44100;
+        RAS((l-1)*4+k).spet=cell2mat(data.SpikeTimes(l,k))/1000*44100;
+        RAS((l-1)*4+k).azimuth=data.azimuths(l);
+        RAS((l-1)*4+k).T=1;
+    end
+end
+
+
+
+tau=[2 4 8 16 32 64];
+for k=1:length(tau)
+   
+    DPRIME=mtfdiscriminategeneratefast(RAS,4,4000,tau,A,.5,0);
+    
+end
+
+for k=1:6
+   
+    subplot(2,3,k)
+    imagesc(A,A,DPRIME(k).Dp)
+    colorbar
+    title(['tau=' num2str(tau(k)) ' msec'])
+    
+end
+

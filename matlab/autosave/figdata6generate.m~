@@ -1,0 +1,96 @@
+load IC97QJE3t4_f09_ch2_u0_Pre4000Hz.mat
+Fs=1/taxis(1);
+[RASTER]=rastercompress(RASTER,Fs,size(RASTER,2)/Fs);
+
+%Cimputing Shuffled and Auto Corr
+[JitterData]=jitterrastercorrspon(RASTER,Fs,50,'y')
+[JitterModel]=corrmodelfitspon(JitterData,'n');
+
+
+%Combining Model and Estimated Parameters
+JitterData.Rnoise=JitterModel.Rnoise;   %Note that now we optimize for Rnoise
+JitterData.lambdas=JitterModel.lambdas; %Note that now we optimize for lambdas
+JitterData.lambdad=JitterModel.lambdad; %Note that now we optimize for lambdas
+JitterData.Rmodel=JitterModel.Rmodel;
+JitterData.sigmag=JitterModel.sigmag;
+JitterData.pg=JitterModel.pg;
+JitterData.phog=JitterModel.phog;
+JitterData.lambdag=JitterModel.lambdag;
+JitterData.sigma=JitterModel.sigma;
+JitterData.p=JitterModel.p;
+JitterData.pho=JitterModel.pho;
+JitterData.lambda=JitterModel.lambda;
+JitterData.E=JitterModel.E;
+JitterData.dl=JitterModel.dl;
+
+
+save IC97QJE3t4_f09_ch2_u0_Jitter4000Hz.mat JitterData RASTER
+
+
+
+load IC97QJE3t4_f10_ch2_u0_Pre4000Hz.mat
+Fs=1/taxis(1);
+[RASTER]=rastercompress(RASTER,Fs,size(RASTER,2)/Fs);
+
+%[JitterData]=jitterrastercorrfitspon(RAS,Fs,50,'y')
+[JitterData]=jitterrastercorrspon(RASTER,Fs,50,'y')
+[JitterModel]=corrmodelfitspon(JitterData,'n');
+
+
+%Combining Model and Estimated Parameters
+JitterData.Rnoise=JitterModel.Rnoise;   %Note that now we optimize for Rnoise
+JitterData.lambdas=JitterModel.lambdas; %Note that now we optimize for lambdas
+JitterData.lambdad=JitterModel.lambdad; %Note that now we optimize for lambdas
+JitterData.Rmodel=JitterModel.Rmodel;
+JitterData.sigmag=JitterModel.sigmag;
+JitterData.pg=JitterModel.pg;
+JitterData.phog=JitterModel.phog;
+JitterData.lambdag=JitterModel.lambdag;
+JitterData.sigma=JitterModel.sigma;
+JitterData.p=JitterModel.p;
+JitterData.pho=JitterModel.pho;
+JitterData.lambda=JitterModel.lambda;
+JitterData.E=JitterModel.E;
+JitterData.dl=JitterModel.dl;
+
+
+save IC97QJE3t4_f10_ch2_u0_Jitter4000Hz.mat JitterData RASTER
+
+
+%%%%%%%%%%%%%%% SIMULATION %%%%%%%%%%%%%%%%%%%%%%%%%%
+Fs=4000
+dT=4
+seed=1
+N=200
+sigma=0.5
+p=0.25
+lambdan=5
+
+[spet]=poissongen(40*ones(1,Fs*5),Fs,Fs,dT,seed);
+[RASTER]=jitterraster2(spet,sigma,p,lambdan,dT,Fs,N);
+RAS=rasterexpand(RASTER,Fs,5);
+
+
+%Cimputing Shuffled and Auto Corr
+[JitterData]=jitterrastercorrspon(RASTER,Fs,50,'y')
+[JitterModel]=corrmodelfitspon(JitterData,'n');
+
+
+%Combining Model and Estimated Parameters
+JitterData.Rnoise=JitterModel.Rnoise;   %Note that now we optimize for Rnoise
+JitterData.lambdas=JitterModel.lambdas; %Note that now we optimize for lambdas
+JitterData.lambdad=JitterModel.lambdad; %Note that now we optimize for lambdas
+JitterData.Rmodel=JitterModel.Rmodel;
+JitterData.sigmag=JitterModel.sigmag;
+JitterData.pg=JitterModel.pg;
+JitterData.phog=JitterModel.phog;
+JitterData.lambdag=JitterModel.lambdag;
+JitterData.sigma=JitterModel.sigma;
+JitterData.p=JitterModel.p;
+JitterData.pho=JitterModel.pho;
+JitterData.lambda=JitterModel.lambda;
+JitterData.E=JitterModel.E;
+JitterData.dl=JitterModel.dl;
+
+
+save Fig6Simulation_Jitter4000Hz.mat JitterData RASTER

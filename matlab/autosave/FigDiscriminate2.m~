@@ -1,0 +1,113 @@
+clear all
+load ./figdata7/Figure7Data
+
+LB=1  %Number of bootstraps
+T=4
+
+NB=round(100*sqrt(2).^(0:10))
+DT=2.^(0:8);
+
+DT=[0 10]
+
+for m=1:length(DT)  %Jitter
+    
+    [RAS2j]=rastercompress(RAS2,Fs,T);
+    [RAS3j]=rastercompress(RAS3,Fs,T);
+    if DT(m)>1
+%        RAS2j=rasteraddjitterpanzericycle(RAS2j,DT(m));
+%        RAS3j=rasteraddjitterpanzericycle(RAS3j,DT(m));
+        [RAS2j]=rasteraddjitterunifcirc(RAS2j,DT(m),1,0);
+        [RAS3j]=rasteraddjitterunifcirc(RAS3j,DT(m),1,0);
+    else
+        RAS2j=RAS2j;
+        RAS3j=RAS3j;
+    end
+    [RAS2j]=rasterexpand(RAS2j,Fs,T);
+    [RAS3j]=rasterexpand(RAS3j,Fs,T);
+    
+    for i=1:LB      %Bootstrapping
+        count=1;
+        for nb=NB   %Number of Bins - Duration
+
+              clear ISI2A ISI2B ISI3A ISI3B P2A P3A P2B P3B
+              index=randperm(50);
+
+            %GENERATING TEMPLATE DISTRIBUTION (Model, odd responses)
+            count2=1;
+            for k=1:floor(4000/nb)
+                [RASTER2]=rastercompress(RAS2j(index(1:25),(k-1)*nb+1:k*nb),Fs,nb/1000);
+                [RASTER3]=rastercompress(RAS3j(index(1:25),(k-1)*nb+1:k*nb),Fs,nb/1000);
+
+                for l=1:length(RASTER2)
+                    ISI2A=[diff(RASTER2(l).spet)/Fs];
+                    ISI3A=[diff(RASTER3(l).spet)/Fs];
+                    if isempty(ISI2A)
+                        ISI2A=nb/Fs;
+                    end
+                    if isempty(ISI3A)
+                        ISI3A=nb/Fs;
+                    end
+                    N2=hist(log10(ISI2A*1000),0.2:0.1:4);
+                    P2A(count).p(count2,:)=N2/sum(N2);
+                    N3=hist(log10(ISI3A*1000),0.2:0.1:4);
+                    P3A(count).p(count2,:)=N3/sum(N3);
+                    count2=count2+1;
+                end
+            end
+
+            %GENERATING TEST DATA (even responses)
+            count2=1;
+            for k=1:floor(4000/nb)
+                [RASTER2]=rastercompress(RAS2j(index(26:50),(k-1)*nb+1:k*nb),Fs,nb/1000);
+                [RASTER3]=rastercompress(RAS3j(index(26:50),(k-1)*nb+1:k*nb),Fs,nb/1000);
+
+                for l=1:length(RASTER2)
+                    ISI2B=[diff(RASTER2(l).spet)/Fs];
+                    ISI3B=[diff(RASTER3(l).spet)/Fs];
+                    if isempty(ISI2B)
+                        ISI2B=nb/Fs;
+                    end
+                    if isempty(ISI3B)
+                        ISI3B=nb/Fs;
+                    end
+                    N2=hist(log10(ISI2B*1000),0.2:0.1:4);
+                    P2B(count).p(count2,:)=N2/sum(N2);
+                    N3=hist(log10(ISI3B*1000),0.2:0.1:4);
+                    P3B(count).p(count2,:)=N3/sum(N3);
+                    count2=count2+1;
+                end
+            end
+
+            %X22=P2B(count).p*mean(P2A(count).p)';
+            %X23=P2B(count).p*mean(P3A(count).p)';
+            %X32=P3B(count).p*mean(P2A(count).p)';
+            %X33=P3B(count).p*mean(P3A(count).p)';
+
+            B=P2B(count).p
+            B=B-mean(mean(B));
+            A=mean(P2A(count).p)';
+            A=A-mean(A);
+            X22=B*A./sqrt(var(B')+var(A));
+            
+            
+            %X22=corrcoef(P2B(count).p,mean(P2A(count).p));
+            %X22=X22(1,2);
+            %X23=corrcoef(P2B(count).p,mean(P3A(count).p));
+            %X23=X23(1,2);
+            %X32=corrcoef(P3B(count).p,mean(P2A(count).p));
+            %X32=X32(1,2);
+            %X33=corrcoef(P3B(count).p,mean(P3A(count).p));
+            %X33=X33(1,2);
+            
+            
+            D2(count,m,i)=( sum(X22>X23) ) / length(X22);
+            D3(count,m,i)=( sum(X33>X32) ) / length(X33);
+            count=count+1;
+        end
+
+    end
+
+end
+%shadedErrorBar((NB),mean(D3'),std(D3'),'r',1)
+%set(gca,'XAxis','log')
+%set(gca,'XScale','log')

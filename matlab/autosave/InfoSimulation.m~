@@ -1,0 +1,103 @@
+%Simulates a raster and tries to find out what the total information is. 
+%   Reliability Entropy
+%   Temporal Entropy
+%
+Fs=10000
+Fsd=200
+T=.1
+p=3
+sigma=15
+spet=T/2*Fs
+N=2000
+lambdan=0
+
+
+L=size(RAS,2);
+Mask=[7.^(0:L-1)];
+X=[];
+Nt=zeros(1,L);
+Xc=[];
+for k=1:10
+
+    [RASspet]=jitterraster(spet,sigma,p,lambdan,Fs,Fsd,N);
+    RAS=rasterexpand(RASspet,Fsd,T)/Fsd;
+    X=[X ; RAS*Mask'];
+    k
+    Xc=[Xc sum(RAS')];
+    Nt=Nt +sum(RAS);
+end
+
+%Total Entropy
+k=1;
+Xtemp=X;
+while length(Xtemp)>0
+   XX=Xtemp(1);
+   i=find(Xtemp==XX);
+   j=find(Xtemp~=XX);
+   P(k)=length(i);
+   Xtemp=Xtemp(j);
+   k=k+1;
+end
+P=P/sum(P);
+i=find(P~=0);
+P=P(i);
+Htotal=-sum(log2(P).*P)
+
+
+
+
+%%%%%%%%%%%%%%%TEMPORAL ENTROPY  %%%%%%%%%%%%%%%%%%%%%
+L=size(RAS,2);
+Mask=[7.^(0:L-1)];
+X=[];
+Nt=zeros(1,L);
+Xc=[];
+
+for m=1:14
+
+for k=1:10
+    
+    RAS=[];
+    for l=1:m
+        [RASspet]=jitterraster(spet,sigma,1,lambdan,Fs,Fsd,N);
+        if l==1
+            RAS=rasterexpand(RASspet,Fsd,T)/Fsd;
+        else
+           R=rasterexpand(RASspet,Fsd,T)/Fsd;
+           RAS=RAS+R;
+        end
+    
+    end
+    
+    
+    
+    X=[X ; RAS*Mask'];
+    
+end
+
+%Temporal Entropy
+k=1;
+Xtemp=X;
+while length(Xtemp)>0
+   XX=Xtemp(1);
+   i=find(Xtemp==XX);
+   j=find(Xtemp~=XX);
+   P(k)=length(i);
+   Xtemp=Xtemp(j);
+   k=k+1;
+end
+P=P/sum(P);
+i=find(P~=0);
+P=P(i);
+Htemporal(m)=-sum(log2(P).*P)
+
+
+end
+
+%Spike Count Entropy
+Nc=hist(Xc,0:max(Xc));
+Pc=Nc/sum(Nc);
+ic=find(Pc~=0);
+Pc=Pc(ic);
+Hc=-sum(log2(Pc).*Pc);
+

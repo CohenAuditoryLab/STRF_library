@@ -1,0 +1,47 @@
+Fs=48828
+Fsd=3000
+T=600
+MaxTau=50
+Disp='y'
+ 
+load SpetStruct
+
+count=1
+index=[];
+for k=1:242
+ 
+    spetA=SpetStruct(k).spetA;
+    spetB=SpetStruct(k).spetB;
+    iA=find(spetA>100*Fs);
+    iB=find(spetB>100*Fs);
+    spetA=spetA(iA)-100*Fs;
+    spetB=spetB(iB)-100*Fs;
+    
+    [XB]=spet2impulse(spetB,Fs,1/200,500);
+    [XA]=spet2impulse(spetA,Fs,1/200,500);
+ 
+   
+    T=500;
+    
+    subplot(211)
+    plot(XA)
+    hold on
+    plot(XB,'r')
+    hold off
+    subplot(212)
+    plot(abs(XA-XB)./max([XA ;XB]))
+    %pause
+%    if mean((XA-XB)/max([XA XB]))<.30  
+        if max(abs(XA-XB)./max([XA ;XB]))<.5
+    %if max(abs(XA-XB)/mean([XA XB]))<.5
+    
+        %figure(1)
+        [JitterDataSpon(count)]=jittercorrfitspon(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+        %figure(2)
+        [JitterData(count)]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+        
+        index=[index k]
+       count=count+1;
+   end
+    
+end

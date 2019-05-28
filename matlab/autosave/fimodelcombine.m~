@@ -1,0 +1,40 @@
+%function [HarmonicData]=fihilbert(X,Fs,fo,BW,ATT,L)
+%	
+%	FILE NAME       : FI HILBERT
+%	DESCRIPTION     : Find the instantanous frequency profile for the ith
+%                     harmonic, Fi. Bandpass filters to extract the ith
+%                     harmonic and then uses the hilbert transform to
+%                     estimate the phase and Fi.
+%
+%	X               : Signal
+%   fo              : Approximate mean of fundamental frequency (Hz)
+%   BW              : Bandwidth used to filter fundamental (Hz)
+%   ATT             : Filter attenuation (dB)
+%   L               : Number of Harmonics to extract
+%
+%   RETURNED VARIABLES
+%
+%   HarmonicData(k) : Array of data structure containing
+%                     .Y
+%                     .Phase
+%                     .Fi
+%
+% (C) Monty A. Escabi, June 2010
+%
+function [Xshift]=fimodelcombine(HarmonicData,L)
+
+Xshift=zeros(size(HarmonicData(1).Phase));
+for k=1:L
+
+    %Combining by shifting the fundamental
+    Phase=HarmonicData(1).Phase;
+    Fo=mean(HarmonicData(k).Fi);
+    time=(1:length(HarmonicData(k).Phase))/HarmonicData(k).Fs;
+    Xshift=Xshift+sin(2*pi*Fo*time+Phase)/(1/sqrt(2))*std(HarmonicData(k).Y);
+    
+    %Combining by Scaling the fundamental
+    Phase=HarmonicData(1).Phase;
+    Xshift=Xshift+sin(2*pi*Fo*time+Phase)/(1/sqrt(2))*std(HarmonicData(k).Y);
+    
+    
+end

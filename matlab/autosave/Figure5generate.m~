@@ -1,0 +1,126 @@
+
+% load allrasters_SRAF_Rat042613Block21Tetrode3Unit3.mat
+% 
+% Fsd=500
+% 
+% %Truncating Raster to 2 sec
+% T=2
+% for k=1:10
+%     [RR,Fs]=rasterexpand(MTF(k,10).RASTER,MTF(k,10).RASTER(1).Fs,T);
+%     MTFSRAF(k).RASTER=rastercompress(RR(:,1:round(MTF(k,10).RASTER(1).Fs*T)),MTF(k,10).RASTER(1).Fs,T);
+% end
+% 
+% figure
+% T=2
+% [RAS]=rasterexpand([MTFSRAF.RASTER],Fsd);
+% [i,j]=find(RAS);
+% plot(j,i,'k.')
+% print -dpsc fig5a.ps
+% 
+% figure
+% Ncyc=4
+% T=0
+% dT=0
+% for k=1:10
+%     FsdC=MTFSRAF(k).FM*100
+%     [RASTERc]=raster2cycleraster(MTFSRAF(k).RASTER,MTFSRAF(k).FM,Ncyc,T,dT)
+%     [CorrDataSRAF(k).RData]=rastercircularshufcorrfast(RASTERc,FsdC,'y'); 
+% end
+% 
+% for k=1:10
+%     subplot(10,1,10-k+1)
+%     plot(CorrDataSRAF(k).RData.Tau,CorrDataSRAF(k).RData.Rshuf,'k')
+% %    ylim([0 1000])
+%     set(gca,'visible','off')
+% end
+% print -dpsc fig5b.ps
+% 
+% %D Prime Analysis
+% TD=2
+% alpha=2^(log2(200/20)/20)
+% TC=20*alpha.^(0:20);
+% Ntrial=10
+% OnsetT=0
+% [MTFDiscSRAF] = mtfdiscriminategeneratefast([MTFSRAF.RASTER],Ntrial,Fsd,TC,[MTFSRAF.FM],TD,OnsetT)
+% Dp=MTFDiscSRAF(18).Dp;
+% for k=1:10
+%     for l=1:10
+%         
+%         if l>=k
+%            Dp(k,l)=Inf;
+%         end
+%     end
+% end
+% imagesc(Dp)
+% C=colormap(jet);
+% caxis([0 1.2])
+% C(64,:)=[1 1 1];
+% colormap(C)
+% colorbar
+% set(gca,'Box','off')
+% print -dpsc fig5c.ps
+
+%%%%%%%%%%%% A1 Example
+load allrasters_A1_Rat042613Block2Tetrode4Unit4.mat
+
+
+%Truncating Raster to 2 sec
+T=2
+for k=1:10
+    [RR,Fs]=rasterexpand(MTF(k,10).RASTER,MTF(k,10).RASTER(1).Fs,T);
+    MTFA1(k).RASTER=rastercompress(RR(:,1:round(MTF(k,10).RASTER(1).Fs*T)),MTF(k,10).RASTER(1).Fs,T);
+end
+
+figure
+T=2
+[RAS,Fs]=rasterexpand([MTFA1.RASTER],Fsd,T);
+[i,j]=find(RAS);
+plot(j,i,'k.')
+print -dpsc fig5d.ps
+
+Ncyc=4
+T=0
+dT=0
+for k=1:10
+    FsdC=MTFA1(k).FM*50
+    [RASTERc]=raster2cycleraster(MTFA1(k).RASTER,MTFA1(k).FM,Ncyc,T,dT)
+    [CorrDataA1(k).RData]=rastercircularshufcorrfast(RASTERc,FsdC,'y'); 
+end
+
+for k=1:10
+    subplot(10,1,10-k+1)
+    plot(CorrDataA1(k).RData.Tau,CorrDataA1(k).RData.Rshuf,'k')
+    TauMax=max(CorrDataA1(k).RData.Tau);
+    axis([-TauMax TauMax 0 600])
+%    ylim([0 1000])
+    set(gca,'visible','off')
+end
+print -dpsc fig5e.ps
+
+%D Prime Analysis
+TD=2
+alpha=2^(log2(200/20)/20)
+TC=20*alpha.^(0:20);
+Ntrial=10
+OnsetT=0
+[MTFDiscA1] = mtfdiscriminategeneratefast([MTFA1.RASTER],Ntrial,Fsd,TC,[MTFSRAF.FM],TD,OnsetT)
+Dp=MTFDiscA1(2).Dp;
+for k=1:10
+    for l=1:10
+        
+        if l>=k
+           Dp(k,l)=Inf;
+        end
+    end
+end
+imagesc(Dp)
+C=colormap(jet);
+caxis([0 1.2])
+C(64,:)=[1 1 1];
+colormap(C)
+colorbar
+set(gca,'Box','off')
+print -dpsc fig5f.ps
+
+%save Figure5Data MTFA1 MTFSRAF MTFDiscSRAF MTFDiscA1 CorrDataA1 CorrDataSRAF Fsd TC
+save Figure5Data MTFA1 MTFDiscA1 CorrDataA1 Fsd TC

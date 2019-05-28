@@ -1,0 +1,317 @@
+load('/Users/escabi/data/Yi Zheng/Yidata/FmAxis.mat')
+FMAxis=FMAxis(1:15);
+FMAxispnb=FMAxispnb(1:15);
+
+
+%%%%%%%%%%%%%%%%%%%%% SAM p=1 case %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+unit=1;
+for k=1:65
+   
+    %Load Data
+    filename0=['/Users/escabi/Dropbox/info_bias_p/SAM/SAM8000unit' int2str(k)];
+    filename00 = ['/Users/escabi/Dropbox/info_bias_p/jitter0/SAMjitter00unit' int2str(k)];
+    
+    if exist([filename0 '.mat'],'file') & exist([filename00 '.mat'],'file')
+        %Load Data Files
+        load(filename0)
+        load(filename00)
+        
+        %Computing Metrics
+        Hr = InfoDataModel00.HWordt(:,1); 
+        DataSAMreal.Hreli(:,:,unit) = repmat(Hr,1,21);
+        if size(InfoDataModel.HWord,2)==22
+        DataSAMreal.Htemp(:,:,unit) = InfoDataModel.HWordt(:,2:end)-DataSAMreal.Hreli(:,:,unit);
+        DataSAMreal.Info(:,:,unit)  = InfoDataModel.HWord(:,2:end)-InfoDataModel.HWordt(:,2:end); %-InfoDataModel.Ibias(:,2:end);
+        DataSAMreal.Htot(:,:,unit)  = InfoDataModel.HWord(:,2:end);
+        DataSAMreal.Ibias(:,:,unit) = InfoDataModel.Ibias(:,1:end);
+        elseif size(InfoDataModel.HWord,2)==21
+        DataSAMreal.Htemp(:,:,unit) = InfoDataModel.HWordt(:,1:end)-DataSAMreal.Hreli(:,:,unit);
+        DataSAMreal.Htemp(:,:,unit) = InfoDataModel.HWordt(:,1:end)-DataSAMreal.Hreli(:,:,unit);
+        DataSAMreal.Info(:,:,unit)  = InfoDataModel.HWord(:,1:end)-InfoDataModel.HWordt(:,1:end); %-InfoDataModel.Ibias(:,1:end);
+        DataSAMreal.Htot(:,:,unit)  = InfoDataModel.HWord(:,1:end);
+        DataSAMreal.Ibias(:,:,unit) = InfoDataModel.Ibias(:,1:end);
+        end
+        DataSAMreal.Freli(:,:,unit) = DataSAMreal.Hreli(:,:,unit)./DataSAMreal.Htot(:,:,unit);
+        DataSAMreal.Ftemp(:,:,unit) = DataSAMreal.Htemp(:,:,unit)./DataSAMreal.Htot(:,:,unit);
+        DataSAMreal.Feffi(:,:,unit) = DataSAMreal.Info(:,:,unit)./DataSAMreal.Htot(:,:,unit);
+    
+        %Increasing unit counter
+        unit=unit+1;
+    end
+    
+end
+
+
+%%%%%%%%%%%%%%%%%%%%% PNB p=1 case %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+unit=1;
+for k=1:65
+   
+    %Load Data
+    filename0=['/Users/escabi/Dropbox/info_bias_p/PNB/PNB8000unit' int2str(k)];
+    filename00 = ['/Users/escabi/Dropbox/info_bias_p/jitter0/PNBjitter00unit' int2str(k)];
+   
+    if exist([filename0 '.mat'],'file')
+        %Load Data Files
+        load(filename0)
+        load(filename00)
+
+        %Computing Metrics
+        Hr = InfoDataModel00.HWordt(:,1); 
+        DataPNBreal.Hreli(:,:,unit) = repmat(Hr,1,21);
+        if size(InfoDataModel.HWord,2)==22
+        Ht=InfoDataModel.HWordt(:,2:end)-DataPNBreal.Hreli(:,:,unit);
+        i=find(Ht<0);
+        Ht(i)=zeros(size(i));
+        DataSAMreal.Htemp(:,:,unit) = Ht;
+        DataPNBreal.Htemp(:,:,unit) = InfoDataModel.HWordt(:,2:end)-DataPNBreal.Hreli(:,:,unit);
+        DataPNBreal.Info(:,:,unit)  = InfoDataModel.HWord(:,2:end)-InfoDataModel.HWordt(:,2:end); %-InfoDataModel.Ibias(:,2:end);
+        DataPNBreal.Htot(:,:,unit)  = InfoDataModel.HWord(:,2:end);
+        DataPNBreal.Ibias(:,:,unit) = InfoDataModel.Ibias(:,2:end);
+        elseif size(InfoDataModel.HWord,2)==21
+        Ht=InfoDataModel.HWordt(:,1:end)-DataPNBreal.Hreli(:,:,unit);
+        i=find(Ht<0);
+        Ht(i)=zeros(size(i));
+        DataSAMreal.Htemp(:,:,unit) = Ht;
+        DataPNBreal.Htemp(:,:,unit) = InfoDataModel.HWordt(:,1:end)-DataPNBreal.Hreli(:,:,unit);
+        DataPNBreal.Info(:,:,unit)  = InfoDataModel.HWord(:,1:end)-InfoDataModel.HWordt(:,1:end); %-InfoDataModel.Ibias(:,1:end);
+        DataPNBreal.Htot(:,:,unit)  = InfoDataModel.HWord(:,1:end);
+        DataPNBreal.Ibias(:,:,unit) = InfoDataModel.Ibias(:,1:end);
+        end
+        DataPNBreal.Freli(:,:,unit) = DataPNBreal.Hreli(:,:,unit)./DataPNBreal.Htot(:,:,unit);
+        DataPNBreal.Ftemp(:,:,unit) = DataPNBreal.Htemp(:,:,unit)./DataPNBreal.Htot(:,:,unit);
+        DataPNBreal.Feffi(:,:,unit) = DataPNBreal.Info(:,:,unit)./DataPNBreal.Htot(:,:,unit);
+    
+        %Increasing unit counter
+        unit=unit+1;
+    end
+    
+end
+
+%Converting INF to NAN
+l=find(isinf(DataPNBreal.Freli));
+DataPNBreal.Freli(l)=nan(length(l),1);
+l=find(isinf(DataPNBreal.Ftemp));
+DataPNBreal.Ftemp(l)=nan(length(l),1);
+l=find(isinf(DataPNBreal.Feffi));
+DataPNBreal.Feffi(l)=nan(length(l),1);
+
+l=find(isinf(DataSAMreal.Freli));
+DataSAMreal.Freli(l)=nan(length(l),1);
+l=find(isinf(DataSAMreal.Ftemp));
+DataSAMreal.Ftemp(l)=nan(length(l),1);
+l=find(isinf(DataSAMreal.Feffi));
+DataSAMreal.Feffi(l)=nan(length(l),1);
+
+
+% %Fixing Odd cases - due to null division (calculation error)
+i=find(DataSAMreal.Freli>1);
+DataSAMreal.Freli(i)=ones(size(i));
+i=find(DataSAMreal.Freli<0);
+DataSAMreal.Freli(i)=zeros(size(i));
+i=find(DataSAMreal.Ftemp>1);
+DataSAMreal.Ftemp(i)=ones(size(i));
+i=find(DataSAMreal.Ftemp<0);
+DataSAMreal.Ftemp(i)=zeros(size(i));
+
+i=find(DataPNBreal.Freli>1);
+DataPNBreal.Freli(i)=ones(size(i));
+i=find(DataPNBreal.Freli<0);
+DataPNBreal.Freli(i)=zeros(size(i));
+i=find(DataPNBreal.Ftemp>1);
+DataPNBreal.Ftemp(i)=ones(size(i));
+i=find(DataPNBreal.Ftemp<0);
+DataPNBreal.Ftemp(i)=zeros(size(i));
+
+
+%%%%%%%%%%%%%%%%%%%%%%% PLOTTING SAM p=1 RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%
+sig=InfoDataModel.sig;
+figure
+subplot(221)
+imagesc(log2(sig),log2(FMAxis),nanmedian(DataSAMreal.Info,3)),colorbar,caxis([0 4]),set(gca,'YDir','normal')
+set(gca,'YTick',log2([2  8 32  128  512]))
+set(gca,'YTickLabel',([2  8  32  128  512]))
+set(gca,'XTick',log2([2  8 32  128 ]))
+set(gca,'XTickLabel',([2  8  32  128]))
+title('Info');
+subplot(222)
+imagesc(log2(sig),log2(FMAxis),nanmedian(DataSAMreal.Freli,3)),colorbar,caxis([0 1]),set(gca,'YDir','normal')
+set(gca,'YTick',log2([2  8 32  128  512]))
+set(gca,'YTickLabel',([2  8  32  128  512]))
+set(gca,'XTick',log2([2  8 32  128 ]))
+set(gca,'XTickLabel',([2  8  32  128]))
+title('Freli');
+subplot(223)
+imagesc(log2(sig),log2(FMAxis),nanmedian(DataSAMreal.Ftemp,3)),colorbar,caxis([0 1]),set(gca,'YDir','normal')
+set(gca,'YTick',log2([2  8 32  128  512]))
+set(gca,'YTickLabel',([2  8  32  128  512]))
+set(gca,'XTick',log2([2  8 32  128 ]))
+set(gca,'XTickLabel',([2  8  32  128]))
+title('Ftemp');
+
+subplot(224)
+imagesc(log2(FMAxis),log2(sig),nanmedian(DataSAMreal.Feffi,3)'),colorbar,caxis([0 0.2]),set(gca,'YDir','normal')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+set(gca,'YTick',log2([2  8 32  128 ]))
+set(gca,'YTickLabel',([2  8  32  128]))
+title('Feffi');
+hold on
+plot(log2(FMAxis),log2(1./FMAxis*1000),'color',[0.5 0.5 0.5],'linewidth',2)
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% PLOTTING PNB p=1 RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%
+figure
+title('PNB');
+subplot(221)
+imagesc(log2(sig),log2(FMAxispnb),nanmedian(DataPNBreal.Info,3)),colorbar,caxis([0 4]),set(gca,'YDir','normal')
+set(gca,'YTick',log2([2  8 32  128  512]))
+set(gca,'YTickLabel',([2  8  32  128  512]))
+set(gca,'XTick',log2([2  8 32  128 ]))
+set(gca,'XTickLabel',([2  8  32  128]))
+title('Info');
+subplot(222)
+imagesc(log2(sig),log2(FMAxispnb),nanmedian(DataPNBreal.Freli,3)),colorbar,caxis([0 1]),set(gca,'YDir','normal')
+set(gca,'YTick',log2([2  8 32  128  512]))
+set(gca,'YTickLabel',([2  8  32  128  512]))
+set(gca,'XTick',log2([2  8 32  128 ]))
+set(gca,'XTickLabel',([2  8  32  128]))
+title('Freli');
+subplot(223)
+imagesc(log2(sig),log2(FMAxispnb),nanmedian(DataPNBreal.Ftemp,3)),colorbar,caxis([0 1]),set(gca,'YDir','normal')
+set(gca,'YTick',log2([2  8 32  128  512]))
+set(gca,'YTickLabel',([2  8  32  128  512]))
+set(gca,'XTick',log2([2  8 32  128 ]))
+set(gca,'XTickLabel',([2  8  32  128]))
+title('Ftemp');
+subplot(224)
+imagesc(log2(FMAxispnb),log2(sig),nanmedian(DataPNBreal.Feffi,3)'),colorbar,caxis([0 0.4]),set(gca,'YDir','normal')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+set(gca,'YTick',log2([2  8 32  128 ]))
+set(gca,'YTickLabel',([2  8  32  128]))
+title('Feffi');
+
+
+%Finding PNB efficiency contour matched to SAM at 1 msec jitter
+EffPNB=(nanmedian(DataPNBreal.Feffi,3));
+EffSAM=(nanmedian(DataSAMreal.Feffi,3));
+for k=1:15
+    
+        try,ind(k)=min(find(EffPNB(k,:)<EffSAM(k,1)));,end
+end
+subplot(224)
+hold on
+plot(log2(FMAxis(1:length(ind))),log2(sig(ind)),'k','linewidth',2)
+plot(log2(FMAxis),log2(1./FMAxis*1000),'color',[0.5 0.5 0.5],'linewidth',2)
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  EFFICINECY FIGURES %%%%%%%%%%%%%%%%%%%%%%%%%
+load('/Users/escabi/data/Yi Zheng/Yidata/FmAxis.mat')
+FMAxis=FMAxis(1:15);
+FMAxispnb=FMAxispnb(1:15);
+
+figure
+subplot(221)
+X = bootstrp(1000,'nanmedian',squeeze(DataSAMreal.Feffi(:,1,:))');, SE=std(X);
+errorbar(log2(FMAxis),nanmedian(DataSAMreal.Feffi(:,1,:),3),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmedian',squeeze(DataPNBreal.Feffi(:,1,:))');, SE=std(X);
+errorbar(log2(FMAxispnb),nanmedian(DataPNBreal.Feffi(:,1,:),3),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 0.5])
+set(gca,'Box','off')
+
+subplot(222)
+X = bootstrp(1000,'nanmedian',squeeze(DataSAMreal.Freli(:,1,:))');, SE=std(X);
+errorbar(log2(FMAxis),nanmedian(DataSAMreal.Freli(:,1,:),3),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmedian',squeeze(DataPNBreal.Freli(:,1,:))');, SE=std(X);
+errorbar(log2(FMAxispnb),nanmedian(DataPNBreal.Freli(:,1,:),3),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 1])
+set(gca,'Box','off')
+
+subplot(223)
+X = bootstrp(1000,'nanmedian',squeeze(DataSAMreal.Ftemp(:,1,:))');, SE=std(X);
+errorbar(log2(FMAxis),nanmedian(DataSAMreal.Ftemp(:,1,:),3),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmedian',squeeze(DataPNBreal.Ftemp(:,1,:))');, SE=std(X);
+errorbar(log2(FMAxispnb),nanmedian(DataPNBreal.Ftemp(:,1,:),3),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 1])
+set(gca,'Box','off')
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  INFORMATION FIGURES %%%%%%%%%%%%%%%%%%%%%%%%%
+load('/Users/escabi/data/Yi Zheng/Yidata/FmAxis.mat')
+FMAxis=FMAxis(1:15);
+FMAxispnb=FMAxispnb(1:15);
+
+figure
+subplot(221)
+X = bootstrp(1000,'nanmedian',squeeze(DataSAMreal.Info(:,1,:))');, SE=std(X);
+errorbar(log2(FMAxis),nanmedian(DataSAMreal.Info(:,1,:),3),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmedian',squeeze(DataPNBreal.Info(:,1,:))');, SE=std(X);
+errorbar(log2(FMAxispnb),nanmedian(DataPNBreal.Info(:,1,:),3),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 1.5])
+set(gca,'Box','off')
+
+
+subplot(222)
+X = bootstrp(1000,'nanmedian',squeeze(DataSAMreal.Info(:,1,:))');, SE=FMAxis.*std(X);
+errorbar(log2(FMAxis),FMAxis'.*nanmedian(DataSAMreal.Info(:,1,:),3),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmedian',squeeze(DataPNBreal.Info(:,1,:))');, SE=FMAxispnb.*std(X);
+errorbar(log2(FMAxispnb),FMAxispnb'.*nanmedian(DataPNBreal.Info(:,1,:),3),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 13])
+set(gca,'Box','off')
+
+
+
+%Distribution of BMF for maximum information rate
+figure
+for k=1:53
+    ipnb(k)=find(FMAxis'.*squeeze(DataPNBreal.Info(:,1,k))==max(FMAxis'.*squeeze(DataPNBreal.Info(:,1,k))))
+    Ipnb(k)=max(FMAxis'.*squeeze(DataPNBreal.Info(:,1,k)));
+    isam(k)=find(FMAxis'.*squeeze(DataSAMreal.Info(:,1,k))==max(FMAxis'.*squeeze(DataSAMreal.Info(:,1,k))))
+    Isam(k)=max(FMAxis'.*squeeze(DataSAMreal.Info(:,1,k)));
+end
+subplot(221)
+hist(log2(FMAxis(isam)),2:9),set(gca,'XScale','lin')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+xlim(log2([4 512]))
+ch=get(gca,'children')
+set(ch,'facecolor','k')
+set(gca,'Box','off')
+subplot(222)
+hist(log2(FMAxispnb(ipnb)),2:9),set(gca,'XScale','lin')
+xlim(log2([4 512]))
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+ch=get(gca,'children')
+set(ch,'facecolor','k')
+set(gca,'Box','off')
+ylim([0 20])

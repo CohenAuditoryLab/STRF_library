@@ -1,0 +1,54 @@
+%Loading Example STRF
+load 
+timeaxis=taxis;
+freqaxis=faxis;
+
+%Time and Frequency Axis
+input.X=log2(faxis/faxis(length(faxis)/2));
+%input.X=-2.
+%input.taxis=0:.25:50;
+
+%     beta            : STRF parameter vector
+%                       beta(1): Response latency (msec)
+%                       beta(2): Rise time constant (msec)
+%                       beta(3): Decay time constant (msec)
+%                       beta(4): Best temporal modulation frequency (Hz)
+%                       beta(5): Temporal phase (0-2*pi)
+%                       beta(6): Best octave frequency, xo
+%                       beta(7): Gaussian spectral bandwidth (octaves)
+%                       beta(8): Best spectral modulation frequency (octaves)
+%                       beta(9): Spectral phase (0-2*pi)
+%                       beta(10): Peak Amplitude
+% 
+beta(1)=5
+beta(2)=1
+beta(3)=8/5;  %Alpha function decay time
+beta(4)=100
+beta(5)=pi/4
+beta(6)=0 %BF
+beta(7)=1
+beta(8)=0
+beta(9)=0
+beta(10)=1
+
+alpha=1.5
+for k=1:5
+    beta(2)=beta(2)*alpha;
+    beta(3)=beta(3)*alpha;
+    beta(4)=beta(4)/alpha;
+    [STRF(k).STRFm]=strfgaboralpha1([beta],input);
+    %[Fm,RD,RTF(k).RTF]=strf2rtf(input.taxis/1000,1000*2.^(input.X),STRF(k).STRFm,500,4);
+    taxis=input.taxis;
+    faxis=1000*2.^(input.X);
+end
+
+%Simulating STRF 
+MdB=30
+L=1799
+ftype='float'
+sprfile=''
+for k=1:5
+    [T,Y,Y1,Y2]=strfsprpre(sprfile,timeaxis,freqaxis,STRF(k).STRFm,STRF(k).STRFm,MdB,L,ftype); 
+    STRF(k).Y=Y1;
+    STRF(k).T=T;
+end

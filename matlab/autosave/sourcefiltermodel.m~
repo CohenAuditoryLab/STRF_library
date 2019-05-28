@@ -1,0 +1,35 @@
+
+
+%Source Spectrum
+f=100:100:3000;
+V=f*(-30)/3000+30+100/3000*30;
+set(gca,'YTick',[0 10 20 30])
+set(gca,'YTickLabel',[-30 -20 -10 0])
+
+%Filter Spectrum
+ff=0:3000;
+HH=10.^(-cos(2*pi*1/1000*(ff))/2);
+H=10.^(-cos(2*pi*1/1000*(f))/2);
+H=10*(H-min(HH))/(max(HH)-min(HH));
+HH=10*(HH-min(HH))/(max(HH)-min(HH));
+
+
+figure
+subplot(321)
+bar(f,V,.5)
+
+subplot(323)
+plot(ff,HH,'k')
+
+subplot(325)
+bar(f,V.*H,.5)
+
+%Source Signal
+Fs=44100;
+f=100:100:3000;
+V=f*(-30)/3000+30+100/3000*30;
+X=zeros(1,1/f(1)*4*Fs);
+time=
+for k=1:length(V)
+    X=X+sin(2*pi*f(k)*time);
+end

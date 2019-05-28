@@ -1,0 +1,143 @@
+
+%%%%%%%%%%%%%%%%%%%%% SAM p=1 case %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+unit=1;
+for k=1:65
+   
+    %Load Data
+    % Condition p=1
+    filename0=['/Users/escabi/Dropbox/info_bias_p/p1/SAMp1unit' int2str(k)];
+    filename00 = '/Users/escabi/Dropbox/info_bias_p/jitter0/model_sigma0p1.mat';
+  
+    if exist([filename0 '.mat'],'file')
+        %Load Data Files
+        load(filename0)
+        InfoDataModel = InfoDataModel0;
+        load(filename00)
+        InfoDataModel00 = InfoDataModel0;  % condtion p=1
+     
+        %Computing Metrics
+        Hr = InfoDataModel00.HWordt(:,1); 
+        DataSAMp1.Hreli(:,:,unit) = repmat(Hr,1,21);
+        if size(InfoDataModel.HWord,2)==22
+        DataSAMp1.Htemp(:,:,unit) = InfoDataModel.HWordt(:,2:end)-DataSAMp1.Hreli(:,:,unit);
+        DataSAMp1.Info(:,:,unit)  = InfoDataModel.HWord(:,2:end)-InfoDataModel.HWordt(:,2:end)-InfoDataModel.Ibias(:,2:end);
+        DataSAMp1.Htot(:,:,unit)  = InfoDataModel.HWord(:,2:end);
+        elseif size(InfoDataModel.HWord,2)==21
+        DataSAMp1.Htemp(:,:,unit) = InfoDataModel.HWordt(:,1:end)-DataSAMp1.Hreli(:,:,unit);
+        DataSAMp1.Info(:,:,unit)  = InfoDataModel.HWord(:,1:end)-InfoDataModel.HWordt(:,1:end)-InfoDataModel.Ibias(:,1:end);
+        DataSAMp1.Htot(:,:,unit)  = InfoDataModel.HWord(:,1:end);
+        end
+        DataSAMp1.Freli(:,:,unit) = DataSAMp1.Hreli(:,:,unit)./DataSAMp1.Htot(:,:,unit);
+        DataSAMp1.Ftemp(:,:,unit) = DataSAMp1.Htemp(:,:,unit)./DataSAMp1.Htot(:,:,unit);
+        DataSAMp1.Feffi(:,:,unit) = DataSAMp1.Info(:,:,unit)./DataSAMp1.Htot(:,:,unit);
+    
+        %Increasing unit counter
+        unit=unit+1;
+    end
+    
+end
+
+
+
+%%%%%%%%%%%%%%%%%%%%% PNB p=1 case %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+unit=1;
+for k=1:65
+   
+    %Load Data
+    % condition p=1
+    filename0=['/Users/escabi/Dropbox/info_bias_p/p1/PNBp1unit' int2str(k)];
+    filename00 = '/Users/escabi/Dropbox/info_bias_p/jitter0/model_sigma0p1.mat';
+    
+    if exist([filename0 '.mat'],'file')
+        %Load Data Files
+        load(filename0)
+        InfoDataModel = InfoDataModel0;
+        load(filename00)
+        InfoDataModel00 = InfoDataModel0;  % condition p=1
+       
+        %Computing Metrics
+        Hr = InfoDataModel00.HWordt(:,1); 
+        DataPNBp1.Hreli(:,:,unit) = repmat(Hr,1,21);
+        if size(InfoDataModel.HWord,2)==22
+        DataPNBp1.Htemp(:,:,unit) = InfoDataModel.HWordt(:,2:end)-DataPNBp1.Hreli(:,:,unit);
+        DataPNBp1.Info(:,:,unit)  = InfoDataModel.HWord(:,2:end)-InfoDataModel.HWordt(:,2:end)-InfoDataModel.Ibias(:,2:end);
+        DataPNBp1.Htot(:,:,unit)  = InfoDataModel.HWord(:,2:end);
+        elseif size(InfoDataModel.HWord,2)==21
+        DataPNBp1.Htemp(:,:,unit) = InfoDataModel.HWordt(:,1:end)-DataPNBp1.Hreli(:,:,unit);
+        DataPNBp1.Info(:,:,unit)  = InfoDataModel.HWord(:,1:end)-InfoDataModel.HWordt(:,1:end)-InfoDataModel.Ibias(:,1:end);
+        DataPNBp1.Htot(:,:,unit)  = InfoDataModel.HWord(:,1:end);
+        end
+        DataPNBp1.Freli(:,:,unit) = DataPNBp1.Hreli(:,:,unit)./DataPNBp1.Htot(:,:,unit);
+        DataPNBp1.Ftemp(:,:,unit) = DataPNBp1.Htemp(:,:,unit)./DataPNBp1.Htot(:,:,unit);
+        DataPNBp1.Feffi(:,:,unit) = DataPNBp1.Info(:,:,unit)./DataPNBp1.Htot(:,:,unit);
+    
+        %Increasing unit counter
+        unit=unit+1;
+    end
+    
+end
+
+%Converting INF to NAN
+l=find(isinf(DataPNBp1.Freli));
+DataPNBp1.Freli(l)=nan(length(l),1);
+l=find(isinf(DataPNBp1.Ftemp));
+DataPNBp1.Ftemp(l)=nan(length(l),1);
+l=find(isinf(DataPNBp1.Feffi));
+DataPNBp1.Feffi(l)=nan(length(l),1);
+
+l=find(isinf(DataSAMp1.Freli));
+DataSAMp1.Freli(l)=nan(length(l),1);
+l=find(isinf(DataSAMp1.Ftemp));
+DataSAMp1.Ftemp(l)=nan(length(l),1);
+l=find(isinf(DataSAMp1.Feffi));
+DataSAMp1.Feffi(l)=nan(length(l),1);
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% PLOTTING SAM p=1 RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%
+figure
+subplot(221)
+imagesc(nanmean(DataSAMp1.Info,3)),colorbar,caxis([0 4]),set(gca,'YDir','normal')
+title('Info');
+subplot(222)
+imagesc(nanmean(DataSAMp1.Freli,3)),colorbar,caxis([0 1]),set(gca,'YDir','normal')
+title('Freli');
+subplot(223)
+imagesc(nanmean(DataSAMp1.Ftemp,3)),colorbar,caxis([0 1]),set(gca,'YDir','normal')
+title('Ftemp');
+subplot(224)
+imagesc(nanmean(DataSAMp1.Feffi,3)),colorbar,caxis([0 0.6]),set(gca,'YDir','normal')
+title('Feffi');
+
+
+%%%%%%%%%%%%%%%%%%%%%%% PLOTTING PNB p=1 RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%
+figure
+title('PNB');
+subplot(221)
+imagesc(nanmean(DataPNBp1.Info,3)),colorbar,caxis([0 4]),set(gca,'YDir','normal')
+title('Info');
+subplot(222)
+imagesc(nanmean(DataPNBp1.Freli,3)),colorbar,caxis([0 1]),set(gca,'YDir','normal')
+title('Freli');
+subplot(223)
+imagesc(nanmean(DataPNBp1.Ftemp,3)),colorbar,caxis([0 1]),set(gca,'YDir','normal')
+title('Ftemp');
+subplot(224)
+imagesc(nanmean(DataPNBp1.Feffi,3)),colorbar,caxis([0 0.6]),set(gca,'YDir','normal')
+title('Feffi');
+
+
+
+%Finding PNB efficiency contour matched to SAM at 1 msec jitter
+clear ind
+EffPNB=(nanmean(DataPNBp1.Feffi,3));
+EffSAM=(nanmean(DataSAMp1.Feffi,3));
+for k=1:15
+    
+        try,ind(k)=min(find(EffPNB(k,:)<EffSAM(k,1)));,end
+end
+subplot(224)
+hold on
+plot(ind,'k')
+
+

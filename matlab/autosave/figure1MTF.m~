@@ -1,0 +1,28 @@
+
+
+for k=1:8
+    
+    RAS=rasterexpand(PsychRAS(k,22).RASTER,1000,.5);
+   RateMTF(k)=mean(mean(RAS));
+   
+   P=((([PsychRAS(k,22).RASTER.spet])/[PsychRAS(k,22).RASTER(1).Fs]/(1/FMAxis(k))*2*pi));
+   VS(k)=sqrt(sum(cos(P)).^2+sum(sin(P)).^2)/length(P); 
+end
+
+
+figure
+subplot(331)
+plot(log2(FMAxis),RateMTF,'k','linewidth',2)
+set(gca,'xtick',log2(FMAxis))
+axis([2 9 0 50])
+hold on
+plot(log2(FMAxis),VS*50,'b','linewidth',2)
+plot(log2(FMAxis),VS.*RateMTF,'r','linewidth',2)
+
+%subplot(232)
+%plot(log2(FMAxis),VS,'k')
+%set(gca,'xtick',log2(FMAxis))
+%axis([2 9 0 1])
+
+
+

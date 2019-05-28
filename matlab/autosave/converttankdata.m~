@@ -1,0 +1,58 @@
+%
+%function []=converttankdata(ExcelFile,Month)
+%
+%       FILE NAME   : CONVERT TANK DATA
+%       DESCRIPTION : Extracts the data from the rabbit experiments in a
+%                     given tank. Uses an excel spread sheet to sort
+%                     through all of the recordings.
+%
+%       ExcelFile   : Input excel spread sheet file name
+%       Month       : Month to extract
+%
+%RETURNED VALUE
+%       
+% (C) Monty A. Escabi, October 2010
+%
+function []=converttankdata(ExcelFile,Month,Year)
+
+%Read Excel Information
+[num,txt,raw] = xlsread(ExcelFile,Month);
+
+%Extracting Data
+for k=1:size(raw,1)
+    
+    %Data Fields
+    BlockNumber=cell2mat(raw(k,3));
+    SiteNumber=cell2mat(raw(k,4));
+    Sound=cell2mat(raw(k,5));
+    Status=cell2mat(raw(k,6));
+    ATT=cell2mat(raw(k,7));
+    Sort=cell2mat(raw(k,8));
+    CF=cell2mat(raw(k,9));
+    Notes=cell2mat(raw(k,10));
+    Depth=cell2mat(raw(k,11));
+    AP=cell2mat(raw(k,12));
+    ML=cell2mat(raw(k,13));
+    
+    if ~isstr(BlockNumber) & ~isnan(BlockNumber)
+
+        %Reading Tank
+        %[Data] = readtank(TankFileName,BlockNumber,ChannelNumber,'Local');
+        
+        %Add data fields to structure
+        Data.BlockNumber=BlockNumber;
+        Data.SiteNumber=SiteNumber;
+        Data.Sound=Sound;
+        Data.ATT=ATT;
+        Data.Sort=Sort;
+        Data.CF=CF;
+        Data.Notes=Notes;
+        Data.Depth=Depth;
+        Data.AP=AP;
+        Data.ML=ML;
+        
+        %Save Data to File
+        [SiteNumber BlockNumber]
+        
+    end
+end

@@ -1,0 +1,24 @@
+%
+%function [D]=spikedistancemetric(spet1,spet2,Fs,T,tc)
+%
+%       FILE NAME       : Spike Distance Metric
+%       DESCRIPTION     : Computes the spike distance metric between two
+%                         spike trains as described by Van Rossum, 1999
+%
+%       spet1           : Spike even times for spike train 1
+%       spet2           : Spike even times for spike train 2
+%       Fs
+%       tc              : Time constant (msec)
+%
+%RETURNED VARIABLES
+%
+%       D               : Spike distance metric
+%
+%       (C) Monty A. Escabi, March 2009
+%
+function [D]=spikedistancemetric(spet1,spet2,Fs,tc)
+
+%Generaging Kernel
+tc=tc/1000;
+time=(0:tc*Fs);
+G=exp(-time/tc)

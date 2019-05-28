@@ -1,0 +1,80 @@
+%
+% function [MTF] = mtfsplinerastergenerate(Data,FM,TD,OnsetT,Unit)
+%
+%	FILE NAME 	: MTF GENERATE TDT
+%	DESCRIPTION : Generates a MTF on the TDT system
+%
+%	Data        : Data structure obtained using "READTANK"
+%                Data is formated as follows:
+%
+%                   Data.Snips              - Snipet Waveforms
+%                   Data.Fs                 - Sampling Rate
+%                   Data.SnipsTimeStamp     - Snipet Time Stamps
+%                   Data.SortCode           - Sort Code for the Snipets
+%                   Data.ChannelNumber      - Channel Number for the Snipets
+%                   Data.Trig               - Trigger Event Times
+%                   Data.Attenuation        - Event Attenuation Level
+%                   Data.Frequency          - Event Frequency 
+%                   Data.StimOff            - Stimulus Offset Time
+%                   Data.StimOn             - Stimulus Onset Time
+%                   Data.EventTimeStanp     - Event Time Stamp
+%
+%   FM          : Modulation Rate Sequency (From Param.mat File)
+%   TD          : Total stimulus duration (sec)
+%   OnsetT      : Time to remove at onset (sec)
+%   Unit        : Unit Number
+%
+% RETURNED DATA
+%
+%	MTF	        : MTF Data Structure
+%
+%                   MTF.RASTER              - Raster Structure for each FM
+%                                             and FC
+%                   MTF.FMAxis              - Modulation Frequency Axis
+%                   MTF.FCAxis              - Spline modulation cutoff Axis
+%
+%   (C) Monty A. Escabi, March 2009
+%
+function [MTF] = mtfsplineraster(Data,FM,FC,TD,OnsetT,Unit)
+
+%Finding Modulation Frequencies
+FMs=sort(FM);
+index=find(diff(FMs)~=0);
+MTF.FMAxis=FMs([1 index+1]);
+FCs=sort(FC);
+index=find(diff(FCs)~=0);
+MTF.FCAxis=FCs([1 index+1]);
+clear FMs FCs
+MTF.FMAxis
+MTF.FCAxis
+%Extracting Triggers and SPET Times
+if nargin<5
+   index=1:length(Data.SortCode);                       %Use all Units
+else
+   index=find(Unit==Data.SortCode);                     %Use specified Unit
+end
+spet=round(Data.SnipTimeStamp(index)*Data.Fs);          %Converint to SPET
+Trig=round(Data.Trig*Data.Fs);                          %Syncrhonization Triggers
+Trig=[Trig Trig(length(Trig))+mean(diff(Trig))];        %Adding End Trigger
+T=mean(diff(Trig))+1000;                                %Trial Length + 1000 samples
+
+%Isolating and Binning Data For Each FM and FC
+%Generates a RASTER Data Structure
+N=length(find(FM==FM(1) & FC==FC(1)));
+for k=1:length(MTF.FMAxis)
+    for l=1:length(MTF.FCAxis)
+    
+        %Finding All instances of a given FM and FC
+%MTF.FMAx
+indexFM=find(FM==MTF.FMAxis(k) & FC==MTF.FCAxis(l));
+
+        for n=1:N
+            %Finding SPET for a given FM trial
+            indexSPET=find(spet<Trig(indexFM(n)+1) & spet>Trig(indexFM(n)));
+            MTF(k,l).RASTER(n+(k-1)*N).spet=round( (spet(indexSPET)-Trig(indexFM(n))) );
+            MTF(k,l).RASTER(n+(k-1)*N).Fs=Data.Fs;
+            %MTF(k,l).FC=MTF.FCAxis(l);
+            %MTF(k,l).FM=MTF.FMAxis(k);
+        end
+    end
+end

@@ -1,0 +1,53 @@
+%Loading data
+SoundDir='../Sounds/';
+List=dir([SoundDir '*AGram.mat']);
+
+%Simulation Parameters
+Fs=1993;
+Nlayer=4;
+Ntrial=3;
+Nnode=20;
+SNR=50;
+EIR=1.5;
+SigE=0.03;
+SigI=0.05;
+Tref=1;
+
+%Initial Optimization parameters for layer 1
+TauE0=2
+TauI0=TauE0*1.5;
+Nsig0=0.5;
+
+
+%Extracting parameters and sounds to be used
+N=[1 5 10]; %Sounds to use for discrimnation optimization
+for k=1:length(N)
+    load([SoundDir List(k).name])
+    
+    %Simulation Parameters
+    Data(k).AudData=AudData;
+    Data(k).SimParam.Nlayer=Nlayer;
+    Data(k).SimParam.Nnode=Nnode;
+    Data(k).SimParam.Tref=Tref;
+    Data(k).SimParam.SNR=SNR;
+    Data(k).SimParam.SigE=SigE;
+    Data(k).SimParam.SigI=SigI;
+    Data(k).SimParam.EIR=EIR;
+    Data(k).SimParam.Fs=Fs;
+    Data(k).SimParam.Ntrial=Ntrial;
+    
+    %Initial Optimization parameters for layer 1
+    Data(k).SimParam.TauE0=TauE0;
+    Data(k).SimParam.TauI0=TauI0;
+    Data(k).SimParam.Nsig0=Nsig0;
+end
+
+
+beta1=1:0.5:6;  %lambda, time constant parameter
+beta2=1:0.1:2;  %alpha, Nsig parameter
+for k=1:length(beta1)
+    for l=1:length(beta2)
+        [k l]
+        [D(k,l)]=audnetmodeldiscriminate1([beta1(k) beta2(l)],Data);
+    end
+end

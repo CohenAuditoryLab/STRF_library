@@ -1,0 +1,68 @@
+N=1024*1024*2;
+
+fid=fopen('09I01q-Track 3.wav');
+
+spet=[];
+count=0;
+while ~feof(fid)
+    
+    X=fread(fid,N,'float');
+    i=find(X(1:length(X)-1)>.15 & diff(X)>0);
+    ii=find(diff(i)>2);
+    
+    spet=[spet i(ii)'+count*N];
+    
+    count=count+1;
+end
+
+%Data and Analysis Parameters
+Fs=44100;   %Sampling rate for triggers and spike train
+Fsd=1000
+tc=[2.^(1/4*(0:36))];   %time constants
+TD=0.5                  %sound duration
+OnsetT=0                
+Unit=0
+
+%Finding triggers for RTF and spike train
+load SpikesTrig
+i=find(TrigTimes>2E8);  %RTF Data starts here - nice single units
+Data.Trig=TrigTimes(i)/Fs;
+Data.SnipTimeStamp=spet/Fs;
+Data.SortCode=zeros(size(spet));
+Data.Fs=44100;
+Data.Trig=Data.Trig(1:2520);    %Not complete set, only 6 trials instead of 10
+
+%Generating Psycho Ripple Transfer Function
+load psychorippleic_param.mat
+FM=FM(1:2520);  %Use first 2520 sounds because unit died after six trials
+RD=RD(1:2520);
+GAMMA=GAMMA(1:2520);
+[RTF] = rtfpsychogenerateoptfast(Data,Fsd,tc,FM,RD,GAMMA,TD,OnsetT,0)
+
+%generate optimal RTF
+tc=[RTF.tc];
+for k=1:size(RTF(1).Dp,1)
+    for l=1:size(RTF(1).Dp,2)
+        for m=1:size(RTF(1).Dp,3)
+            
+            for n=1:length(RTF)
+                Dp(n)=RTF(n).Dp(k,l,m);
+            end
+            plot(tc,Dp)
+%            max(Dp)
+            
+            i=find(Dp==max(Dp));
+            tc(i)
+            pause
+            RTFOpt.Dp(k,l,m)=max(Dp);
+            RTFOpt.tc(k,l,m)=tc(i);
+            
+        end
+    end
+end
+RTFOpt.FMAxis=RTF(1).FMAxis;
+RTFOpt.RDAxis=RTF(1).RDAxis;
+RTFOpt.GammaAxis=RTF(1).GammaAxis;
+
+
+save RTFData RTF RTFOpt TD OnsetT Fsd

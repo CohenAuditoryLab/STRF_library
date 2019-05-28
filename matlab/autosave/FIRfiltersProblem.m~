@@ -1,0 +1,65 @@
+Wc=2*pi*2000;                       %Cutoff Frequency in Radians / Sec
+Fs=10000;                           %Sampling Rate in Hz
+T=1/Fs;
+
+%Ideal Filters
+N=100;                              %Filter Order
+t=(-N:N)/Fs;                        %Time Axis Sampled at Fs
+h_lp=Wc/pi*sinc(1/pi*Wc*t);         %Sampled Ideal Lowpass Filter Impulse Response
+delta=[zeros(1,N) Fs zeros(1,N)];   %Discrete Diract Impulse Function
+h_hp=(delta-h_lp);                  %Sampled Ideal Highpass Filter Impulse Response
+
+%Hanning Filters
+W=hanning(2*N+1)';                  %Hanning Window
+h_lp=T*h_lp.*W;                     %Hanning Lowpass Filter Impulse Response
+h_hp=T*h_hp.*W;                     %Hanning Highpas Filter Impulse Response
+NFFT=1024*8;                        %FFT number of samples
+faxis=(0:NFFT-1)/NFFT*Fs;           %Frequency Axis
+H_lp=abs(fft(h_lp,NFFT))/Fs;        %Hanning Lowpass Filter Transfer Function Magnitude
+H_hp=abs(fft(h_hp,NFFT))/Fs;        %Hanning Highpass Filter Transfer Function Magnitude
+
+%Plotting Results
+subplot(221)
+plot(t,h_lp,'k')
+xlabel('Time (sec)')
+ylabel('Amplitude') 
+
+subplot(222)
+plot(faxis,H_lp,'k');
+axis([0 Fs/2 0 1.2])
+xlabel('Frequency (Hz)')
+ylabel('Magnitude')
+
+subplot(223)
+plot(t,h_hp,'k')
+xlabel('Time (sec)')
+ylabel('Amplitude') 
+
+subplot(224)
+plot(faxis,H_hp,'k');
+axis([0 Fs/2 0 1.2])
+xlabel('Frequency (Hz)')
+ylabel('Magnitude')
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+X=randn(1,Fs);
+Y_lp=conv(X,h_lp);
+Y_hp=conv(X,h_hp);
+figure
+subplot(221)
+psd(X,1024,Fs);
+hold on
+psd(Y_lp,1024,Fs);
+ch=get(gca,'children')
+set(ch(1),'color','k')
+set(ch(2),'color',[0.5 .5 .5])
+
+subplot(222)
+psd(X,1024,Fs);
+hold on
+psd(Y_hp,1024,Fs);
+ch=get(gca,'children')
+set(ch(1),'color','k')
+set(ch(2),'color',[0.5 0.5 .5])

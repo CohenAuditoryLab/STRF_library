@@ -1,0 +1,49 @@
+cd Data 
+load SplineData
+cd ..
+
+
+
+%Discrimination versus time scale
+%condition A = 4 vs 8 Hz
+%condition B = 4 vs 32 Hz
+for k=1:size(MTFSpline,3)
+    
+    DpA(k)=MTFSpline(1,1,k).Dp(3,3);
+    tc(k)=MTFSpline(1,1,k).tc;
+    DpB(k)=MTFSpline(1,1,k).Dp(4,4);
+
+end
+
+
+figure
+%Discrimination curves
+subplot(223)
+semilogx(tc,DpA,'k','linewidth',2)
+hold on
+semilogx(tc,DpB,'color',[0.6 .6 .6],'linewidth',2)
+set(gca,'YTick',[0 1 2 3])
+axis([1 500 0 3])
+set(gca,'XTick',[1 10 100 1000])
+set(gca,'XTickLabel',[1 10 100])
+plot([1 1000],[1 1],'k-.')
+set(gca,'Box','off')
+
+%Generating Rasters
+[RAS,Fs]=rasterexpand([RASSpline(1,1).RASTER RASSpline(3,3).RASTER RASSpline(4,4).RASTER],1000);
+
+subplot(211)
+RAS=flipud(RAS);
+[j,i]=find(RAS);
+plot(i/1000,j,'k.')
+hold on
+plot([0.9 1.9],[10 10],'k')
+xlim([0.9 1.9])
+set(gca,'XTick',[0.9 1.4 1.9])
+set(gca,'YTick',[])
+
+
+
+
+
+

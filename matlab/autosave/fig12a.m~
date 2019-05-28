@@ -1,0 +1,71 @@
+
+Fs=4000
+T=300
+
+
+pho=0.4
+lambdas=10
+sigma=0.5
+lambdai=40;
+refractory=4
+Fsd=4000
+MaxTau=15;
+Nd=4000
+T=4000/lambdai/pho
+lambdad=lambdai*pho;
+
+[spet]=poissongenstat(lambdai,T,Fs,refractory);
+
+
+[spetA]=spetaddjitter2(spet,sigma,pho,lambdas,refractory,Fs,T);
+[spetB]=spetaddjitter2(spet,sigma,pho,lambdas,refractory,Fs,T);
+
+
+[JitterDataSpon]=jittercorrfitspon(spetA,spetB,Fs,Fsd,T,MaxTau,'n');
+[JitterData]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'n');
+
+
+subplot(331)
+plot(JitterData.Tau,JitterData.Rab/1000,'k','linewidth',1)
+hold on
+plot(JitterData.Tau,JitterData.Raa/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-10 10 -1000/1000 4500/1000])
+set(gca,'Box','off')
+
+subplot(332)
+plot((0:length(JitterDataSpon.E)-1)*JitterDataSpon.dl,JitterDataSpon.E*100,'k')
+E=JitterDataSpon.E;
+hold on
+plot(0,JitterDataSpon.E(1)*100,'ko')
+plot((length(JitterDataSpon.E)-1)*JitterDataSpon.dl,JitterDataSpon.E(end)*100,'ko')
+axis([0-1 (lambdad+lambdas)/2+1 min(E)*.9*100 max(E)*1.1*100])
+i=find(min(E)==E);
+plot(i*JitterDataSpon.dl,JitterDataSpon.E(i)*100,'ko')
+set(gca,'Box','off')
+
+
+subplot(334)
+plot(JitterData.Tau,JitterData.Rnoise/1000,'k','linewidth',1)
+hold on
+plot(JitterData.Tau,JitterData.Rmodel/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-10 10 -1000/1000 4500/1000])
+set(gca,'Box','off')
+
+subplot(335)
+ plot(JitterDataSpon.Tau,JitterDataSpon.Rnoise/1000,'k','linewidth',1)
+hold on
+plot(JitterDataSpon.Tau,JitterDataSpon.Rmodel/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-10 10 -1000/1000 4500/1000])
+set(gca,'Box','off')
+
+subplot(336)
+lambdasS=lambdad;
+Rnoise=JitterDataSpon.Rab-JitterDataSpon.Raa+(JitterDataSpon.RaaS-JitterDataSpon.lambdap^2)/JitterDataSpon.lambdap^2*(lambdasS^2+2*lambdasS*lambdad);
+[JitterModel]=corrmodelfit(Rnoise,JitterDataSpon.lambdap,JitterDataSpon.Tau,'n');
+ plot(JitterDataSpon.Tau,Rnoise/1000,'k','linewidth',1)
+hold on
+plot(JitterDataSpon.Tau,JitterModel.Rmodel/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-10 10 -1000/1000 4500/1000])
+set(gca,'Box','off')
+
+%save /figdata12/Fig12ASummaryResults JitterDataSpon JitterData pho lambdas lambdad lambdai sigma refractory Fsd MaxTau Nd T Fs T

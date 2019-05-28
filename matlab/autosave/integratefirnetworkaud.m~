@@ -1,0 +1,105 @@
+%
+%function [Y]=integratefirenetworkaud(X,Nlayer,Nnode,TauE,TauI,Tref,Nsig,SNR,SigE,SigI,EIR,Fs,flag,detrendim,detrendin)
+%
+%   FILE NAME       : INTEGRATE FIRE NETWORK AUD
+%   DESCRIPTION     : Auditory network composed of cochlear model followed
+%                     by a multi-layer network of Excitatory / Inhibitory
+%                     integrate fire model neurons
+%
+%   X               : Spectrotemporal sound input
+%   Nlayer          : Number of network layers
+%   Nnode           : Vector containg the number of neurons for each layer
+%   TauE            : Vector containgn excitatory integration time constant 
+%                     (msec) for each layer - time to reach maximum EPSP 
+%                     amplitude
+%   TauI            : Vector containging unhibitory integration time 
+%                     constant (msec) for each layer - time to reach 
+%                     minimum EPSP amplitude
+%   Tref            : Vector containgn refractory Period (msec) for each
+%                     layer
+%   Nsig            : Vector containging number of standard deviations of the
+%                     intracellular voltage to set the spike threshold for
+%                     each layer
+%   SNR             : Vector containg signal to noise ratio (dB) for each
+%                     layer
+%   SigE            : Vector containgin excitatory spatial gaussian integration width 
+%                     standard deviation (spatial axis is normalized from 
+%                     0 to 1) 
+%   SigI            : Vector containign inhibitory spatial gaussian integration width 
+%                     standard deviation (spatial axis is normalized from 
+%                     0 to 1)
+%   EIR             : Vector containing excitatory to inhibitory ratio - normalized so that: StdE=EIR*StdI
+%   Fs              : Sampling Rate (Hz)
+%   Ntrial          : Number of simulated trials
+%   flag            : flag = 0: Voltage variance is constant (Default)
+%                     sig_m = (Vtresh-Vrest)/Nsig
+%                     SNR is determined by Current
+%                     1: Total Voltage variance is constant
+%                        sig_tot = (Vtresh-Vrest)/Nsig
+%                        SNR is determined by Current
+%                     2: Voltage Variance is Constant
+%                        SNR is determined by the Voltage
+%                     3: Total Voltage Variance is constant
+%                        sig_tot = (Vtresh-Vrest)/Nsig
+%                        SNR is determined by the Voltage
+%   detrendim       : Removes time constant from Im if desired ('y' or 'n')
+%                     (Default=='y'). This detrending is usefull if you 
+%                     know the desired intracellular voltage Vm, but not
+%                     the intracellular current.
+%   detrendin       : Removes time constant from Im if desired ('y' or 'n')
+%                     (Default=='n'). This detrending is usefull if you
+%                     know the desired intracellular noise voltage but 
+%                     not the intracellular noise current.
+%
+%OUTPUT VARIABLES
+%
+%   Y               : Output Spike Train Matrix (LxN where L is the number
+%                     of output neurons and N is the number of time
+%                     samples)
+%
+% (C) Monty A. Escabi, April 2013
+%
+function [Y]=integratefirenetworkaud(X,Nlayer,Nnode,TauE,TauI,Tref,Nsig,SNR,SigE,SigI,EIR,Fs,Ntrial,flag,detrendim,detrendin)
+
+%Input Arguments
+if nargin<14
+    flag=3;
+end
+if nargin<15
+    detrendim='y';
+end
+if nargin<16
+    detrendin='n';
+end
+
+%Parameters
+if length(Nnode)==1
+    Nnode=ones(1,Nlayer)*Nnode;
+end
+if length(TauE)==1
+    TauE=ones(1,Nlayer)*TauE;
+end
+if length(TauI)==1
+    TauI=ones(1,Nlayer)*TauI;
+end
+if length(Tref)==1
+    Tref=ones(1,Nlayer)*Tref;
+end
+if length(Nnode)==1
+    Nnode=ones(1,Nlayer)*Nnode;
+end
+if length(Nnode)==1
+    Nnode=ones(1,Nlayer)*Nnode;
+end
+
+
+%Simulating Auditory Network 
+for n=1:Ntrial
+    
+        [Y]=integratefirenetworklayer(X,Nnode(1),TauE(1),TauI(1),Tref,Nsig(1),SNR(1),sigE(1),sigI(1),EIR(1),Fs,2,'y','n');
+        NetData(1).Y{n}=sparse(Y);
+        for l=2:Nlayer
+            [Y]=integratefirenetworklayer(full(NetData(l-1).Y{n}),Nnode(1),TauE(1),TauI(1),Tref,Nsig(1),SNR(1),sigE(1),sigI(1),EIR(1),Fs,2,'y','n');
+            NetData(l).Y{n}=sparse(Y);
+        end
+end

@@ -1,0 +1,8 @@
+load ./figdata7/Fig13DiscrimnationData.mat
+
+subplot(311)
+bar(1:3,PC*100,'k')
+hold on
+errorbar(1:3,PC*100,SE*100,'.','color',[0.5 .5 .5],'linewidth',2)
+set(gca,'XTick',[1 2 3])
+set(gca,'XTickLabel',[{'Spectrum'} {'Marginals'} {'All'}])

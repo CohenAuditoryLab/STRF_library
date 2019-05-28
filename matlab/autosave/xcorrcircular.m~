@@ -1,0 +1,18 @@
+%
+% function [R] = xcorrcivular(X,Y)
+%
+%	FILE NAME       : XCORR CIRCULAR
+%	DESCRIPTION 	: Discrete circular cross correlation. Performs the
+%                     circular cross correlation using an FFT algorithm.
+%
+%       X,Y         : Input Signals
+%          
+%   RETURNED VARIABLES 
+%
+%       R           : Circular Cross correalation between X and Y
+%
+%   (C) Monty A. Escabi, July 2007
+%
+function [R] = xcorrcircular(X,Y,Delay)
+
+R=ifft( fft(X).*conj(fft(Y)) );

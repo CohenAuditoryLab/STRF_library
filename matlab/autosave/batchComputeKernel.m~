@@ -1,0 +1,56 @@
+
+
+ T1=0
+ T2=50
+ DF=25
+ Disp='y'
+ figure
+
+
+load 'seqs11-13, binaural ear presentation.mat'
+load RandomICEnvelopePredictionShig_param.mat
+for k=1:length(SoundEstimationEnv)   
+        SoundEstimationEnv(k).Env1=SoundEstimationEnv(k).Env;
+        SoundEstimationEnv(k).Env2=fliplr(SoundEstimationEnv(k).Env);
+end
+
+
+ [WkernelBinaural_11]=wienerkernelenv2input(RASData,SoundEstimationEnv,SoundParam,T1,T2,DF,Disp);
+
+ 
+ load 'seqs16-14, contra ear presentation.mat'
+load RandomICEnvelopePredictionShig_param.mat
+for k=1:length(SoundEstimationEnv)   
+        SoundEstimationEnv(k).Env1=SoundEstimationEnv(k).Env;
+        SoundEstimationEnv(k).Env2=fliplr(SoundEstimationEnv(k).Env);
+end
+
+
+ [WkernelContraMon_16]=wienerkernelenv2input(RASData,SoundEstimationEnv,SoundParam,T1,T2,DF,Disp);
+
+ load 'seqs23-25, binaural ear presentation.mat'
+load RandomICEnvelopePredictionShig_param.mat
+for k=1:length(SoundEstimationEnv)   
+        SoundEstimationEnv(k).Env1=SoundEstimationEnv(k).Env;
+        SoundEstimationEnv(k).Env2=fliplr(SoundEstimationEnv(k).Env);
+end
+
+
+ [WkernelBinaural_23]=wienerkernelenv2input(RASData,SoundEstimationEnv,SoundParam,T1,T2,DF,Disp);
+
+ 
+ load 'seqs30-32, contra ear presentation (only partial data).mat'
+load RandomICEnvelopePredictionShig_param.mat
+for k=1:length(SoundEstimationEnv)   
+        SoundEstimationEnv(k).Env1=SoundEstimationEnv(k).Env;
+        SoundEstimationEnv(k).Env2=fliplr(SoundEstimationEnv(k).Env);
+end
+
+
+ [WkernelContraMon_30]=wienerkernelenv2input(RASData,SoundEstimationEnv,SoundParam,T1,T2,DF,Disp);
+
+ 
+ 
+ save KernelData.mat WkernelBinaural_11 WkernelBinaural_23 WkernelContraMon_16 WkernelContraMon_30
+ 
+ 

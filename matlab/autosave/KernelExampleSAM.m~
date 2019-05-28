@@ -1,0 +1,59 @@
+
+
+% load ../DataExamplesMar_07_2011.mat DataTank29
+% load ../DataExamplesMar_07_2011.mat DataTank28
+ load ../DataExamplesMar_07_2011.mat DataTank34
+ DataTank=DataTank34;
+%load ../DataExamplesMar_10_2011.mat
+%DataTank=DataTank19;
+% load ../DataExamplesMar_23_2011.mat
+% DataTank=DataTank72;
+
+load ModNoisePreFu300Hz30dBSAM_param.mat
+
+[RASData]=mtfmodnoiseunifsamspet(DataTank,SoundParam);
+
+T1=0
+T2=40
+DF=5
+[Wkernel]=wienerkernelenvpredict(RASData,SoundEstimationEnv,SoundPredictionEnv,SoundParam,T1,T2,DF,'y');
+
+
+
+%Coherence predictions
+figure
+subplot(221)
+N=256
+[C12,F]=cohere(Wkernel.PSTH1-mean(Wkernel.PSTH1),Wkernel.PSTH2-mean(Wkernel.PSTH2),N,1920);
+[Cl,F]=cohere(Wkernel.PSTH2-mean(Wkernel.PSTH2),Wkernel.Y1,N,1920);
+[Cnl,F]=cohere(Wkernel.PSTH2-mean(Wkernel.PSTH2),Wkernel.Ytot,N,1920);
+plot(F,C12,'k-.')
+hold on
+plot(F,Cnl,'r')
+plot(F,Cl,'k')
+axis([0 400 0 1])
+
+%Transfer functions
+subplot(222)
+N=1024
+Fs=1920
+H1=abs(fft(Wkernel.k1,N));
+H1=H1/max(H1);
+H21=abs(fft(Wkernel.k2_1,N));
+H21=H21/max(H21);
+H22=abs(fft(Wkernel.k2_2,N));
+H22=H22/max(H22);
+faxis=(0:N-1)/N*Fs;
+plot(faxis,H1,'k')
+hold on
+plot(faxis,H21,'r')
+plot(faxis,H22,'b')
+axis([0 400 0 1.2])
+set(gca,'box','off')
+
+
+
+
+
+
+

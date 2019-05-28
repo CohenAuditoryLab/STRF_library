@@ -1,0 +1,14 @@
+
+
+List=dir('*Data.mat');
+
+for k=1:length(List)
+    k
+   f=['load ' List(k).name];
+   eval(f);
+   
+   [SAMValData2(k)]=wienerkernelsamvalidate2(Data.MTFb1,Data.MTFb2,Data.SAMPreb1,Data.SAMPreb2,Data.Wkernelb1);
+   
+end
+
+save ValidationResultsShig2 SAMValData2

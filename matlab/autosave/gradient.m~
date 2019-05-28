@@ -1,0 +1,34 @@
+
+dN=10
+x=x2(1:dN:end,1:dN:end,1:dN:end);
+y=y2(1:dN:end,1:dN:end,1:dN:end);
+z=z2(1:dN:end,1:dN:end,1:dN:end);
+w=w2(1:dN:end,1:dN:end,1:dN:end);
+
+
+%slice(x,z,y,w,0:200:2500,inf,inf),shading flat
+
+%[FX,FY,FZ] = gradient(w,x,y,z);
+
+
+Fx=diff(w,1,1);
+Fy=diff(w,1,2);
+Fz=diff(w,1,3);
+
+
+slice(x(1:end-1,:,:),y(1:end-1,:,:),z(1:end-1,:,:),Fx,0:200:2500,inf,inf),shading flat
+slice(x(:,1:end-1,:),y(:,1:end-1,:),z(:,1:end-1,:),Fy,0:200:2500,inf,inf),shading flat
+slice(x(:,:,1:end-1),y(:,:,1:end-1),z(:,:,1:end-1),Fz,0:200:2500,inf,inf),shading flat
+
+
+i=find(~isnan(Fx));
+Fx_mean=mean(Fx(i));
+
+
+i=find(~isnan(Fz));
+Fz_mean=mean(Fz(i));
+
+
+i=find(~isnan(Fy));
+Fy_mean=mean(Fy(i));
+

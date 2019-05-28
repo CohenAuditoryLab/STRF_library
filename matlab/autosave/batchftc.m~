@@ -1,0 +1,30 @@
+clear all
+T1=0
+T2=300
+DFECoG=6
+f1=5
+f2=250
+Order=[]
+SPLoffset=85
+
+load /Users/escabi/data/ElectricalStimulation/Rat072213/FigDataRatECOG07_22_13Tank2.mat
+[FTCn] = ftcgenerateecogn(Data,T1,T2,DFECoG,f1,f2,Order,SPLoffset);
+[FTCns] = ftcgenerateecogn(Data,T1,T2,DFECoG,f1,f2,Order,SPLoffset,'y');
+save ECoGFRARAT072213Tank2 FTCn FTCns T1 T2 DFECoG f1 f2 Order SPLoffset
+
+
+clear all
+T1=0
+T2=300
+DFECoG=6
+f1=5
+f2=250
+Order=[]
+SPLoffset=85
+
+load /Users/escabi/data/ElectricalStimulation/Rat072213/FigData/RatECOG07_22_13Tank1.mat
+[FTCn] = ftcgenerateecogn(Data,T1,T2,DFECoG,f1,f2,Order,SPLoffset);
+[FTCns] = ftcgenerateecogn(Data,T1,T2,DFECoG,f1,f2,Order,SPLoffset,'y');
+save ECoGFRARAT072213Tank1 FTCn FTCns T1 T2 DFECoG f1 f2 Order SPLoffsetclear 
+
+clear all

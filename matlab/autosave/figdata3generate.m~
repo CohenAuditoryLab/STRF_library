@@ -1,0 +1,53 @@
+L=40
+T=600*4;
+Fs=2000;
+
+seed=0
+p=0.25
+lambdan=0
+MaxTau=25
+Disp='y'
+
+
+%Poisson Case - no refractory period
+sigma=1
+refractory=0
+[spet]=poissongenstat(L,T,Fs,refractory,seed);
+[spetA]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+[JitterDataPoiss]=jittercorrfit(spetA,spetB,Fs,Fs,T,MaxTau,Disp)
+
+
+
+%Poisson Case - with refractory period
+sigma=2
+refractory=4
+[spet]=poissongenstat(L,T,Fs,refractory,seed);
+[spetA]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+[JitterDataPoissRefSig2]=jittercorrfit(spetA,spetB,Fs,Fs,T,MaxTau,Disp)
+
+
+
+%Poisson Case - with refractory period and sigma=1
+refractory=4
+sigma=1
+[spet]=poissongenstat(L,T,Fs,refractory,seed);
+[spetA]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+[JitterDataPoissRefSig1]=jittercorrfit(spetA,spetB,Fs,Fs,T,MaxTau,Disp)
+
+
+
+%Poisson Case - with refractory period and sigma=0.5
+refractory=4
+sigma=0.5
+[spet]=poissongenstat(L,T,Fs,refractory,seed);
+[spetA]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+[JitterDataPoissRefSigp5]=jittercorrfit(spetA,spetB,Fs,Fs,T,MaxTau,Disp)
+
+
+
+
+save figdata3.mat JitterDataPoiss JitterDataPoissRefSig2 JitterDataPoissRefSig1 JitterDataPoissRefSigp5

@@ -1,0 +1,61 @@
+load Figure5Data
+
+%%%%%%%%%%%% A1 Example
+figure
+T=1.5
+[RAS,Fs]=rasterexpand([MTFA1.RASTER],Fsd);
+[i,j]=find(RAS);
+plot(j/Fsd,i,'k.')
+hold on
+for k=1:10
+    plot([0 2],(10*(k-1))*[1 1],'k')
+end
+xlim([0 T])
+hold off
+print -dpsc fig4d.ps
+
+figure
+for k=1:10
+    subplot(10,1,10-k+1)
+    plot(CorrDataA1(k).RData.Tau,CorrDataA1(k).RData.Rshuf,'k')
+    ylim([0 600])
+    set(gca,'visible','off')
+end
+print -dpsc fig4e.ps
+
+figure
+Dp=MTFDiscA1(2).Dp;
+for k=1:10
+    for l=1:10
+        
+        if l>=k
+           Dp(k,l)=Inf;
+        end
+    end
+end
+imagesc(Dp)
+C=colormap(jet);
+caxis([0 1.1])
+C(64,:)=[1 1 1];
+colormap(C)
+colorbar
+set(gca,'Box','off')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1:10])
+set(gca,'YTick',[1:10])
+print -dpsc fig4f.ps
+
+
+figure
+subplot(221)
+plot(Dp(8,:),'k')
+set(gca,'Box','off')
+set(gca,'XTick',[2 4 6 8 10])
+set(gca,'YTick',[2 4 6 8 10])
+axis([1 10 0 1.05])
+subplot(222)
+plot(Dp(:,2),'k')
+set(gca,'XTick',[2 4 6 8 10])
+set(gca,'YTick',[2 4 6 8 10])
+axis([1 10 0 1.05])
+set(gca,'Box','off')

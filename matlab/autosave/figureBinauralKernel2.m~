@@ -1,0 +1,88 @@
+load KernelData
+load RandomICEnvelopePredictionShig_param.mat
+
+subplot(221)
+plot(WkernelBinaural_11.k1_1,'k')
+set(gca,'Box','off')
+subplot(222)
+plot(WkernelBinaural_11.k1_2,'k')
+set(gca,'Box','off')
+
+subplot(223)
+imagesc(WkernelBinaural_23.y1,WkernelBinaural_23.y2,log10(WkernelBinaural_23.F),[0 2.7]),set(gca,'YDir','normal')
+set(gca,'Box','off')
+CM=colormap
+CM(1,:)=[1 1 1]
+colormap(CM)
+C=colorbar
+set(C,'YTick',[0 1 2])
+set(C,'YTickLabel',[1 10 100])
+
+
+
+Fm=[2 4 8 16 32 64 128 256 512]
+
+
+for k=1:length(Fm)
+    
+
+    Beta=0.82;
+    Fs=SoundParam.Fs;
+    Env=20*log10(1+Beta*sin(2*pi*Fm(k)*(1:Fs*4)/Fs-pi/2));
+ckl    SoundPreEnv.Env1=Env(1:DF:end);
+    SoundPreEnv.Env2=Env(1:DF:end);
+    [Wkernel]=wienerkernelenvpredict2input(WkernelBinaural_23,SoundPreEnv,SoundParam);
+
+    figure(1)
+    subplot(3,3,k)
+    Fs=inv(Wkernel.T(2)/1000);
+    P=(0:length(Wkernel.Ytot)-1)/length(Wkernel.Ytot)*4;
+    plot(P,Wkernel.Ytot)
+    ylim([0 220])
+    if 1/Fm(k)>0.05
+        N=1;
+    else
+        N= ceil(0.05 / (1/Fm(k)));
+    end
+    xlim([N/Fm(k) (N+4)/Fm(k)])
+    %xlim([0 4])
+    title(['Fm=' num2str(Fm(k)) ' Hz'])
+    
+    figure(2)
+    subplot(3,3,k)
+    Fs=inv(Wkernel.T(2)/1000);
+    P=(0:length(Wkernel.Ytot)-1)/length(Wkernel.Ytot)*4;
+    plot(P,Wkernel.Y1nl,'r')
+    hold on
+    plot(P,Wkernel.Y2nl,'b')
+    ylim([0 220])
+    if 1/Fm(k)>0.05
+        N=1;
+    else
+        N= ceil(0.05 / (1/Fm(k)));
+    end
+    xlim([N/Fm(k) (N+4)/Fm(k)])
+    %xlim([0 4])
+    title(['Fm=' num2str(Fm(k)) ' Hz'])
+    
+    figure(3)
+    subplot(3,3,k)
+    Fs=inv(Wkernel.T(2)/1000);
+    P=(0:length(Wkernel.Ytot)-1)/length(Wkernel.Ytot)*4;
+    plot(P,Wkernel.Y1,'r')
+    hold on
+    plot(P,Wkernel.Y2,'b')
+    ylim([0 220])
+    if 1/Fm(k)>0.05
+        N=1;
+    else
+        N= ceil(0.05 / (1/Fm(k)));
+    end
+    xlim([N/Fm(k) (N+4)/Fm(k)])
+    %xlim([0 4])
+    title(['Fm=' num2str(Fm(k)) ' Hz'])
+end
+
+
+
+

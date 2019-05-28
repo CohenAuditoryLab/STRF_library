@@ -1,0 +1,113 @@
+Fsd=500
+
+
+%%%%%%%%%%%% SRAF Example
+load FM2rasters_SRAF_Rat042613Block21Tetrode3Unit3.mat
+
+%Truncating Raster to 2 sec
+T=2
+for k=1:10
+    [RR,Fs]=rasterexpand(MTF(k).RASTER,MTF(k).RASTER(1).Fs);
+    MTFSRAF(k).RASTER=rastercompress(RR(:,1:round(MTF(k).RASTER(1).Fs*T)),MTF(k).RASTER(1).Fs,T);
+end
+
+figure
+T=2
+[RAS,Fs]=rasterexpand([MTFSRAF.RASTER],Fsd);
+[i,j]=find(RAS);
+plot(j,i,'k.')
+print -dpsc fig4a.ps
+
+figure
+for k=1:10
+   [CorrDataSRAF(k).RData]=rastercircularshufcorrfast(MTFSRAF(k).RASTER,Fsd,'y'); 
+end
+
+for k=1:10
+    subplot(10,1,10-k+1)
+    plot(CorrDataSRAF(k).RData.Tau,CorrDataSRAF(k).RData.Rshuf,'k')
+    ylim([0 1000])
+    set(gca,'visible','off')
+end
+print -dpsc fig4b.ps
+
+%D Prime Analysis
+TD=2
+alpha=2^(log2(200/20)/20)
+TC=20*alpha.^(0:20);
+Ntrial=10
+OnsetT=0
+[MTFDiscSRAF] = mtfdiscriminategeneratefast([MTFSRAF.RASTER],Ntrial,Fsd,TC,[MTF.FC],TD,OnsetT)
+Dp=MTFDiscSRAF(18).Dp;
+for k=1:10
+    for l=1:10
+        
+        if l>=k
+           Dp(k,l)=Inf;
+        end
+    end
+end
+imagesc(Dp)
+C=colormap(jet);
+caxis([0 1.2])
+C(64,:)=[1 1 1];
+colormap(C)
+colorbar
+set(gca,'Box','off')
+print -dpsc fig4c.ps
+
+%%%%%%%%%%%% A1 Example
+load FM2rasters_A1_Rat042613Block2Tetrode4Unit4.mat
+
+%Truncating Raster to 2 sec
+T=2
+for k=1:10
+    [RR,Fs]=rasterexpand(MTF(k).RASTER,MTF(k).RASTER(1).Fs);
+    MTFA1(k).RASTER=rastercompress(RR(:,1:round(MTF(k).RASTER(1).Fs*T)),MTF(k).RASTER(1).Fs,T);
+end
+
+figure
+T=2
+[RAS,Fs]=rasterexpand([MTFA1.RASTER],Fsd,T);
+[i,j]=find(RAS);
+plot(j,i,'k.')
+print -dpsc fig4d.ps
+
+for k=1:10
+   [CorrDataA1(k).RData]=rastercircularshufcorrfast(MTFA1(k).RASTER,Fsd,'y'); 
+end
+
+for k=1:10
+    subplot(10,1,10-k+1)
+    plot(CorrDataA1(k).RData.Tau,CorrDataA1(k).RData.Rshuf,'k')
+    ylim([0 500])
+    set(gca,'visible','off')
+end
+print -dpsc fig4e.ps
+
+%D Prime Analysis
+TD=2
+alpha=2^(log2(200/20)/20)
+TC=20*alpha.^(0:20);
+Ntrial=10
+OnsetT=0
+[MTFDiscA1] = mtfdiscriminategeneratefast([MTFA1.RASTER],Ntrial,Fsd,TC,[MTF.FC],TD,OnsetT)
+Dp=MTFDiscA1(18).Dp;
+for k=1:10
+    for l=1:10
+        
+        if l>=k
+           Dp(k,l)=Inf;
+        end
+    end
+end
+imagesc(Dp)
+C=colormap(jet);
+caxis([0 1.2])
+C(64,:)=[1 1 1];
+colormap(C)
+colorbar
+set(gca,'Box','off')
+print -dpsc fig4f.ps
+
+save Figure4Data MTFA1 MTFSRAF MTFDiscSRAF MTFDiscA1 CorrDataA1 CorrDataSRAF Fsd TC

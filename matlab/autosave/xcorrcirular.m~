@@ -1,0 +1,17 @@
+%
+%function [R] = xcorrfft(X,Y)
+%
+%	FILE NAME       : XCORR CIRCULAR
+%	DESCRIPTION 	: Discrete circular cross correlation. Performs the
+%                     circular cross correlation using an FFT algorithm.
+%
+%	X,Y             : Input Signals
+%
+%OUTPUT SIGNAL
+%
+%   R               : Circular Cross correalation between X and Y
+%
+%   (C) Monty A. Escabi, July 2007
+%
+function [R] = xcorc(X,Y)
+

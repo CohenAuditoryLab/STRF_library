@@ -1,0 +1,84 @@
+clear all
+Fs=44100 
+dX=1/10
+f1=200
+fN=16000
+Fm=500
+fm1=.5
+dfm=1
+Nms=10
+OF=2
+Norm='Amp'
+MSflag=1
+dis='log'
+ATT=30
+dT=0.05
+Overlap=0.9
+GDelay='y'
+dFm=10;
+
+%RustlingPaper
+XPaper=wavread('RustlingPaperOriginal.wav');
+XPaper=XPaper/std(XPaper);
+[AudDataPaper]=audiogram(XPaper,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSPaper]=audiogrammultiscale(AudDataPaper,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[AmpDataPaper]=audiogramampdist(AudDataPaper,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSPaper]=audiogramchancorrmultiscale(AudDataMSPaper,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataPaper]=audiogramchancorr(AudDataPaper,Fs,dX,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpecPaper]=ripplespec(AudDataPaper,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT)
+
+
+%JackHammer
+XJack=wavread('norm_CSE-22 Pneumatic drills at road works.wav');
+XJack=XJack/std(XJack);
+[AudDataJack]=audiogram(XJack,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSJack]=audiogrammultiscale(AudDataJack,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[AmpDataJack]=audiogramampdist(AudDataJack,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSJack]=audiogramchancorrmultiscale(AudDataMSJack,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataJack]=audiogramchancorr(AudDataJack,Fs,dX,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpecJack]=ripplespec(AudDataJack,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT)
+
+%Babling Brook
+XBrook=wavread('norm_ASE-08 Bubbling Water.wav');
+XBrook=XBrook/std(XBrook);
+[AudDataBrook]=audiogram(XBrook,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSBrook]=audiogrammultiscale(AudDataBrook,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[AmpDataBrook]=audiogramampdist(AudDataBrook,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSBrook]=audiogramchancorrmultiscale(AudDataMSBrook,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataBrook]=audiogramchancorr(AudDataBrook,Fs,dX,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpecBrook]=ripplespec(AudDataBrook,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+
+%Helicopter 
+XHeli=wavread('norm_ESE-06 Helicopter.wav');
+XHeli=XHeli/std(XHeli);
+[AudDataHeli]=audiogram(XHeli,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSHeli]=audiogrammultiscale(AudDataHeli,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[AmpDataHeli]=audiogramampdist(AudDataHeli,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSHeli]=audiogramchancorrmultiscale(AudDataMSHeli,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataHeli]=audiogramchancorr(AudDataHeli,Fs,dX,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpecHeli]=ripplespec(AudDataHeli,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+
+%Firecracker
+Xcrack=wavread('firecrackers-05.wav');
+Xcrack=Xcrack/std(Xcrack);
+[AudDatacrack]=audiogram(Xcrack,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMScrack]=audiogrammultiscale(AudDatacrack,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[AmpDatacrack]=audiogramampdist(AudDatacrack,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMScrack]=audiogramchancorrmultiscale(AudDataMScrack,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDatacrack]=audiogramchancorr(AudDatacrack,Fs,dX,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpeccrack]=ripplespec(AudDatacrack,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+
+%Cocktail party
+Xcparty=wavread('norm_babble - cocktail party.wav');
+Xcparty=Xcparty/std(Xcparty);
+[AudDatacparty]=audiogram(Xcparty,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMScparty]=audiogrammultiscale(AudDatacparty,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[AmpDatacparty]=audiogramampdist(AudDatacparty,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMScparty]=audiogramchancorrmultiscale(AudDataMScparty,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDatacparty]=audiogramchancorr(AudDatacparty,Fs,dX,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpeccparty]=ripplespec(AudDatacparty,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+
+
+
+%save Fig6Data XBrook AudDataBrook AmpDataBrook CorrDataBrook CorrDataMSBrook AudDataMSBrook RipSpecBrook XHeli AudDataHeli AmpDataHeli CorrDataHeli CorrDataMSHeli AudDataMSHeli RipSpecHeli XJack AudDataJack AmpDataJack CorrDataJack CorrDataMSJack AudDataMSJack RipSpecJack
+save Fig6Data

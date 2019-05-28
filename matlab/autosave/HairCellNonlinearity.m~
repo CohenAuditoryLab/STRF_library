@@ -1,0 +1,39 @@
+
+
+fc=2000
+Fs=44100
+M=Fs*3
+L=4         %Number of Periods
+
+Fm=100
+taxis=(1:M)/Fs;
+N=round(L/Fm(1)*Fs)
+
+    subplot(3,1,1)
+    E=(1-cos(2*pi*Fm*taxis));
+    X=E.*sin(2*pi*fc*taxis);
+    XN=E.*2.*(rand(1,length(E))-0.5);
+    plot(taxis(1:N),X(1:N),'r','linewidth',1)
+    hold on
+    plot(taxis(1:N),E(1:N),'y','linewidth',3)
+    hold off
+    set(gca,'visible','off')
+    ylim([min(X)*1.1 max(X)*1.1])
+    
+    subplot(3,1,2)
+    plot(taxis(1:N),X(1:N).^2,'r','linewidth',1)
+    hold on
+    plot(taxis(1:N),E(1:N).^2,'y','linewidth',3)
+    hold off
+    set(gca,'visible','off')
+    ylim([0 max(X.^2)*1.1])
+    
+    subplot(313)
+    H=lowpass(1000,500,Fs,40,'n');
+    Y=conv(X.^2,H);
+    NF=(length(H)-1)/2;
+    Y=Y(NF+(1:N));
+    plot(taxis(1:N),Y,'k','linewidth',2)
+    set(gca,'visible','off')
+    ylim([0 max(Y)*1.1])
+ 

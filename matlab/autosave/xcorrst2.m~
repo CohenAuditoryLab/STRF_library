@@ -1,0 +1,34 @@
+%
+%function [Rxy,tauaxis,taxis]=xcorrst2(X,Y,MaxLag,Fs,W)
+%
+%       FILE NAME       : XCORR ST
+%       DESCRIPTION     : Short term xcorrelation funciton.
+%
+%       X,Y             : Signals to be correlated
+%       MaxLag          : Maximum number of delay samples 
+%       Fs              : Sampling Rate
+%       W               : Window used for short-term analysis (1x2*N+1
+%                         vector)
+%
+%RETURNED VALUES
+%       Rxy             : Short Term Correlation
+%
+%   (C) M. Escabi, May 2016
+%
+function [Rxy,tauaxis,taxis]=xcorrst2(X,Y,MaxLag,Fs,W)
+
+%Window Length
+N=(length(W)-1)/2;
+
+%Computing short-term correlation
+Y=[zeros(1,MaxLag) Y(MaxLag+1:end-MaxLag) zeros(1,MaxLag)];     %Replace signal with zeros at extremities to avoide edge artifacts
+for k=-MaxLag:MaxLag
+   
+    Rxy(k+MaxLag+1,:)=conv(circshift(Y',k)'.*X,W)';
+    
+end
+Rxy=Rxy(:,4*N+1:end-4*N+1);
+
+%Time and delay axis
+[taxis=(1:size(Rxy,2))/Fs;
+tauaxis=(-N:N)/Fs;

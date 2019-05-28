@@ -1,0 +1,42 @@
+%Parameters
+Fs=5000;
+Fsd=5000;
+refractory=5;
+T=60*5
+
+%Poisson Rate Modulation
+seed=1
+Fm=100
+[L]=noiseunif(Fm,Fs,Fs*T,seed);
+L=L*200;
+
+%Poisson Spike Train
+seed=1
+[spet]=poissongen(L,Fs,Fs,refractory,seed);
+%[spet]=poissongenstat(L,T,Fsd,refractory,seed);
+
+%Noisy spike train
+sigma=1
+p=.33333
+lambdan=10
+[spetA,spetjrA,spetsponA]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+[spetB,spetjrB,spetsponB]=spetaddjitter2(spet,sigma,p,lambdan,refractory,Fs,T);
+ 
+MaxTau=25
+[JitterData]=jittercorrfitspon(spetA,spetB,Fs,Fsd,T,MaxTau,'y')
+[JitterDatajr]=jittercorrfitspon(spetjrA,spetjrB,Fs,Fsd,T,MaxTau,'y')
+[JitterDataspon]=jittercorrfitspon(spetsponA,spetsponB,Fs,Fsd,T,MaxTau,'y')
+
+%
+%EXAMPLE RASTER DECOMPOSITION
+T=0.25 %short 1 sec
+[L]=noiseunif(Fm,Fs,Fs*T,seed);
+L=L*200;
+seed=1
+[spet]=poissongen(L,Fs,Fs,refractory,seed);
+
+%Generating Noisy Raster
+N=100
+[RASTER]=jitterraster2(spet,sigma,p,lambdan,refractory,Fs,N);
+
+save fig4data RASTER JitterData JitterDatajr JitterDataspon

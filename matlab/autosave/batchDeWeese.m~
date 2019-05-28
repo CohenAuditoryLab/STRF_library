@@ -1,0 +1,240 @@
+%Hi Mike / Vanessa 
+%
+%Here are a few matlab examples that will show you how to generate strfspwd
+%and read the sounds and the corresponding spectrograms. Ive comented and
+%added notes throughout to explain the data formats and how to read and
+%analyze the data. 
+%
+%Before you try these out, make sure you add the matlab folder and subdirectories I provided
+%to the path so that you have access to my routines. (on under /Users/escabi/Google Drive/DeWeese/matlab)
+%
+%Good luck. Let me know if you run into problems and Ill help you work
+%things out. 
+%
+%Best
+%Monty
+%
+
+%%%%%%%%%%%%%%   EXAMPLE 1 - Compute STRF for two back to back STIMULUS
+%%%%%%%%%%%%%%   TRIALS (A and B)
+
+% The neural data is stored in two files - one contains the spike event
+% times and the other syncrhonization triggers to syncrhonize spike times
+% and the sound. In these experiments we delivered the same sound twice.
+% The first Trial is A and the second is B. The following files contain the
+% spike event time and sycnrhonization data
+
+load CTX476t2_f30_ch2   %Loading spike event times, spet0, spet1 etc
+load CTX476t2_f30_Trig  %Loading trigger times
+
+%The naming convention and variables for these files are as follows
+%
+%   CTX476 - ANIMAL number - CTX indicates a cortex experiment
+%   t2 = tape 2 - all fo the neural data was stored on digital audio tapes
+%   (way back in the day....). Usually we have about 5 tapes per
+%   experiment. 
+%   f30 = file number within a tape - for this example this is file # 30
+%   ch2 = channel number - neural data was recorded on two audio channels with two
+%   electrodes - channel 1 was usually auditory thalamus and ch2 = cortex.
+%   We also had ch3 and ch4. These were used to acquire the sound
+%   syncrhonization triggers. This data was converted and stored on the
+%   "Trig" file CTX476t2_f30_Trig. Note that each recording has its own
+%   trigger file.
+%
+%   Inside the files you will find the following
+%
+%   CTX476t2_f30_Trig
+%       TrigA, TrigB = processed trigger times - separated for sound trial A
+%                   and B
+%       TrigTimes = Raw Trigger times recorded for two back to back stimulus trials - expressed in sample number - to
+%                   get real time you need to divide by the sampling rate, Fs.
+%
+%
+%   CTX476t2_f30_ch2
+%       Fs=sampling rate
+%       ModelWave0 etc = model spike waveforms from bayesian spike sorter
+%           (Lewicki)
+%       SpikeWave0 etc = sample soike waveforms for randomly selected spike
+%                        times
+%       spet0 etc = spike event times (spet) for unit 0. The spike event
+%       times are expressed in sample number.Note that we have a total
+%           of 10 units that were returned by the spike sorter. The first 5
+%           (0, 1, ... 4) are the spet for the actual units that were
+%           classified. (5, 6, ... 9) correspond to the spikes considered
+%           as outliers but were assigned to the particular spet class in
+%           sequential order. For example, spet5 belongs to group from
+%           spet0 but is considered an outlier. spet6 belongs to spet2 etc. 
+%
+%           To obtain the actual spike times inseconds you need to divide
+%           by Fs,  e.g., spike time = spet0/Fs 
+
+
+SpecFile='ripplenoisectx.spr';  % Spectrotemporal envelope file - stored as binary float format - more details below
+                                %There is also an accompanying file
+                                %ripplenoisectx_param.mat that has stimulus
+                                %parameters. Well use it later for a
+                                %different example.
+T1=0
+T2=0.1
+spet=spet0 + round(0.047*Fss);  %There was a problem with the TTL triggers which created a 47 ms delay. Need to correct in the spike times to get correct result.
+Trig=TrigA
+Fss=Fs
+SPL=70
+MdB=60
+ModType='dB'
+Sound='RN'
+NBlocks=400
+
+%Computing the STRF
+[taxis,faxis,STRF1A,STRF2A,PP,Wo1,Wo2,No1,No2,SPLN]=rtwstrfdb(SpecFile,T1,T2,spet,TrigA,Fss,SPL,MdB,ModType,Sound,NBlocks);
+[taxis,faxis,STRF1B,STRF2B,PP,Wo1,Wo2,No1,No2,SPLN]=rtwstrfdb(SpecFile,T1,T2,spet,TrigB,Fss,SPL,MdB,ModType,Sound,NBlocks);
+
+figure
+Max=max(max(abs( [STRF1A STRF1B]*sqrt(PP) ) ) );    %The maximum absolute spike rate change in the strf, used to normalize the graph colorscale
+subplot(221)
+imagesc(taxis,log2(faxis/faxis(1)),STRF1A*sqrt(PP))   %plots the strf for sound trial A, note that I convert the frequency axis to octaves
+caxis([-Max Max])
+title('STRF for Trial A')
+colorbar
+subplot(222)
+imagesc(taxis,log2(faxis/faxis(1)),STRF1B*sqrt(PP))   %Plots the strf for sound trial B
+caxis([-Max Max])
+title('STRF for Trial B')
+colorbar
+
+
+%Above I normalize the strf by mutliplying by sqrt(PP). PP is the variance
+%of the spectrogram envelope in units of dB^2. The units of the STRF are
+%spikes/sec/dB. When I multiply by sqrt(PP) the resulting STRF is in units
+%of spikes / sec and represnts the average spike rate change for the
+%average input fluctuation.
+
+
+%%%%%%%%%%%%%%%%%% Example TWO - Reading an SPR (spectrotemporal envelope) file
+
+% The spectrotemporal envelope is the modulation signal that was used to
+% generate the sounds as described in Escabi & Schreiner 2002. Because this signal is very long (10 or 20 mins) it was stored in
+% blocks corresponding to approximately 3/4 of sec (the actual number is
+% 32000/41000 - the sound was blocked into segments of 32000 samples at a
+% sampling rate of 44100)
+MdB=60                          %Contrast parameter
+load movingripplectx_param.mat      %Contains stimulus parameters
+fid=fopen('movingripplectx.spr');  %The spectrotemporal envelope file
+S1=MdB*reshape(fread(fid,NF*NT,'float'),NF,NT); %Reading block 1
+S2=MdB*reshape(fread(fid,NF*NT,'float'),NF,NT); %Reading block 2
+S3=MdB*reshape(fread(fid,NF*NT,'float'),NF,NT); %Reading block 3
+
+S=[S1 S2 S3];       %Concatinating first three blocks 
+
+taxis=(0:size(S,2))/(Fs/DF);       % Fs=44100 is the sampling rate of the sound; DF is a downsampling factor used to save the envelope; the envelope sampling rate is Fs/DF
+X=log2(faxis/faxis(1));             %Octave frequency axis
+imagesc(taxis,X,S), set(gca,'YDir','normal')
+
+%If you look at the code rtwstrfdb.m which is used to generate the STRF using spike triggered averaging,
+%note that starting in line 87 I repeat the above reading operations in a
+%loop. I do this beacuse the data is analyzed in blocks because of
+%memory problems loading the entire data set. When I perform the spike
+%triggered avearge, Im using spikes aligned with segment 2. I concatenated
+%the previous and subsequent segments (S2 and S3) to avoid edge artifacts.
+%For example if a spike falls either near the begining or the end of S2
+%block, depending on the delays I choose (T1 and T2) we may have sounds
+%outside the bounds of S2. When I concatenate S1 and S3 I avoid this
+%problem.
+
+%Also, in the above note that I normalize the amplitude of S by MdB where you 
+%can think of MdB as the contrast of the sound (peak-to-peak envelope fluctuation 
+%in units of dB). For this example, I had a sound with 60 dB range. I do
+%this because the values stored in the file are normalized between -1 and
+%0. In these experiements, we tested neurons with different values of MdB
+%even though the envelope used to generate the sounds was identical (see My
+%2003 paper on contrast). Thus we only saved one spectrotemporal envelope
+%and we adjust the range by multiplying by MdB when performing the anlysis
+
+
+%%%%%%%%%%%%%%% EXAMPLE 3 - this example Reads a sound and generates spectrogram
+%Im using the ripple noise sound with 60 dB contrast for this example. The
+%sounds are stored as binary files at sampling rate of 44100. At the moment
+%I have not been able to find the sounds for the moving ripple. I have them
+%stored on tape, but unfortunately they are so outdated that I no longer
+%have the tape reading equipment. Also, we rarely use these files since we
+%do all of our analysis directly using the spectrotemporal envelope (SPR
+%files as for the examples above).
+
+%Im going to read 3 blocks of the sound and compute the spectrogram
+fid=fopen('/Users/escabi/Google Drive/DeWeese/sprdir_ctx/ripplenoise/ripplenoisectx60dB.bin')
+X=fread(fid,32000*3,'float');
+df=100
+UT=4;
+UF=4;
+win='sinc'
+ATT=40
+method='3dB'
+dis='log'
+
+%Spectrogram program using short-term fourier transform
+[taxis,faxis,stft,M,Nt,Nf,dF3dB,dT3dB,dFU,dTU]=stfft(X,Fs,df,UT,UF,win,ATT,method); %Computing spectrogram using my own routine
+
+%Spectrogram based on auditory filterbank
+dX=1/20
+f1=500
+fN=16000
+Fm=100
+OF=4
+Norm='Amp'
+dis='n'
+ATT=60
+[AudData]=audiogram(X,Fs,dX,f1,fN,Fm,OF,Norm,dis,ATT)
+
+figure
+subplot(211)
+SdB=10*log10(stft.*conj(stft));
+Max=max(max(SdB));
+imagesc(taxis,faxis/1000,SdB), set(gca,'YDir','normal');     %Note that this is plotted using liner frequency scale
+caxis([Max-60 Max])
+title('Spectrogram based on Short-term FFT') 
+xlabel('Time (sec)')
+ylabel('Freq (kHz)')
+
+subplot(212)
+SdB=10*log10(AudData.S);
+Max=max(max(SdB));
+imagesc(AudData.taxis,log2(AudData.faxis/AudData.faxis(1)),SdB), set(gca,'YDir','normal');   
+caxis([Max-20 Max])     % The output excursions are somwhat compressed because the auditory filters are very broad and reduce the effective contrast
+title('Auditory filterbank output')
+xlabel('Time (sec)')
+ylabel('Freq (oct)')
+
+
+%%%%%%%%%%%%%%%%%% INFORMATION ABOUT THE EXPERIMENT
+%
+%Experiment information is located on the text file CTX476all.bat
+%
+%Here is an example of the entries youll find
+%
+% 1	0	60	30	MR	dB	TC
+% 1	1	60	30	MR	dB	RF2
+% 1	2	50	30	RN	dB	RF2
+% 1	4	50	30	RN	dB	TC
+% 1	5	60	30	MR	dB	ALL
+% 1	6	60	30	RN	dB	ALL
+% 1	7	60	30	MR	dB	RF2
+% 1	8	60	30	RN	dB	RF2
+%
+%The last column tells you the type of sound 
+%
+%   TC=tunning curve
+%   RF2 = two trial receptive fields - these are the ones you are
+%       interested in. I would focus all of your testing to these files
+%   ALL - this had to do with contrast - dont worry about it.
+%
+%The remaining column contain additional inforamtion about the experiment /
+%   sounds used
+%
+%Column 1 = tape number
+%Column 2 = file number 
+%Columng 3 = contrast in dB or also MdB
+%Column 4 = sound attenation = the SPL for ripples is approximately 70 dB
+%Column 5 = the type of sound; MR=moving ripple; NR = ripple noise
+% column 6 = the type of contrast = typically either dB or Linear amplitude fluctuations; I would
+%   look at the dB cases
+%column 7 = the type of sound = focus on the RF2

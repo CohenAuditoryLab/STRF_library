@@ -1,0 +1,54 @@
+function ydata = adjustedIntegrateFirePSTH(Beta,Xdata)
+
+Ntau= 100;
+
+%Extracting input data and parameters
+PSTH1=Xdata.PSTH1;
+PSTH2=Xdata.PSTH2;
+X=Xdata.X;
+Fs=Xdata.Fs;
+Ntrials=Xdata.Ntrials;
+
+%Generaqting input data for INTEGRATEFIREPSTH
+IFinput=[Fs Ntrials X];
+
+% size = length(xdata)-2;
+% size = size/4;
+% IFinput = xdata(1:size*2+2);
+% PSTH1 = xdata(size*2+3:size*3+2);
+% PSTH2 = xdata(size*3+3:length(xdata));
+
+
+
+%Running INTEGRATEFIREPSTH two times for estimating noise statistics
+IFout1 = integratefirepsth(Beta, IFinput);
+IFout2 = integratefirepsth(Beta, IFinput);
+
+%Normalized covariance between model and data. Noise varaince is removed.
+%Only contains deterministic correlations with the mean removed.
+N=length(PSTH2);
+Var2=var(PSTH2)-var(PSTH1-PSTH2)/2;
+Varm2=var(IFOut2)-var(IFOut1-IFOut2)/2;
+Rm2 = xcorr(IFout2-mean(IFout2), PSTH2-mean(PSTH2), Ntau)/(N-1);
+Rm2 = Rm2/sqrt(Varm2*Var2);
+
+%Mean Firing Rate Error
+ErrorMean=abs(mean(PSTH2)-mean(IFout2))/(mean(PSTH2)+mean(IFout2));
+
+%Mean Noise Variance Error
+VarNoise=var(PSTH1-PSTH2)/2;
+VarNiosem=var(IFOut1-IFOut2)/2;
+ErrorNoise=abs(VarNoise-VarNoisem)/(VarNoise+VarNoisem);
+
+%Returned Output
+CostFunc=
+ydata = 
+
+
+% IFout1 = IFout(1:length(PSTH2));
+% IFout1 = IFout1 - mean(IFout1);
+% 
+% IFout2 = IFout((length(PSTH2)+1):length(IFout));
+% IFout2 = IFout2 - mean(IFout2);
+
+

@@ -1,0 +1,70 @@
+load ~/data/figure/Thesis/chapt1/EnsembleStats/Hamlet_EnsStat.mat
+StdEnsSpeech=StdEns;
+MeanEnsSpeech=MeanEns;
+
+subplot(231)
+P=log10(N/sum(sum(N)));
+Pspeech=N/sum(sum(N));
+imagesc(MeanAxis,StdAxis,Pspeech),colormap jet
+%shading interp
+%shading flat
+axis([-22 22 5 15])
+axis([-25 25 5 15])
+set(gca,'XTick',[-25 0 25])
+set(gca,'YDir','normal')
+
+subplot(232)
+load ~/data/figure/Thesis/chapt1/EnsembleStats/Neo1_EnsStat.mat
+N1=N;
+StdEnsMonkey=StdEns;
+MeanEnsMonkey=MeanEns;
+load ~/data/figure/Thesis/chapt1/EnsembleStats/Neo2_EnsStat.mat
+StdEnsMonkey=[StdEnsMonkey StdEns];
+MeanEnsMonkey=[MeanEnsMonkey MeanEns];
+N2=N;
+P=log10((N1+N2)/sum(sum(N1+N2)));
+Pmonkey=(N1+N2)/sum(sum(N1+N2));
+imagesc(MeanAxis,StdAxis,Pmonkey),colormap jet
+%shading interp
+%shading flat
+axis([-22 22 5 15])
+axis([-25 25 5 15])
+set(gca,'XTick',[-25 0 25])
+set(gca,'YTick',[])
+set(gca,'YDir','normal')
+
+
+subplot(233)
+load ~/data/figure/Thesis/chapt1/EnsembleStats/NatParWS_EnsStat.mat
+StdEnsBack=StdEns;
+MeanEnsBack=MeanEns;
+N1=N;
+load ~/data/figure/Thesis/chapt1/EnsembleStats/NatParSF_EnsStat.mat
+StdEnsBack=[StdEnsBack StdEns];
+MeanEnsBack=[MeanEnsBack MeanEns];
+N2=N;
+P=log10((N1+N2)/sum(sum(N1+N2)));
+Pback=(N1+N2)/sum(sum(N1+N2));
+imagesc(MeanAxis,StdAxis,Pback),colormap jet
+%shading interp
+%shading flat
+axis([-22 22 5 15])
+axis([-25 25 5 15])
+set(gca,'XTick',[-25 0 25])
+set(gca,'YTick',[])
+set(gca,'YDir','normal')
+
+
+subplot(267)
+plot(sum(Pmonkey'),StdAxis,'k')
+hold on
+plot(sum(Pspeech'),StdAxis,'k-.')
+plot(sum(Pback'),StdAxis,'r')
+ylim([5 15])
+xlim([0 .3])
+set(gca,'box','off')
+
+
+
+sqrt(2)*(mean(StdEnsBack)-mean(StdEnsMonkey))/sqrt(var(MeanEnsBack) + var(MeanEnsMonkey))
+sqrt(2)*(mean(StdEnsBack)-mean(StdEnsSpeech))/sqrt(var(MeanEnsBack) + var(MeanEnsSpeech))

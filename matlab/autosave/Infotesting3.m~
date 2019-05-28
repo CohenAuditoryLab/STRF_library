@@ -1,0 +1,28 @@
+load RASpnb.mat
+load RASsam.mat
+load FMAxis
+
+RASTER=RASspetpnb(1:150);
+FmAxis=FMAxispnb(1:15);
+%RASTER=RASspet(1:150);
+%FmAxis=FMAxis(1:15);
+
+L=20
+alpha=log2(200/1)/L;
+sig=1*2.^(alpha*(0:L))
+T=.1
+
+Fsd=1000
+
+RASTER=RASTER(1:10);
+Fm=FMAxis(1);
+B=ceil(Fsd/Fm)
+
+[InfoData]=infwordrasterperiodicdt(RASTER,B,Fm,sig,T);
+M=size(InfoData(1).Wt,2);
+[InfoDataModel]=infwordrasterperiodicmodeldt(RASTER,B,Fm,sig,M,T);
+
+
+plot([InfoData.HWord]-[InfoData.HWordt])
+hold on
+plot([InfoDataModel.HWord]-[InfoDataModel.HWordt],'r')

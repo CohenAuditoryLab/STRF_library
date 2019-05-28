@@ -1,0 +1,54 @@
+load DCNmean
+
+L=1799      %Is it 1706 triggers ????
+DF=48       %CHECK from ripple param file
+
+sprfile='dynamicripple500ic.spr';
+load dynamicripple500ic_param
+MdB=30;
+S=downsample(DCNmean',2)';
+STRF1=zeros(659,size(S,2));
+STRF1(94:565,:)=S;
+
+STRF2=zeros(size(STRF1));
+
+Fs=96000/DF;    %CHECK: 96000 should be sampling rate for ripple and DF should be downsampling factor (DF=24???)
+Fsd=Fs;
+taxis=(0:size(STRF1,2))/Fs;
+[T,Y,Y1,Y2,Trig]=strfsprpretrig(sprfile,taxis,faxis,STRF1,STRF2,MdB,L);
+
+save Yinterp Fs Fsd T Trig UF Y taxis
+
+%%
+
+load DCNmean
+load Yinterp
+
+%Integrating Membrane and sending through Poisson Generator (Linear Poisson-model)
+Tau=5;
+t=(0:200)/Fs;
+h=exp(-t/(Tau/1000));
+h=h/sum(h);
+YY=conv(Y,h);
+YY=YY(1:length(Y));
+YY=YY/std(YY)*10;
+%YY=max(YY/std(YY)*40,0);   %Nonlinear rectification
+[spet]=poissongen(YY,Fs,Fsd,0,0);
+ 
+%Generating IC model STRF
+sprfile='dynamicripple500ic.spr'
+[taxis,faxis,STRF1r,STRF2r]=rtwstrfdbint(sprfile ,0,0.025,spet,Trig,Fsd,80,30,'dB','MR' ,400,4,'float');
+
+%Plotting Results
+figure
+subplot(221)
+imagesc(taxis(1:2:end),log2(faxis/faxis(1)),DCNmean),shading interp %Chen, check this; make sure the sampling rate is correct; I believe it should be half of the interpolated STRF1r (which I interpolated by 4).
+set(gca,'Ydir','normal')
+Max=max(max(abs(DCNmean)));
+caxis([-Max Max])
+
+subplot(222)
+Max=max(max(abs(STRF1r)))
+imagesc(taxis,log2(faxis/faxis(1)),STRF1r)
+set(gca,'Ydir','normal')
+caxis([-Max Max])

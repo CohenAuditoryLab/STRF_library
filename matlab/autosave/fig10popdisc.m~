@@ -1,0 +1,64 @@
+
+
+load ./figdata7/Figure9Data
+
+
+
+%PAPER
+figure
+subplot(331)
+imagesc(TextureCov(8).CovMatrix),caxis([-.05 .4])
+set(gca,'YDir','normal')
+
+subplot(332)
+imagesc(TextureCov(5).CovMatrix),caxis([-.05 .4])
+set(gca,'YDir','normal')
+
+subplot(333)
+imagesc(TextureCov(2).CovMatrix),caxis([-.05 .4])
+set(gca,'YDir','normal')
+
+%HELI
+subplot(334)
+imagesc(TextureCov(7).CovMatrix),caxis([-.05 .4])
+set(gca,'YDir','normal')
+
+subplot(335)
+imagesc(TextureCov(4).CovMatrix),caxis([-.05 .4])
+set(gca,'YDir','normal')
+
+subplot(336)
+imagesc(TextureCov(1).CovMatrix),caxis([-.05 .4])
+set(gca,'YDir','normal')
+
+%WATER
+subplot(337)
+imagesc(TextureCov(9).CovMatrix),caxis([-.05 .4])
+set(gca,'YDir','normal')
+
+subplot(338)
+imagesc(TextureCov(6).CovMatrix),caxis([-.05 .4])
+set(gca,'YDir','normal')
+
+subplot(339)
+imagesc(TextureCov(3).CovMatrix),caxis([-.05 .4])
+set(gca,'YDir','normal')
+
+
+
+%852 - PAPER
+%963 - WATER
+%741 - HELI
+
+D31=sqrt(2)*(norm(TextureCov(3).CovMatrix-TextureCov(1).CovMatrix))/sqrt(norm(TextureCov(3).CovMatrix).^2+norm(TextureCov(1).CovMatrix).^2)
+D64=sqrt(2)*(norm(TextureCov(6).CovMatrix-TextureCov(4).CovMatrix))/sqrt(norm(TextureCov(6).CovMatrix).^2+norm(TextureCov(4).CovMatrix).^2)
+D97=sqrt(2)*(norm(TextureCov(9).CovMatrix-TextureCov(7).CovMatrix))/sqrt(norm(TextureCov(9).CovMatrix).^2+norm(TextureCov(7).CovMatrix).^2)
+
+D32=sqrt(2)*(norm(TextureCov(3).CovMatrix-TextureCov(2).CovMatrix))/sqrt(norm(TextureCov(2).CovMatrix).^2+norm(TextureCov(1).CovMatrix).^2)
+D65=sqrt(2)*(norm(TextureCov(6).CovMatrix-TextureCov(5).CovMatrix))/sqrt(norm(TextureCov(5).CovMatrix).^2+norm(TextureCov(4).CovMatrix).^2)
+D98=sqrt(2)*(norm(TextureCov(9).CovMatrix-TextureCov(8).CovMatrix))/sqrt(norm(TextureCov(8).CovMatrix).^2+norm(TextureCov(7).CovMatrix).^2)
+
+D21=sqrt(2)*(norm(TextureCov(2).CovMatrix-TextureCov(1).CovMatrix))/sqrt(norm(TextureCov(2).CovMatrix).^2+norm(TextureCov(1).CovMatrix).^2)
+D54=sqrt(2)*(norm(TextureCov(5).CovMatrix-TextureCov(4).CovMatrix))/sqrt(norm(TextureCov(5).CovMatrix).^2+norm(TextureCov(4).CovMatrix).^2)
+D87=sqrt(2)*(norm(TextureCov(8).CovMatrix-TextureCov(7).CovMatrix))/sqrt(norm(TextureCov(8).CovMatrix).^2+norm(TextureCov(7).CovMatrix).^2)
+

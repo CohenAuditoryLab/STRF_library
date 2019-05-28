@@ -1,0 +1,47 @@
+
+
+B=200
+T=0
+sig=2.^(0:.5:9)
+p=1
+lambdan=0
+
+
+B=200
+
+
+
+%load /Users/escabi/data/Y'i Zheng'/Yidata/FMAxis.mat
+load /Users/escabi/data/Y'i Zheng'/Yidata/SAMandBurstNoiseLogFMFixedPeriods_param.mat
+load /Users/escabi/data/Y'i Zheng'/Yidata/raw' data'/July1106/site8sampnb.mat
+TD=[]
+TD=5
+Unit=0
+OnsetT=.1
+[RASPNB,RASSAMN] = rastergenpnbsam(Data,flag,FM,T,TD,OnsetT,Unit);
+
+Fsd=1000
+
+H=[];
+Ht=[];
+HS=[];
+HtS=[];
+clear InfoData InfoDataS Info 
+for k=1:15
+    
+    Fm=FMAxispnb(k);
+    
+    RAS=RASPNB(1+(k-1)*(10):10+(k-1)*10);
+    RAS=RASSAMN(1+(k-1)*(10):10+(k-1)*10);
+    B(k)=ceil(1/FMAxispnb(k)*Fsd);
+    [InfoData,InfoDataS]=infwordrasterperiodicdt(RAS,B(k),Fm,sig,0);
+    
+    Info(k).InfoData=InfoData;
+    Info(k).InfoDataS=InfoDataS;
+    
+    H=[H; InfoData.HWord];
+    Ht=[Ht; InfoData.HWordt];
+    HS=[HS; InfoDataS.HWord];
+    HtS=[HtS; InfoDataS.HWordt];
+    
+end

@@ -1,0 +1,393 @@
+function varargout = ProbeCalibrationMenu(varargin)
+% PROBECALIBRATIONMENU M-file for ProbeCalibrationMenu.fig
+% Interface for running Monty Escabi's speaker calibration package.
+% Calls function CALIBFIR.M in calibrate mode
+% Still needs the functions for running verify mode and tone test mode.
+
+% Begin initialization code - DO NOT EDIT
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+                   'gui_Singleton',  gui_Singleton, ...
+                   'gui_OpeningFcn', @ProbeCalibrationMenu_OpeningFcn, ...
+                   'gui_OutputFcn',  @ProbeCalibrationMenu_OutputFcn, ...
+                   'gui_LayoutFcn',  [] , ...
+                   'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+
+% --- Executes just before ProbeCalibrationMenu is made visible.
+function ProbeCalibrationMenu_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to ProbeCalibrationMenu (see VARARGIN)
+
+% Choose default command line output for ProbeCalibrationMenu
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+%load last values used
+load calibparams.mat
+try set(handles.tdtdir, 'String', parameters.TDTDirectory); catch end
+try set(handles.param1, 'String', parameters.f1); catch end
+try set(handles.param2, 'String', parameters.f2); catch end
+try set(handles.param3, 'String', parameters.ATT); catch end
+try set(handles.param4, 'String', parameters.L); catch end
+try set(handles.param5, 'String', parameters.MaxSPL); catch end    
+ 
+    
+
+% UIWAIT makes ProbeCalibrationMenu wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+
+% --- Outputs from this function are returned to the command line.
+function varargout = ProbeCalibrationMenu_OutputFcn(hObject, eventdata, handles) 
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+function action_Callback(hObject, eventdata, handles)
+
+calibmode1 = get(handles.calibmode1, 'Value');
+calibmode2 = get(handles.calibmode2, 'Value');
+calibmode3 = get(handles.calibmode3, 'Value');
+verifymode = get(handles.verifymode, 'Value');
+
+
+togglespeaker = get(handles.togglespeaker, 'Value')
+f1 = str2num(get(handles.param1, 'String'))
+f2 = str2num(get(handles.param2, 'String'))
+ATT = str2num(get(handles.param3, 'String'))
+L = str2num(get(handles.param4, 'String'))
+MaxSPL = str2num(get(handles.param5, 'String'))
+tdtdir = get(handles.tdtdir, 'String')
+Disp = 'y';
+% try load 'Data.mat'; catch end
+load 'calibparams.mat'
+if calibmode1
+    hi=1
+    [Datatemp] = calibacquire(parameters.MicGain, parameters.NB, parameters.Interface, ...
+                          parameters.Device, parameters.DeviceNum, parameters.NoiseSelect, 0);  %0 triggers initial acquire mode  
+    
+    [Datatemp]=calibacquireprobe(MicGain,PA5ATT,NB,Interface,Device,DeviceNum,SoundSelect,AcquireSelect,SpeakerSelect,ProbeSelect,RoomNoiseSelect,MicSensitivity,MicSerialNumber,SpeakerID,FilePath)
+                  
+    pause(0.1)
+    set(handles.messagebox, 'String', ['Calibration Data Successfully Acquired. SPL = ' num2str(Datatemp.SPL, '%5.2f') 'dB'])     
+    set(handles.teUncalibrated, 'String', ['Uncalibrated SPL: ' num2str(Datatemp.SPL, '%5.2f') 'dB'])
+    
+    [h] = calibfir(Datatemp, f1, f2, L, ATT, Disp);
+
+    try load Data.mat; catch end     
+    if ~togglespeaker                
+        Data.XR = Datatemp.X;
+        Data.YR = Datatemp.Y;  
+        Data.hR = h.hk;
+    else
+        Data.XL = Datatemp.X;
+        Data.YL = Datatemp.Y;
+        Data.hL = h.hk;        
+    end
+    save('Data', 'Data', '-append')
+        
+    if ~togglespeaker
+        %save this in local directory and TDT directory.
+        tdtpath = [tdtdir '\spchan1.f32']; 
+        fid = fopen(tdtpath, 'wb');
+        fwrite(fid, h.hk, 'float32');
+        fclose(fid);
+        
+        %save it generically in the local path so you don't have to modify the circuit when swapping speakers.
+        fid = fopen('C:\escabi\matlab\calibration\spchan.f32', 'wb'); 
+        fwrite(fid, h.hk, 'float32');
+        fclose(fid);        
+    else
+        tdtpath = [tdtdir '\spchan2.f32']; 
+        fid = fopen(tdtpath, 'wb');
+        fwrite(fid, h.hk, 'float32');
+        fclose(fid);
+        
+        fid = fopen('C:\escabi\matlab\calibration\spchan.f32', 'wb'); 
+        fwrite(fid, h.hk, 'float32');
+        fclose(fid);     
+    end      
+    set(handles.messagebox, 'String', 'Calibration Filter and Data Successfully Saved') 
+    
+elseif calibmode2
+    hi=2
+    
+elseif calibmode3 
+    hi=3
+elseif verifymode  
+    hi=4
+    [Datatemp] = calibacquire(parameters.MicGain, parameters.NB, parameters.Interface, ...
+                          parameters.Device, parameters.DeviceNum, parameters.NoiseSelect, 1); %1 triggers verification mode
+                      
+    pause(0.1)
+    set(handles.messagebox, 'String', ['Verification Data Successfully Acquired. SPL = ' num2str(Datatemp.SPL) 'dB']) 
+    set(handles.teCalibrated, 'String', ['Calibrated SPL: ' num2str(Datatemp.SPL, '%5.2f') 'dB'])
+    
+%     [h] = calibfir(Datatemp, f1, f2, L, ATT, Disp);
+%     try load Data.mat; catch end 
+%     if ~togglespeaker                                
+%         Data.XRc = Datatemp.X;
+%         Data.YRc = Datatemp.Y;  
+%     else        
+%         Data.XLc = Datatemp.X;
+%         Data.YLc = Datatemp.Y;     
+%     end
+%     save('Data', 'Data')
+    set(handles.messagebox, 'String', 'Verification Complete. Verification Data Successfully Saved') 
+    
+else
+    set(handles.messagebox, 'String', 'Please select one of the three options on the left', 'ForegroundColor', 'r') 
+end
+   
+
+
+function togglespeaker_Callback(hObject, eventdata, handles)
+
+a = get(handles.togglespeaker, 'Value');
+if a
+    set(handles.togglespeaker, 'String', 'Speaker 2 (Left)')
+else
+    set(handles.togglespeaker, 'String', 'Speaker 1 (Right)')
+end
+
+%call one of the function buttons that will toggle all the other names and
+%shit.
+
+
+function param1_Callback(hObject, eventdata, handles)
+
+
+
+
+function param1_CreateFcn(hObject, eventdata, handles)
+
+
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function param2_Callback(hObject, eventdata, handles)
+
+
+function param2_CreateFcn(hObject, eventdata, handles)
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function param3_Callback(hObject, eventdata, handles)
+
+
+function param3_CreateFcn(hObject, eventdata, handles)
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function param4_Callback(hObject, eventdata, handles)
+
+
+function param4_CreateFcn(hObject, eventdata, handles)
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
+function calibmode_Callback(hObject, eventdata, handles)
+%this is the main function for renaming objects.
+
+calibmode1 = get(handles.calibmode1, 'Value');
+calibmode2 = get(handles.calibmode2, 'Value');
+calibmode3 = get(handles.calibmode3, 'Value');
+verifymode = get(handles.verifymode, 'Value');
+
+if calibmode1
+    set(handles.text1, 'String', 'Lower Cutoff (Hz)')
+    set(handles.text2, 'String', 'Upper Cutoff (Hz)')
+    set(handles.text3, 'String', 'Attenuation Factor (dB)')
+    set(handles.text4, 'String', 'Number of Filter Points')
+elseif verifymode
+
+end
+
+function verifymode_Callback(hObject, eventdata, handles)
+calibmode_Callback(hObject, eventdata, handles)
+
+function tonemode_Callback(hObject, eventdata, handles)
+calibmode_Callback(hObject, eventdata, handles)
+
+
+
+function setparams_Callback(hObject, eventdata, handles)
+load 'calibparams.mat'
+device = parameters.Device;
+%parameters.MicGain,NB,Interface,Device,DeviceNum,NoiseSelect 
+prompt = {'Enter Device Type:','Enter Device Number:', 'Enter Interface', ...
+          'Enter Noise Length in Samples', 'Enter Noise Selection(0 = Guassian, 1 = From File)', 'Enter Mic Gain'};
+dlg_title = 'Input Parameters';
+num_lines = 1;
+def = {parameters.Device, num2str(parameters.DeviceNum), parameters.Interface, ...
+       num2str(parameters.NB), num2str(parameters.NoiseSelect), num2str(parameters.MicGain)};
+answer = inputdlg(prompt,dlg_title,num_lines,def);
+if ~isempty(answer)
+    parameters.Device = answer{1}; parameters.DeviceNum = str2num(answer{2}); parameters.Interface = answer{3}; 
+    parameters.NB = str2num(answer{4}); parameters.NoiseSelect = str2num(answer{5}); parameters.MicGain = str2num(answer{6});
+end
+
+save('calibparams', 'parameters', '-append')
+
+if ~strcmp(parameters.Device, device)
+    set(handles.messagebox, 'String', ['Open "SpeakerCAL onlineRX6.rcx" in RPvdsEx. Under the "Interface => Device Setup" menu change "Type" to: ' parameters.Device])
+end
+
+function restoredefaults_Callback(hObject, eventdata, handles)
+parameters.MicGain = 40; parameters.NB = 970000; parameters.Interface = 'GB';
+parameters.Device = 'RX6'; parameters.DeviceNum = 1; parameters.NoiseSelect = 0;
+save 'calibparams.mat' 'parameters'
+
+function optionmenu_Callback(hObject, eventdata, handles)
+
+
+function tdtdir_Callback(hObject, eventdata, handles)
+
+
+function tdtdir_CreateFcn(hObject, eventdata, handles)
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
+function figure1_DeleteFcn(hObject, eventdata, handles)
+load 'calibparams.mat'
+parameters.TDTDirectory = get(handles.tdtdir, 'String');
+parameters.f1 = str2num(get(handles.param1, 'String'));
+parameters.f2 = str2num(get(handles.param2, 'String'));
+parameters.ATT = str2num(get(handles.param3, 'String'));
+parameters.L = str2num(get(handles.param4, 'String'));
+save 'calibparams.mat' 'parameters'
+
+
+
+
+
+
+function param5_Callback(hObject, eventdata, handles)
+% hObject    handle to param5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of param5 as text
+%        str2double(get(hObject,'String')) returns contents of param5 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function param5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to param5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
+
+function param6_Callback(hObject, eventdata, handles)
+% hObject    handle to param6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of param6 as text
+%        str2double(get(hObject,'String')) returns contents of param6 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function param6_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to param6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in soundtag.
+function soundtag_Callback(hObject, eventdata, handles)
+% hObject    handle to soundtag (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns soundtag contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from soundtag
+
+
+% --- Executes during object creation, after setting all properties.
+function soundtag_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to soundtag (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in sound.
+function sound_Callback(hObject, eventdata, handles)
+% hObject    handle to sound (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of sound
+
+

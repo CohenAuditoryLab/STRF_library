@@ -1,0 +1,96 @@
+ClassData(1).PATH='./frog_stats_NR/'
+ClassData(2).PATH='./parrots_NR/'
+ClassData(3).PATH='./humans2_NR/'
+ClassData(4).PATH='./primates_NR/'
+ClassData(5).PATH='./water1_NR/'
+ClassData(6).PATH='./machine_sounds_NR/'
+
+%ClassData(8).PATH='./old_world_primates_NR/'
+%ClassData(1).PATH='./Bats_NR/'
+
+[ClassData] = bayesextractfeature(ClassData);	
+
+
+
+[ValidClass] = bayesclassifier2f(ClassData,64,2000);	
+axis equal
+CM= sum(ValidClass,3)/size(ValidClass,3)	
+
+
+
+L=[2.^(0:8)];
+for k=1:length(L)
+    disp(k)
+    
+    %Running Bayes Classifier
+    [ValidClass1] = bayesclassifier1f(ClassData,1,L(k),2000);
+    [ValidClass2] = bayesclassifier1f(ClassData,2,L(k),2000);
+    [ValidClass3] = bayesclassifier2f(ClassData,L(k),2000);
+
+    %Confusion Matrix
+    CM1= sum(ValidClass1,3)/size(ValidClass1,3);
+    CM2= sum(ValidClass2,3)/size(ValidClass2,3);
+    CM3= sum(ValidClass3,3)/size(ValidClass3,3);
+    
+    %Percent Correct
+    PC1(k)=mean(diag(CM1));
+    PC2(k)=mean(diag(CM2));
+    PC3(k)=mean(diag(CM3));
+    
+    %Estimating SE - bootstrapping
+    for l=1:1000
+       
+        %Bootstrapped confussion matrices
+        index=randsample(1:2000,2000,1);    %random sampling with replacement
+        CM1b= sum(ValidClass1(:,:,index),3)/size(ValidClass1,3);
+        CM2b= sum(ValidClass2(:,:,index),3)/size(ValidClass2,3);
+        CM3b= sum(ValidClass3(:,:,index),3)/size(ValidClass3,3);
+        
+        %Bootstrapped percent correct
+        PC1b(l)=mean(diag(CM1b));
+        PC2b(l)=mean(diag(CM2b));
+        PC3b(l)=mean(diag(CM3b));
+        
+    end
+    SE1(k)=std(PC1b);   %Standard Errors
+    SE2(k)=std(PC2b);
+    SE3(k)=std(PC3b);
+    
+end
+
+%Plotting Results
+T=L*0.05;
+errorbar(log10(T),PC3*100,SE3*100,'r')
+hold on
+errorbar(log10(T),PC2*100,SE2*100,'k')
+errorbar(log10(T),PC1*100,SE1*100,'b')
+set(gca,'XTick',[log10([0.05 0.06 0.07 0.08 0.09 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100])])
+set(gca,'XTickLabel',[])
+set(gca,'Box','off')
+ylim([30 105])
+
+
+
+
+
+
+
+
+
+
+
+imagesc(CM2)
+caxis([0,1])
+labels{1}= 'bats'
+labels{2}='frogs'
+labels{3}='parrots'
+labels{4}='humans'
+labels{5}='primates'
+labels{6}='water'
+labels{7}='old_primates'
+labels{8}='squirrels'
+
+
+set(gca,'Yticklabel',labels, 'YTick',[1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16])
+
+set(gca,'Xticklabel',labels,'XTick',[1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16])

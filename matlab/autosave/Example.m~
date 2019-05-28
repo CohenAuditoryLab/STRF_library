@@ -1,0 +1,20 @@
+
+
+load ../DataExamplesMar_07_2011.mat DataTank29
+load ../DataExamplesMar_07_2011.mat DataTank25
+DataTank=DataTank25;
+load ModNoisePreFu300Hz30dBSAM_param.mat
+DataTank=DataTank29;
+
+%[RASData]=mtfmodnoiseunifspet(DataTank,SoundParam);
+[RASData]=mtfmodnoiseunifsamspet(DataTank,SoundParam);
+
+T1=0
+T2=40
+DF=5
+[Wkernel]=wienerkernelenv(RASData,SoundEstimationEnv,SoundParam,T1,T2,DF,'y');
+
+
+
+
+

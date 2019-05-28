@@ -1,0 +1,357 @@
+clear all
+cd PopulationMTF/
+load 3d_data
+cd ..
+load data_for_gainplot_new.mat
+MinRD=0.15
+MinFM=2.5;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%Speech Temporal%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Gain plots with mod gain function from IC.
+%Temporal Poly:0.7946    0.3986
+%Spectral  Poly:0.7571    0.0656
+Fm=result(1).Xt;
+BW=10^(0.3986)*Fm.^(0.7946);%BW=Fm;
+
+%Speech
+Fm=result(1).Xt;
+dFm=Fm(2)-Fm(1);
+MPSt=mean(abs(result(1).V),2);
+
+%Filtering with IC Filterbank
+k=2;
+ii=min(find(Fm>=MinFM));    %Start filtering from Fm=10 Hz
+while Fm(ii+k-2)+BW(ii+k-2)/2<max(Fm)
+    i=find(Fm>Fm(ii+k-2)-BW(ii+k-2)/2 & Fm<Fm(ii+k-2)+BW(ii+k-2)/2);
+    MPSt1(k/2)=sum(MPSt(i))*dFm;
+    FM(k/2)=Fm(ii+k-2);
+    k=k+2;
+end
+
+%Filtering with Equal Resolution FilterBank
+k=2;
+ii=min(find(Fm>=MinFM));   %Start filtering from Fm=10 Hz
+while Fm(ii+k-2)+BW(ii)/2<max(Fm)
+    i=find(Fm>Fm(ii+k-2)-BW(ii)/2 & Fm<Fm(ii+k-2)+BW(ii)/2);
+    MPSt1ER(k/2)=sum(MPSt(i))*dFm;
+    FMER(k/2)=Fm(ii+k-2);
+    k=k+2;
+end
+i=find(FMER<max(FM));       %Selecting Range of FMER to match range for FM
+FMER=FMER(i);
+MPSt1ER=MPSt1ER(i);
+
+subplot(3,2,1);
+semilogx(FMER,10*log10(MPSt1ER),'-','Color',[.5 .5 .5],'linewidth',1)
+hold on;
+semilogx(FM,10*log10(MPSt1),'k','linewidth',1)
+semilogx(Fm,10*log10(MPSt),'--','Color',[.5 .5 .5],'linewidth',1)
+axis([min(FM) 350 -40 10]);
+set(gca,'YTick',[-30 -20 -10 0],'YTickLabel',[-30 -20 -10 0])
+set(gca,'XTick',[ 10 100],'XTickLabel',[10 100]);
+
+%Efficiency 
+k=1
+TemporalEfficiencyIC(k,:)=(MPSt1/max(MPSt1));
+TemporalEfficiencyER(k,:)=(MPSt1ER/max(MPSt1ER));
+
+%%%%%%%%%%%%%%%%%%%%%%Vocalization Temporal%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Gain plots with mod gain function from IC.
+%Temporal Poly:0.7946    0.3986
+%Spectral  Poly:0.7571    0.0656
+Fm=result(2).Xt;
+BW=10^(0.3986)*Fm.^(0.7946);
+
+%Vocalizations
+Fm=result(2).Xt;
+dFm=Fm(2)-Fm(1);
+MPSt=mean(abs(result(2).V),2);
+
+%Filtering with IC Filterbank
+k=2;
+ii=min(find(Fm>=MinFM));    %Start filtering from Fm=10 Hz
+while Fm(ii+k-2)+BW(ii+k-2)/2<max(Fm)
+    i=find(Fm>Fm(ii+k-2)-BW(ii+k-2)/2 & Fm<Fm(ii+k-2)+BW(ii+k-2)/2);
+    MPSt2(k/2)=sum(MPSt(i))*dFm;
+    FM(k/2)=Fm(ii+k-2);
+    k=k+2;
+end
+
+%Filtering with Equal Resolution FilterBank
+k=2;
+ii=min(find(Fm>=MinFM));   %Start filtering from Fm=10 Hz
+while Fm(ii+k-2)+BW(ii)/2<max(Fm)
+    i=find(Fm>Fm(ii+k-2)-BW(ii)/2 & Fm<Fm(ii+k-2)+BW(ii)/2);
+    MPSt2ER(k/2)=sum(MPSt(i))*dFm;
+    FMER(k/2)=Fm(ii+k-2);
+    k=k+2;
+end
+i=find(FMER<max(FM));       %Selecting Range of FMER to match range for FM
+FMER=FMER(i);
+MPSt2ER=MPSt2ER(i);
+
+subplot(3,2,3);
+semilogx(FMER,10*log10(MPSt2ER),'-','Color',[.5 .5 .5],'linewidth',1)
+hold on;
+semilogx(FM,10*log10(MPSt2),'k','linewidth',1)
+semilogx(Fm,10*log10(MPSt),'--','Color',[.5 .5 .5],'linewidth',1)
+axis([min(FM) 350 -40 10]);
+set(gca,'YTick',[-30 -20 -10 0],'YTickLabel',[-30 -20 -10 0])
+set(gca,'XTick',[ 10 100],'XTickLabel',[10 100]);
+
+%Efficiency 
+k=2
+TemporalEfficiencyIC(k,:)=(MPSt2/max(MPSt2));
+TemporalEfficiencyER(k,:)=(MPSt2ER/max(MPSt2ER));
+
+%%%%%%%%%%%%%%%%%%%%%Background Temporal %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Gain plots with mod gain function from IC.
+%Temporal Poly:0.7946    0.3986
+%Spectral  Poly:0.7571    0.0656
+Fm=result(3).Xt;
+BW=10^(0.3986)*Fm.^(0.7946);
+
+%Vocalizations
+Fm=result(3).Xt;
+dFm=Fm(2)-Fm(1);
+MPSt=mean(abs(result(3).V),2);
+
+%Filtering with IC Filterbank
+k=2;
+ii=min(find(Fm>=MinFM));    %Start filtering from Fm=10 Hz
+while Fm(ii+k-2)+BW(ii+k-2)/2<max(Fm)
+    i=find(Fm>Fm(ii+k-2)-BW(ii+k-2)/2 & Fm<Fm(ii+k-2)+BW(ii+k-2)/2);
+    MPSt3(k/2)=sum(MPSt(i))*dFm;
+    FM(k/2)=Fm(ii+k-2);
+    k=k+2;
+end
+
+%Filtering with Equal Resolution FilterBank
+k=2;
+ii=min(find(Fm>=MinFM));   %Start filtering from Fm=10 Hz
+while Fm(ii+k-2)+BW(ii)/2<max(Fm)
+    i=find(Fm>Fm(ii+k-2)-BW(ii)/2 & Fm<Fm(ii+k-2)+BW(ii)/2);
+    MPSt3ER(k/2)=sum(MPSt(i))*dFm;
+    FMER(k/2)=Fm(ii+k-2);
+    k=k+2;
+end
+i=find(FMER<max(FM));       %Selecting Range of FMER to match range for FM
+FMER=FMER(i);
+MPSt3ER=MPSt3ER(i);
+
+subplot(3,2,5);
+semilogx(FMER,10*log10(MPSt3ER),'-','Color',[.5 .5 .5],'linewidth',1)
+hold on;
+semilogx(FM,10*log10(MPSt3),'k','linewidth',1)
+semilogx(Fm,10*log10(MPSt),'--','Color',[.5 .5 .5],'linewidth',1)
+axis([min(FM) 350 -40 10]);
+set(gca,'YTick',[-30 -20 -10 0],'YTickLabel',[-30 -20 -10 0])
+set(gca,'XTick',[ 10 100],'XTickLabel',[10 100]);
+
+%Efficiency 
+k=3
+TemporalEfficiencyIC(k,:)=(MPSt3/max(MPSt3));
+TemporalEfficiencyER(k,:)=(MPSt3ER/max(MPSt3ER));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%Speech Spectral%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Gain plots with mod gain function from IC.
+%Temporal Poly:0.7946    0.3986
+%Spectral  Poly:0.7571    0.0656
+RD=result(1).Xs;
+BWs=10^(0.0656)*RD.^(0.7571);
+BWs=1.2*RD.^(0.7571);
+
+%Speech
+RD=result(1).Xs;
+dRD=RD(2)-RD(1);
+MPSs=mean(abs(result(1).U),2);
+
+%Filtering with IC Filterbank
+k=2;
+ii=min(find(RD>=MinRD));    %Start filtering from RD=0.25 cycles/oct
+while RD(ii+k-2)+BWs(ii+k-2)/2<max(RD)
+    i=find(RD>RD(ii+k-2)-BWs(ii+k-2)/2 & RD<RD(ii+k-2)+BWs(ii+k-2)/2);
+    MPSs1(k/2)=sum(MPSs(i))*dRD;
+    Rd(k/2)=RD(ii+k-2);
+    k=k+2;
+end
+
+%Filtering with Equal Resolution FilterBank
+k=2;
+while RD(ii+k-2)+BWs(ii)/2<max(RD)
+    i=find(RD>RD(ii+k-2)-BWs(ii)/2 & RD<RD(ii+k-2)+BWs(ii)/2);
+    MPSs1ER(k/2)=sum(MPSs(i))*dRD;
+    RdER(k/2)=RD(ii+k-2);
+    k=k+2;
+end
+i=find(RdER<=max(Rd));       %Selecting Range of RdER to match range for Rd
+RdER=RdER(i);
+MPSs1ER=MPSs1ER(i);
+
+subplot(3,2,2);
+semilogx(RdER,10*log10(MPSs1ER),'-','Color',[0.5,0.5,0.5],'linewidth',1);
+hold on;
+semilogx(Rd,10*log10(MPSs1),'k','linewidth',1)
+semilogx(RD,10*log10(MPSs),'--','Color',[.5 .5 .5],'linewidth',1)
+axis([MinRD 2.5 -40 0]);
+set(gca,'XTick',[0.125 0.25 0.5 1 2 ]);
+
+%Efficiency 
+k=1
+SpectralEfficiencyIC(k,:)=(MPSs1/max(MPSs1));
+SpectralEfficiencyER(k,:)=(MPSs1ER/max(MPSs1ER));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%VocalizationSpectral%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Gain plots with mod gain function from IC.
+%Temporal Poly:0.7946    0.3986
+%Spectral  Poly:0.7571    0.0656
+RD=result(2).Xs;
+BWs=10^(0.0656)*RD.^(0.7571);
+BWs=1.2*RD.^(0.7571);
+
+%Vocalization
+RD=result(2).Xs;
+dRD=RD(2)-RD(1);
+MPSs=mean(abs(result(2).U),2);
+
+%Filtering with IC Filterbank
+k=2;
+ii=min(find(RD>=MinRD));    %Start filtering from RD=0.25 cycles/oct
+while RD(ii+k-2)+BWs(ii+k-2)/2<max(RD)
+    i=find(RD>RD(ii+k-2)-BWs(ii+k-2)/2 & RD<RD(ii+k-2)+BWs(ii+k-2)/2);
+    MPSs2(k/2)=sum(MPSs(i))*dRD;
+    Rd(k/2)=RD(ii+k-2);
+    k=k+2;
+end
+
+%Filtering with Equal Resolution FilterBank
+k=2;
+while RD(ii+k-2)+BWs(ii)/2<max(RD)
+    i=find(RD>RD(ii+k-2)-BWs(ii)/2 & RD<RD(ii+k-2)+BWs(ii)/2);
+    MPSs2ER(k/2)=sum(MPSs(i))*dRD;
+    RdER(k/2)=RD(ii+k-2);
+    k=k+2;
+end
+i=find(RdER<=max(Rd));       %Selecting Range of RdER to match range for Rd
+RdER=RdER(i);
+MPSs2ER=MPSs2ER(i);
+
+subplot(3,2,4);
+semilogx(RdER,10*log10(MPSs2ER),'-','Color',[0.5,0.5,0.5],'linewidth',1);
+hold on;
+semilogx(Rd,10*log10(MPSs2),'k','linewidth',1)
+semilogx(RD,10*log10(MPSs),'--','Color',[.5 .5 .5],'linewidth',1)
+axis([MinRD 2.5 -40 0]);
+set(gca,'XTick',[0.125 0.25 0.5 1 2 ]);
+
+%Efficiency 
+k=2
+SpectralEfficiencyIC(k,:)=(MPSs2/max(MPSs2));
+SpectralEfficiencyER(k,:)=(MPSs2ER/max(MPSs2ER));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%BackgroundSpectral%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Gain plots with mod gain function from IC.
+%Temporal Poly:0.7946    0.3986
+%Spectral  Poly:0.7571    0.0656
+RD=result(3).Xs;
+BWs=10^(0.0656)*RD.^(0.7571);
+BWs=1.2*RD.^(0.7571);
+
+%Vocalization
+RD=result(3).Xs;
+dRD=RD(2)-RD(1);
+MPSs=mean(abs(result(3).U),2);
+
+%Filtering with IC Filterbank
+k=2;
+ii=min(find(RD>=MinRD));    %Start filtering from RD=0.25 cycles/oct
+while RD(ii+k-2)+BWs(ii+k-2)/2<max(RD)
+    i=find(RD>RD(ii+k-2)-BWs(ii+k-2)/2 & RD<RD(ii+k-2)+BWs(ii+k-2)/2);
+    MPSs3(k/2)=sum(MPSs(i))*dRD;
+    Rd(k/2)=RD(ii+k-2);
+    k=k+2;
+end
+
+%Filtering with Equal Resolution FilterBank
+k=2;
+while RD(ii+k-2)+BWs(ii)/2<max(RD)
+    i=find(RD>RD(ii+k-2)-BWs(ii)/2 & RD<RD(ii+k-2)+BWs(ii)/2);
+    MPSs3ER(k/2)=sum(MPSs(i))*dRD;
+    RdER(k/2)=RD(ii+k-2);
+    k=k+2;
+end
+i=find(RdER<=max(Rd));       %Selecting Range of RdER to match range for Rd
+RdER=RdER(i);
+MPSs3ER=MPSs3ER(i);
+
+subplot(3,2,6);
+semilogx(RdER,10*log10(MPSs3ER),'-','Color',[0.5,0.5,0.5],'linewidth',1);
+hold on;
+semilogx(Rd,10*log10(MPSs3),'k','linewidth',1)
+semilogx(RD,10*log10(MPSs),'--','Color',[.5 .5 .5],'linewidth',1)
+axis([MinRD 2.5 -40 0]);
+set(gca,'XTick',[0.125 0.25 0.5 1 2 ]);
+
+%Efficiency 
+k=3
+SpectralEfficiencyIC(k,:)=(MPSs3/max(MPSs3));
+SpectralEfficiencyER(k,:)=(MPSs3ER/max(MPSs3ER));
+
+
+figure
+subplot(211)
+
+%Efficiency separated for each class of sound
+TemporalEfficiencyER=100*TemporalEfficiencyER';
+TemporalEfficiencyIC=100*TemporalEfficiencyIC';
+SpectralEfficiencyER=100*SpectralEfficiencyER';
+SpectralEfficiencyIC=100*SpectralEfficiencyIC';
+
+%Average Efficiency Analysis
+TemporalEfficiencyERAvg=reshape(TemporalEfficiencyER,1,numel(TemporalEfficiencyER));
+TemporalEfficiencyICAvg=reshape(TemporalEfficiencyIC,1,numel(TemporalEfficiencyIC));
+SpectralEfficiencyERAvg=reshape(SpectralEfficiencyER,1,numel(SpectralEfficiencyER));
+SpectralEfficiencyICAvg=reshape(SpectralEfficiencyIC,1,numel(SpectralEfficiencyIC));
+
+%Bootstrapping Average Efficiency
+TemporalEfficiencyERAvgB=bootstrp(1000,'mean',TemporalEfficiencyERAvg);
+TemporalEfficiencyICAvgB=bootstrp(1000,'mean',TemporalEfficiencyICAvg);
+SpectralEfficiencyERAvgB=bootstrp(1000,'mean',SpectralEfficiencyERAvg);
+SpectralEfficiencyICAvgB=bootstrp(1000,'mean',SpectralEfficiencyICAvg);
+
+%Bootstrapping Efficiency seprated for each sound
+TemporalEfficiencyERB=bootstrp(1000,'mean',TemporalEfficiencyER);
+TemporalEfficiencyICB=bootstrp(1000,'mean',TemporalEfficiencyIC);
+SpectralEfficiencyERB=bootstrp(1000,'mean',SpectralEfficiencyER);
+SpectralEfficiencyICB=bootstrp(1000,'mean',SpectralEfficiencyIC);
+
+ES=[[mean(SpectralEfficiencyER) mean(SpectralEfficiencyERAvg)]; [mean(SpectralEfficiencyIC) mean(SpectralEfficiencyICAvg)]];
+ET=[[mean(TemporalEfficiencyER) mean(TemporalEfficiencyERAvg)]; [mean(TemporalEfficiencyIC) mean(TemporalEfficiencyICAvg)]];
+stdES=[[std(SpectralEfficiencyERB) std(SpectralEfficiencyERAvgB)]; [std(SpectralEfficiencyICB) std(SpectralEfficiencyICAvgB)]];
+stdET=[[std(TemporalEfficiencyERB) std(TemporalEfficiencyERAvgB)]; [std(TemporalEfficiencyICB) std(TemporalEfficiencyICAvgB)]];
+
+subplot(221)
+H=bar(ET')
+set(H(2),'FaceColor','k')
+set(H(1),'FaceColor',[0.5 .5 .5])
+hold on
+H=errorbar([.85 1.15; 1.85 2.15; 2.85 3.15; 3.85 4.15],ET',stdET','k.')
+set(H(2),'color',[.5 .5 .5])
+set(H(1),'color','k')
+axis([.5 4.5 0 74])
+
+subplot(222)
+H=bar(ES')
+set(H(2),'FaceColor','k')
+set(H(1),'FaceColor',[0.5 .5 .5])
+hold on
+H=errorbar([.85 1.15; 1.85 2.15; 2.85 3.15; 3.85 4.15],ES',stdES','k.')
+set(H(2),'color',[.5 .5 .5])
+set(H(1),'color','k')
+axis([.5 4.5 0 74])

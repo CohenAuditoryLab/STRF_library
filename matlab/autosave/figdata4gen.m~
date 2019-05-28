@@ -1,0 +1,36 @@
+clear all
+load DataExamplesJan_11_2011.mat DataTank24
+DataTank=DataTank24;
+
+load BandPassNoiseMTF2kBW4to32L10_param.mat
+FMAxis=[4 8 16]
+BWAxis=[0 32 128 512 2048 48000]
+T=0
+i=find(isinf(BW));
+BW(i)=96000/2*ones(size(i));
+Fsd=2500
+Ncyc=4
+
+[RAS] = rasterparam2(DataTank,FM,BW,'FM','BW',4,0,0);
+[RFmBW]=rastercircularcorrfmbw(RAS,FMAxis,BWAxis,Ncyc,Fsd,T,'n')
+
+save FigData4
+
+%%%%%%%%%%% RERUN at 5kHz sampling rate
+clear all
+load DataExamplesJan_11_2011.mat DataTank24
+DataTank=DataTank24;
+
+load BandPassNoiseMTF2kBW4to32L10_param.mat
+FMAxis=[4 8 16]
+BWAxis=[0 32 128 512 2048 48000]
+T=0
+i=find(isinf(BW));
+BW(i)=96000/2*ones(size(i));
+Fsd=5000
+Ncyc=4
+
+[RAS] = rasterparam2(DataTank,FM,BW,'FM','BW',4,0,0);
+[RFmBW]=rastercircularcorrfmbw(RAS,FMAxis,BWAxis,Ncyc,Fsd,T,'n')
+
+save FigData4Fs5

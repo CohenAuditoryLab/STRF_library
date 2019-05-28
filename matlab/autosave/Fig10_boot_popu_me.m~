@@ -1,0 +1,184 @@
+%function boot_popu
+
+for i=1:15
+Data{i}=[]; Data_INFO{i}=[]; Data_Freli{i}=[]; Data_Ftemp{i}=[]; Data_Feffi{i}=[];
+end
+Data_2=[];
+
+for unit=1:65
+    % real neuron data
+%        filepath='E:\iPaper\Escabi\reli jitter info_JNP2011\Data\Info_bias_P\SAM\SAM8000unit';
+%        filename=[filepath num2str(unit)];   % InfoDataModel
+       
+       % condition p=1
+       % filepath0='E:\iPaper\Escabi\reli jitter info_JNP2011\Data\Info_bias_P\p1\SAMp1unit';
+
+       
+%       filepath0 = '/Users/escabi/Dropbox/info_bias_p/SAM/SAM8000unit';
+       filepath0 = '/Users/escabi/Dropbox/info_bias_p/PNB/PNB8000unit';       
+%       filepath0 = '/Users/escabi/Dropbox/info_bias_p/p1/SAMp1unit';
+%       filepath0 = '/Users/escabi/Dropbox/info_bias_p/p1/PNBp1unit';
+       filename0=[filepath0 num2str(unit)];   % InfoDataModel0      
+
+       filepath00 = '/Users/escabi/Dropbox/info_bias_p/jitter0/PNBjitter00unit';  
+filename00=[filepath00 num2str(unit)];   % InfoDataModel0                 
+              
+       %load('/Users/escabi/Dropbox/info_bias_p/jitter0/model_sigma0p1.mat')
+       %InfoDataModel00 = InfoDataModel0;  
+          
+%        filepath00='E:\iPaper\Escabi\reli jitter info_JNP2011\Data\Info_bias_P\jitter0\SAMjitter00unit';
+%        filename00=[filepath00 num2str(unit)];   % InfoDataModel00: tau=0,sigma=0
+
+%        filepath0='E:\iPaper\Escabi\reli jitter info_JNP2011\Data\Info_bias_P\jitter0\SAMjitter0unit';
+%        filename0=[filepath0 num2str(unit)];   % InfoDataModel0: tau=0
+        
+       if exist([filename0 '.mat'],'file')
+           % load(filename);  
+           % load(filename00);  
+           load(filename0); 
+           load(filename00);
+%           InfoDataModel = InfoDataModel0;
+%           A=InfoData.HWord-InfoData.HWordt-InfoData.Ibias;
+           B=InfoDataModel.HWord-InfoDataModel.HWordt-InfoDataModel.Ibias;  % Info from model
+           
+               Hreli = InfoDataModel00.HWordt(:,1); Hreli=repmat(Hreli,1,21);
+               % Htemp = InfoDataModel0.HWordt - InfoDataModel00.HWordt; %from sigma only
+               Htemp = InfoDataModel.HWordt(:,1:end)-Hreli; % Htemp from both sigma and tau
+               Htot = InfoDataModel.HWord(:,1:end);
+               INFO = InfoDataModel.HWord(:,1:end)-InfoDataModel.HWordt(:,1:end)-InfoDataModel.Ibias(:,2:end);
+               Freli = Hreli./Htot;
+               Ftemp = Htemp./Htot;
+               Feffi = INFO./Htot;
+               % Feffi = 1 - Freli - Ftemp;
+               Data_2 = [Data_2 Ftemp]; 
+               
+           for i=1:15
+               % InfoRate(i,:) = B(i,:).*InfoData.FMAxis(i);   % information rate 
+               H_add(i,:) = InfoDataModel.HWordt(i,:)-Hreli(i)-Htemp(i);  %model_jitter!=0, add_jitter=0;
+               % H_addnorm (i,:) = H_add(i,:)./max(H_add(i,:));  
+               H_addnorm (i,:) = H_add(i,:)./InfoDataModel.HWord(i,:);  
+               % H_addnorm(i,:)=H_add(i,:);
+               % Data{i}=[Data{i};H_addnorm(i,:)];    
+               Data_INFO{i} = [Data_INFO{i};INFO(i,:)];
+               Data_Freli{i} = [Data_Freli{i};Freli(i,:)];
+               Data_Ftemp{i} = [Data_Ftemp{i};Ftemp(i,:)];
+               Data_Feffi{i} = [Data_Feffi{i};Feffi(i,:)];
+               temp(i,:) = B(i,:)./InfoDataModel.HWord(i,:); Data{i} = [Data{i};temp(i,:)];
+           end              
+       end
+end
+
+% for FMi=1:15
+%     %Z(FMi,:)=mean(Data{FMi},1);
+%     a=Data{FMi};  a2=Data_2(FMi,:);
+%     a=a(find(~isnan(a(:,1))),:);    a2=a2(find(~isnan(a2)));
+%     boot=[];  boot2=[];
+%     for l=1:200
+%        b=randsample(size(a,1),size(a,1),'true');
+%        b2 = randsample(length(a2),length(a2),'true');
+%        boot(l,:)=median(a(b,:),1);  
+%        boot2(l,:)=median(a2(b2),2);
+%     end
+%     Mdata(FMi,:)=mean(boot,1);
+%     STDdata(FMi,:)=std(boot,1);
+%     Mdata_2(FMi) = mean(boot2);
+%     STDdata_2(FMi) = std(boot2);
+% end
+
+% figure(1)
+% hold on
+% errorbar(Mdata_2,STDdata_2,'ok-')
+% set(gca,'xtick',[1:15])
+% set(gca,'xticklabel',{'5','','10','','19','','36','','69','','134','','259','','500'})
+% xlabel('Mod Freq (Hz)')
+% 
+% figure(2)
+% imagesc(flipud(Mdata))
+% set(gca,'ytick',[1:15])
+% set(gca,'yticklabel',{'500','','259','','134','','69','','36','','19','','10','','5'})
+% set(gca,'xtick',[1:21])
+% set(gca,'xticklabel',{'1','','','2.2','','','4.9','','','10.9','','','24.0','','','53.2','','','117.7','','200'})
+% xlabel('Added jitter (msec)'); ylabel('Modulation freq (Hz)');
+% shading flat; colormap jet; colorbar
+% % caxis([0 3])
+% % colorbar('YTick',[0:1:3])
+
+
+figure(3)
+[Mdata_INFO,STDdata_INFO]=bootdata(Data_INFO)
+subplot(221)
+imagesc(flipud(Mdata_INFO))
+set(gca,'ytick',[1:15])
+set(gca,'yticklabel',{'500','','259','','134','','69','','36','','19','','10','','5'})
+set(gca,'xtick',[1:21])
+set(gca,'xticklabel',{'1','','','2.2','','','4.9','','','10.9','','','24.0','','','53.2','','','117.7','','200'})
+xlabel('Added jitter (msec)'); ylabel('Modulation freq (Hz)');
+shading flat; colormap jet; colorbar
+% caxis([0 0.8])
+% colorbar('YTick',[0:0.2:1])
+title('Info')
+
+subplot(222)
+[Mdata_Freli,STDdata_Freli]=bootdata(Data_Freli);
+% Freli
+imagesc(flipud(Mdata_Freli))
+set(gca,'ytick',[1:15])
+set(gca,'yticklabel',{'500','','259','','134','','69','','36','','19','','10','','5'})
+set(gca,'xtick',[1:21])
+set(gca,'xticklabel',{'1','','','2.2','','','4.9','','','10.9','','','24.0','','','53.2','','','117.7','','200'})
+xlabel('Added jitter (msec)'); ylabel('Modulation freq (Hz)');
+shading flat; colormap jet; colorbar
+% caxis([0 0.8])
+% colorbar('YTick',[0:0.2:1])
+title('Freli')
+
+subplot(223)
+[Mdata_Ftemp,STDdata_Ftemp]=bootdata(Data_Ftemp);
+% Ftemp
+imagesc(flipud(Mdata_Ftemp))
+set(gca,'ytick',[1:15])
+set(gca,'yticklabel',{'500','','259','','134','','69','','36','','19','','10','','5'})
+set(gca,'xtick',[1:21])
+set(gca,'xticklabel',{'1','','','2.2','','','4.9','','','10.9','','','24.0','','','53.2','','','117.7','','200'})
+xlabel('Added jitter (msec)'); ylabel('Modulation freq (Hz)');
+shading flat; colormap jet; colorbar
+% caxis([0 0.8])
+% colorbar('YTick',[0:0.2:1])
+title('Ftemp')
+
+subplot(224)
+[Mdata_Feffi,STDdata_Feffi]=bootdata(Data_Feffi);
+% Feffi
+imagesc(flipud(Mdata_Feffi))
+set(gca,'ytick',[1:15])
+set(gca,'yticklabel',{'500','','259','','134','','69','','36','','19','','10','','5'})
+set(gca,'xtick',[1:21])
+set(gca,'xticklabel',{'1','','','2.2','','','4.9','','','10.9','','','24.0','','','53.2','','','117.7','','200'})
+xlabel('Added jitter (msec)'); ylabel('Modulation freq (Hz)');
+shading flat; colormap jet; colorbar
+% caxis([0 0.8])
+% colorbar('YTick',[0:0.2:1])
+title('Effi')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% for unit=1:65
+%        filepath='E:\iPaper\Escabi\reli jitter info_JNP2011\Data\Info_bias_P\Temp\PNB\PNB8000unit';
+%        filename=[filepath num2str(unit)];
+%        
+%        filepath26='E:\iPaper\Escabi\reli jitter info_JNP2011\Data\Info_bias_P\Temp\PNB\PNB26Hzunit';
+%        filename26=[filepath26 num2str(unit)];
+%        if exist([filename '.mat'],'file')
+%        load(filename26);
+%        A=InfoData; B=InfoDataModel;
+%        
+%        load(filename);
+%       
+%            InfoData.HWord(6,:)=A(1,:).HWord;
+%            InfoData.HWordt(6,:)=A(1,:).HWordt;
+%            InfoData.Ibias(6,:)=A(1,:).Ibias;
+%            InfoDataModel.HWord(6,:)=B(1,:).HWord;
+%            InfoDataModel.HWordt(6,:)=B(1,:).HWordt;
+%            InfoDataModel.Ibias(6,:)=B(1,:).Ibias;
+%            save(filename,'InfoData','InfoDataModel');
+%        end
+% end

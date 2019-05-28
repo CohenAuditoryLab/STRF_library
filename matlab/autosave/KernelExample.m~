@@ -1,0 +1,204 @@
+clear all
+%load ../DataExamplesJan_24_2011.mat
+%DataTank=DataTank55;
+%load ../DataExamplesJan_11_2011.mat
+%DataTank=DataTank21;
+%load ../DataExamplesJan_28_2011.mat
+%DataTank=DataTank66;
+
+
+
+%load ../DataExamplesFeb_2011.mat
+%DataTank=DataTank20;
+%DataTank=DataTank24;
+
+% load ../DataExamplesMar_07_2011.mat
+% DataTank=DataTank20;    %Cool inhibitory unit
+% DataTank=DataTank25;
+
+load ../DataExamplesJan_24_2011.mat
+DataTank=DataTank55;                %This is the best example unit
+%DataTank=DataTank53;
+
+load ModNoisePreFu300Hz30dB_param.mat
+
+[RASData]=mtfmodnoiseunifspet(DataTank,SoundParam);
+T1=0
+T2=40
+DF=5
+[Wkernel]=wienerkernelenvpredict(RASData,SoundEstimationEnv,SoundPredictionEnv,SoundParam,T1,T2,DF,'n');
+
+
+figure
+subplot(221)
+plot(Wkernel.T,Wkernel.k1,'k')
+xlim([0 40])
+set(gca,'box','off')
+
+subplot(222)
+imagesc(Wkernel.T1,Wkernel.T2,Wkernel.k2)
+set(gca,'YDir','normal')
+caxis([-.3 .3])
+C=colorbar
+set(C,'YTick',[-.3 0 .3])
+
+subplot(223)
+plot(Wkernel.T,Wkernel.k2_1,'r')
+hold on
+plot(Wkernel.T,Wkernel.k2_2,'b')
+set(gca,'box','off')
+ylim([-.5 .5])
+xlim([0 40])
+set(gca,'YTick',[-.4 -.2 0 .2 .4])
+
+% 
+% %Filter Figures for Block Diagram
+% figure
+% subplot(221)
+% plot(Wkernel.T1,Wkernel.k1,'k','linewidth',2)
+% axis([min(Wkernel.T1) max(Wkernel.T1) min(Wkernel.k1) max(Wkernel.k1)])
+% set(gca,'visible','off')
+% subplot(222)
+% plot(Wkernel.T1,Wkernel.k2_1,'b','linewidth',2)
+% axis([min(Wkernel.T1) max(Wkernel.T1) min(Wkernel.k2_1) max(Wkernel.k2_1)])
+% set(gca,'visible','off')
+% subplot(223)
+% plot(Wkernel.T1,Wkernel.k2_2,'r','linewidth',2)
+% axis([min(Wkernel.T1) max(Wkernel.T1) min(Wkernel.k2_2) max(Wkernel.k2_2)])
+% set(gca,'visible','off')
+% subplot(224)
+% imagesc(Wkernel.y1,Wkernel.y2,log10(Wkernel.F))
+% set(gca,'visible','off')
+% set(gca,'YDir','normal')
+% figure
+% subplot(221)
+% t=(0:0.001:0.050);
+% h=exp(-t/0.01);
+% h(1)=0;
+% plot(t,h,'k','linewidth',2)
+% set(gca,'visible','off')
+
+%Transfer functions
+subplot(224)
+N=1024
+Fs=1920
+H1=abs(fft(Wkernel.k1,N));
+H1=H1/max(H1);
+H21=abs(fft(Wkernel.k2_1,N));
+H21=H21/max(H21);
+H22=abs(fft(Wkernel.k2_2,N));
+H22=H22/max(H22);
+faxis=(0:N-1)/N*Fs;
+plot(faxis,H1,'k')
+hold on
+plot(faxis,H21,'r')
+plot(faxis,H22,'b')
+axis([0 400 0 1.2])
+set(gca,'box','off')
+set(gca,'YTick',[0 .5 1])
+
+%Coherence predictions
+figure
+subplot(221)
+imagesc(Wkernel.y1,Wkernel.y2,log10(Wkernel.F))
+set(gca,'Ydir','norma')
+caxis(log10([.5 500]))
+C=colorbar
+set(C,'YTick',[0 1 2],'YTickLabel',[1 10 100])
+
+subplot(222)
+N=128
+[C12,F]=cohere(Wkernel.PSTH1-mean(Wkernel.PSTH1),Wkernel.PSTH2-mean(Wkernel.PSTH2),N,1920);
+[Cl,F]=cohere(Wkernel.PSTH2-mean(Wkernel.PSTH2),Wkernel.Y1-mean(Wkernel.Y1),N,1920);
+[Cnl,F]=cohere(Wkernel.PSTH2-mean(Wkernel.PSTH2),Wkernel.Ytot-mean(Wkernel.Ytot),N,1920);
+plot(F,C12,'k-.')
+hold on
+plot(F,Cnl,'r')
+plot(F,Cl,'b')
+axis([0 400 0 0.8])
+set(gca,'box','off')
+set(gca,'YTick',[0 .4 .8])
+
+
+
+%Predicted PSTH Linear
+figure
+subplot(411)
+W=kaiser(15,20);
+W=W/sum(W);
+N=(length(W)-1)/2;
+PSTH=conv(Wkernel.PSTH,W);  %Smoothing to removing high freq noise, mostly above 300 Hz
+PSTH=PSTH(N+1:end-N);
+t=(1:length(PSTH))/Fs*1000;
+plot(t-500,PSTH,'k-.')
+hold on
+plot(t-500,Wkernel.Y1+Wkernel.k0,'b')
+axis([0 200 -230 230])
+set(gca,'box','off')
+set(gca,'XTick',[0 100 200])
+
+%Predicted PSTH NL
+subplot(412)
+W=kaiser(15,20);
+W=W/sum(W);
+N=(length(W)-1)/2;
+PSTH=conv(Wkernel.PSTH,W);  %Smoothing to removing high freq noise, mostly above 300 Hz
+PSTH=PSTH(N+1:end-N);
+PSTH1=conv(Wkernel.PSTH1,W);  %Smoothing to removing high freq noise, mostly above 300 Hz
+PSTH1=PSTH1(N+1:end-N);
+PSTH2=conv(Wkernel.PSTH2,W);  %Smoothing to removing high freq noise, mostly above 300 Hz
+PSTH2=PSTH1(N+1:end-N);
+
+t=(1:length(PSTH))/Fs*1000;
+plot(t-500,PSTH,'k-.')
+hold on
+plot(t-500,Wkernel.Ytot,'r')
+%xlim([0 200])
+%plot(t-500,Wkernel.Y1+Wkernel.k0,'b')
+axis([0 200 0 220])
+set(gca,'box','off')
+set(gca,'XTick',[0 100 200])
+
+%Predicting Dot RASTERS
+Nsig=1.25
+SNR=-5
+tau=5
+taur=1
+Im=Wkernel.Ytot;
+Tau=6
+Tref=0
+Vtresh=50
+Vrest=-65
+Nsig=1.37
+SNR=-6
+Fs=1920
+flag=3
+L=15
+In=randn(1,length(Im)*4);
+detrendim='y'
+detrendin='n'
+[taxis,RASTERm]=rasterifsim(Im,Tau,Tref,Vtresh,Vrest,Nsig,SNR,Fs,flag,L,In,detrendim,detrendin);
+
+figure
+subplot(411)
+[RASTER,Fs]=rasterexpand(RASData.Pre(1:15),Fs,4);
+[jm,im]=find(RASTERm);
+[j,i]=find(RASTER);
+plot(i/Fs*1000,j+15,'.k')
+hold on
+plot(im/Fs*1000,jm,'.r')
+hold off
+set(gca,'visible','off')
+
+xlim([1600 1900])
+%xlim([2000 2500])
+%for k=1:10
+%xlim(500*k+[0 500])
+%k
+%pause
+%end
+
+
+
+
+

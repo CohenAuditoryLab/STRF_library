@@ -1,0 +1,21 @@
+load Rat042613Block2Tetrode4Unit4RFmBWv2.mat
+
+Fs=400
+[RFmBW]=rastercircularcorrfmbw(MTF(2,6),MTF(1).FMAxis(2),MTF(1).FCAxis(6),4,Fs,0);
+
+subplot(421)
+Fs=400
+R=rasterexpand(MTF(2,6).RASTER,Fs);
+[i,j]=find(R);
+plot(j/Fs,i,'k.')
+xlim([0 1])
+set(gca,'visible','off')
+
+subplot(223)
+plot(RFmBW.Tau,RFmBW.Renv,'k')
+set(gca,'box','off')
+
+subplot(224)
+plot((0:1024-1)/1024*Fs,abs(fft(RFmBW.Renv-mean(RFmBW.Renv),1024))/Fs,'k'),xlim([0 50])
+set(gca,'box','off')
+axis([0 50 0 50])

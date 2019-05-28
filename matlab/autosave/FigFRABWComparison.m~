@@ -1,0 +1,130 @@
+BWpassive=[];
+BFpassive=[];
+BFHzpassive=[];
+load ~/data/ElectricalStimulation/Rat072213/FigData/BFBWMap072213Tank2.mat
+BWpassive=[squeeze(reshape(2*Std,4*8,8))];
+BFpassive=[BFpassive ; squeeze(reshape(BF,4*8,8))];
+BFHzpassive=[BFHzpassive ; squeeze(reshape(BFHz,4*8,8))];
+load ~/data/ElectricalStimulation/Rat102213/FigData/BFBWMap102213Tank2.mat
+BWpassive=[BWpassive ; squeeze(reshape(2*Std,4*8,8))];
+BFpassive=[BFpassive ; squeeze(reshape(BF,4*8,8))];
+BFHzpassive=[BFHzpassive ; squeeze(reshape(BFHz,4*8,8))];
+load ~/data/ElectricalStimulation/Rat103013/FigData/BFBWMap103013Tank2.mat
+BWpassive=[BWpassive ; squeeze(reshape(2*Std,4*8,8))];
+BFpassive=[BFpassive ; squeeze(reshape(BF,4*8,8))];
+BFHzpassive=[BFHzpassive ; squeeze(reshape(BFHz,4*8,8))];
+
+%Active
+clear BW26 BWactive
+load /Users/escabi/data/YaleCohen/FRAAnalysis/BFBWMapData/AuditoryCortexBFBWMap102610.mat
+load /Users/escabi/data/YaleCohen/FRAAnalysis/BFBWMapData/MapMask_07_26_2010_Final.mat
+
+for l=1:size(Std,3)
+    [i,j]=find(A1Mask & ~isnan(Std(:,:,l)));
+    for k=1:length(i)
+        BW26(k,l)=2*Std(i(k),j(k),l);
+        BF26(k,l)=BF(i(k),j(k),l);
+        BFHz26(k,l)=BFHz(i(k),j(k),l);
+        
+    end
+end
+
+clear BW27 BWactive
+load /Users/escabi/data/YaleCohen/FRAAnalysis/BFBWMapData/AuditoryCortexBFBWMap102710.mat
+load /Users/escabi/data/YaleCohen/FRAAnalysis/BFBWMapData/MapMask_07_27_2010_Final.mat
+for l=1:size(Std,3)
+    [i,j]=find(A1Mask & ~isnan(Std(:,:,l)));
+    for k=1:length(i)
+        BW27(k,l)=2*Std(i(k),j(k),l);
+        BF27(k,l)=BF(i(k),j(k),l);
+        BFHz27(k,l)=BFHz(i(k),j(k),l);
+    end
+end
+
+BWactive=[BW26 ;BW27];
+BFactive=[BF26 ;BF27];
+BFHzactive=[BFHz26 ;BFHz27];
+
+
+
+L=6
+figure
+subplot(221)
+ip=find(BWpassive(:,L)~=0 & ~isnan(BWpassive(:,L)))
+hist(BWpassive(ip,L),0:.3:4)
+xlim([0 4])
+
+subplot(222)
+ia=find(BWactive(:,L)~=0 & ~isnan(BWactive(:,L)))
+hist(BWactive(ia,L),0:.3:4)
+xlim([0 4])
+
+%subplot(223)
+%plot(BFHzpassive,BWpassive,'k.')
+%subplot(224)
+%plot(BFHzactive,BWactive,'k.')
+
+subplot(223)
+loglog(BFHzpassive(ip,L),BFHzpassive(ip,L).*(2.^(BWpassive(ip,L)/2)-2.^(-BWpassive(ip,L)/2)),'k.')
+hold on
+loglog(BFHzactive(ia,L),BFHzactive(ia,L).*(2.^(BWactive(ia,L)/2)-2.^(-BWactive(ia,L)/2)),'r.')
+
+
+figure
+BWp=[];
+BWa=[];
+SPLp=[];
+SPLa=[];
+SPLpass=15:10:85;
+SPLact=5:10:85;
+for k=1:8
+   i=find(BWpassive(:,k)~=0 & ~isnan(BWpassive(:,k)));
+   Mpassive(k)=median(BWpassive(i,k));
+   MBpassive = bootstrp(1000,'median',BWpassive(i,k));
+   SEpassive(k)=std(MBpassive);
+   
+   BWp=[BWp BWpassive(i,k)'];
+   SPLp=[SPLp SPLpass(k)*ones(size(i))'];
+   
+   
+end
+
+for k=1:9
+    i=find(BWactive(:,k)~=0 & ~isnan(BWactive(:,k)));
+   Mactive(k)=median(BWactive(i,k));
+   MBactive = bootstrp(1000,'median',BWactive(i,k));
+   SEactive(k)=std(MBactive);
+   
+   BWa=[BWa BWactive(i,k)'];
+   SPLa=[SPLa SPLact(k)*ones(size(i))'];
+end
+
+%boxplot(BWp,SPLp)
+%hold on
+%boxplot(BWa,SPLa)
+
+errorbar(SPLpass(4:8),Mpassive(:,4:8),SEpassive(4:8),'color',[0.5 0.5 0.5],'linewidth',2)
+hold on
+errorbar(SPLact(5:9),Mactive(:,5:9),SEactive(5:9),'k','linewidth',2)
+set(gca,'Box','off')
+set(gca,'XTick',[40:10:90])
+set(gca,'YTick',[0 1 2 ])
+axis([40 90 0 2.5])
+
+%errorbar(SPLpass(2:8),Mpassive(:,2:8),SEpassive(2:8),'color',[0.5 0.5 0.5],'linewidth',2)
+%hold on
+%errorbar(SPLact(3:9),Mactive(:,3:9),SEactive(3:9),'k','linewidth',2)
+
+
+%Wilkoxon Ranksum test
+for k=1:8
+    i=find(BWpassive(:,k)~=0 & ~isnan(BWpassive(:,k)));
+    X=BWpassive(i,k);
+    i=find(BWactive(:,k+1)~=0 & ~isnan(BWactive(:,k+1)));
+    Y=BWactive(i,k);
+    
+    [P(k),H(k)] = ranksum(X,Y,'alpha',0.05/8);
+end
+
+P
+H

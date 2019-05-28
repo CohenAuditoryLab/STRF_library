@@ -1,0 +1,70 @@
+%RAT VOCALIZATIONS from http://www.avisoft.com/rats.htm
+%
+%
+%Examples of rat ultrasonic vocalizations (USV)
+%Norwegian Rat (Rattus norvegicus), Wistar albino strain, Males
+%
+%The following recordings have been made with Avisoft-UltraSoundGate 116-200 at a sample rate of 214.285 kHz. In order to make the recordings audible, the sample rate of the original wav files has been set to 11.025 kHz (providing a time expansion factor of 19.44).
+%
+
+[Y,Fs]=wavread('rat_40.wav');
+Y=Y(3.597E5:3.7264E5)';
+Fs=214285
+
+
+FC=[64]
+Fm=[16 8 4 2]
+
+
+p=8
+
+
+    figure(1)
+
+
+for k=1:length(Fm)
+
+    %Generatinh Periodic Envelope
+    T=1/Fm(k)
+    NT=T*Fs;
+    YY=[Y zeros(1,NT-length(Y))]
+    YY=[YY YY];
+    YY=[YY YY];
+    YY=[YY YY];
+    YY=[YY YY];
+    Yh=hilbert(YY);
+    Env=abs(Yh);
+    Yc=YY./Env;
+    Yr=Yc.*Env;
+
+    
+    %Filtering Periodic Pulse train with B-Spline lowpass filter - This
+    %generates the periodic B-spline envelope
+    h=bsplinelowpass(FC,p,Fs);
+    h=h/sum(h);
+    Nh=ceil(length(h)-1)/2;
+    EnvB=conv(h,Env);
+    EnvB=EnvB(Nh+1:length(EnvB)-Nh);
+    
+    %Generating Spectogram of reconstructed waveform with smoothed envelope
+    EnvelopeB(k).Env=EnvB;
+    [taxis,faxis,stft]=stfft(Yc.*EnvB,Fs,50,2,2,'sinc',30);
+    EnvelopeB(k).stft=stft;
+    EnvelopeB(k).taxis=taxis;
+    EnvelopeB(k).faxis=faxis;
+  
+
+    subplot(4,1,k)
+    taxis=(0:length(YY)-1)/Fs;
+    plot(taxis,EnvB.*Yc,'k')
+    axis([0 0.99 -.6 .6])
+    set(gca,'visible','off')
+    
+%     subplot(3,6,k+6)
+%     imagesc(taxis,faxis/1000,20*log10(abs(EnvelopeB(k).stft)))
+%     caxis([-20 10])
+%     axis([0 .7 30 60])
+%     set(gca,'XTick',[0 .5])
+%     set(gca,'YTick',[30 40 50  60])
+%     set(gca,'YDir','normal')
+end

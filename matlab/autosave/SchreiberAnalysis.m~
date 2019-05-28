@@ -1,0 +1,44 @@
+sig1=0.1
+sig2=10
+N=20
+alpha=10.^(log10(sig2/sig1)/N);
+sigma=sig1*alpha.^(0:N)
+
+%%%%%%%%%%%% CTX SLICE EXAMPLE %%%%%%%%
+cd CorticalHypNeurons/
+load cell_14JIT.mat	
+T=7
+Fsd=10000
+[RASTER]=rastercompress(RASTER,Fs,T);
+[Rschreiber]=jitterrasterschreiber(RASTER,sigma,Fsd);
+
+save cell_14_Schreiber sigma Rschreiber
+cd ..
+
+
+%%%%%%%%%%%% ICC Example %%%%%%%%%%%%%%
+cd ICCExamples
+load IC97QJE3t3_f11_ch2_u1_Pre24000Hz.mat
+
+T=5
+Fsd=10000
+RASTER=RASTER(25:149,:);
+Fs=1/(taxis(2)-taxis(1));
+[RASTER]=rastercompress(RASTER,Fs,T);
+[Rschreiber]=jitterrasterschreiber(RASTER,sigma,Fsd);
+
+save IC97QJE3t3_f11_ch2_u1_Schreiber sigma Rschreiber
+cd ..
+
+%%%%%%%%%%%%%%%%%ICC Two Trial Examples %%%%%%%%%%%%%%%%%
+
+cd ICCExamples
+Fsd=10000
+load CRYSTALt1_f17_Trig.mat
+load CRYSTALt1_f17_ch2.mat
+[spetA,spetB,TrigA,TrigB,T]=spet2spetab(spet0,TrigA,TrigB,Fs);
+[Rschreiber]=jitterschreiber(spetA,spetB,T,sigma,Fs,Fsd);
+
+save CRYSTALt1_f17_ch2_u0_Schreiber sigma Rschreiber
+
+cd ..

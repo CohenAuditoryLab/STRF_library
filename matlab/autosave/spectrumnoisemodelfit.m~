@@ -1,0 +1,53 @@
+%
+%function [JitterSpecModel]=jitterpectrummodelfit(Pnoise,lambdap,Faxis,disp)
+%
+%
+%   FILE NAME       : JITTER SPECTRUM MODEL FIT
+%   DESCRIPTION     : Fits the Jitter spectrum.
+%
+%	Rnoise          : Average Noise Correlogram
+%   lambdap         : Measured spike rate (lambda_i * p)
+%	Tau             : Delay Axis (msec)
+%	disp            : Display: 'y' or 'n', Defualt=='n'
+%
+%Returned Variables
+%	Rmodel          : Optimal Fitted Correlation Function
+%	Rpeak           : Peak Correlation Value
+%	sigma           : Spike timing jitter standard deviation (msec)
+%
+% (C) Monty A. Escabi, Edit Aug 2009
+%
+function [JitterSpecModel]=jitterpectrummodelfit(Pnoise,lambdap,Faxis,disp)
+
+%Input Arguments
+if nargin<3
+	disp='y';
+end                                 
+%Estimating Jitter, Reliability and hypothetical spike rate
+%Note that R(W)=p^2*lambda*exp(-(2*pi*F).^2*sigma^2) = p*lambdap*exp(-(2*pi*F).^2*sigma^2)
+beta = lsqcurvefit(@(beta,Faxis) beta(1)*lambdap*exp(-(2*pi*Faxis).^2*(beta(2)/1000)^2),[max(Pnoise)/lambdap 5],Faxis,Pnoise,[0 0]);
+sigma=beta(2);
+p=beta(1);
+lambda=lambdap/p;
+
+%Model Noise Spectrum
+Pmodel=p*lambdap*exp(-(2*pi*Faxis).^2*(sigma/1000)^2);
+
+
+%Assinging Variables to Data Structure
+JitterSpecData.Pnoise=Pnoise;
+JitterSpecData.Pmodel=Pmodel;
+JitterSpecData.F=Faxis;
+JitterSpecData.p=p;
+JitterSpecData.lambda=lambda;
+JitterSpecData.sigma=sigma;
+
+%Displaying Output
+if strcmp(Disp,'y')
+    plot(Faxis,Pnoise,'k','linewidth',2)
+    hold on
+    plot(Faxis,Pmodel,'linewidth',2)
+    ylabel('Magnitude')
+    xlabel('Frequency (Hz)')
+    title('Black=Pnoise, Red=Pmodel')
+end

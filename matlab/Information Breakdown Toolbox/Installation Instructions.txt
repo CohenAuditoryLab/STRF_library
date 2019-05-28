@@ -1,0 +1,30 @@
+The folder "Information Breakdown ToolBox - v.x.x.x" (where x.x.x is the downloaded version, e.g., 1.0.1) which includes this document,
+is the "toolbox folder" which can be placed anywhere on your hard drive.
+
+STEP 1
+------
+In the Set Path Matlab window (File>Set Path...) click the Add with Subfolders... button. Navigate to the toolbox folder, select it and save.
+
+Note: it is important that you include the toolbox folder together with all of its subfolders in the Matlab's path in order for the toolbox to work.
+
+STEP 2
+------
+Type "computer" in the Matlab command window: a string will be returned specifying which platform Matlab is running on.
+Depending on the content of this string proceed as follows:
+- 'MACI': no additional step required.
+- 'PCWIN': download Microsoft Visual C++ 2008 Redistributable Package (x86). This package is only required if Visual C++ is not already installed. It is suggested to reboot after installing the package.
+- 'PCWIN64': download Microsoft Visual C++ 2008 Redistributable Package (x64). This package is only required if Visual C++ is not already installed. It is suggested to reboot after installing the package.
+- 'GLNXA64': you need to compile MEX-files yourself (see Matlab documentation). Below is a list of files that need to be compiled together with required mex commands.
+
+
+
+COMPILING THE MEX FILES (FOR LINUX USERS ONLY)
+----------------------------------------------
+- in folder EXTRAPOLATIONS>AUXILIARY ROUTINES>PARTITION_R compile as follows:
+    mex -O -LargeArrayDims partition_R.c
+- in folder EXTRAPOLATIONS>AUXILIARY ROUTINES>SHUFFLE_R_ACROSS_TRIALS compile as follows:
+    mex -O -LargeArrayDims shuffle_R_across_trials.c
+- in folder METHODS>AUXILIARY FUNCTIONS>SHUFFLE_R_ACROSS_CELLS compile as follows:
+    mex -O -LargeArrayDims shuffle_R_across_cells.c
+- in folder METHODS>DIRECT METHOD compile as follows:
+    mex -O -LargeArrayDims direct_method_v5.c panzeri_and_treves_96.c

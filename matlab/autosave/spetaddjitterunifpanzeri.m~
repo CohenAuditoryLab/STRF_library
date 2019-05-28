@@ -1,0 +1,33 @@
+%
+%function [spet]=spetaddjitterpanzeri(spet,sig)
+%
+%   FILE NAME   : SPET ADD JITTER PANZERI
+%   DESCRIPTION : Adds spike timming jitter according to Panzeri et al.
+%
+%   spet        : Spike Event Time Array
+%   sig         : Range of jitter distribution (ms).
+%
+%RETURNED VARIABLES
+%
+%   spet        : Noisy Spike Event Time Array
+%   Fs          : Sampling rate (Hz)
+%   T           : Spike train duration in sec
+%   sig         : Jitter in msec
+%
+%   (C) Monty A. Escabi, Edit Aug 2009
+%
+function [spet]=spetaddjitterpanzeri(spet,Fs,T,sig)
+
+%Impulse train
+[X]=spet2impulse(spet,Fs,Fs,T);
+
+%Adding Jitter
+L=round(sig/1000*Fs);
+M=length(X);
+XX=[];
+for k=1:floor(M/L)
+    
+    XX=[XX; circshift(X((k-1)*L+1:k*L)',)'];
+    
+end
+

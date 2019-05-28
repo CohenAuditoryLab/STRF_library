@@ -1,0 +1,58 @@
+L=50
+T=60*10
+Fsd=15000
+Fs=Fsd
+refractory=5
+MaxTau=50
+Disp='n'
+[spet]=poissongenstat(L,T,Fsd,refractory);
+
+sigma=[.5 1.5]
+p=[.25 .75]
+[spetA,sigmaA,pA]=spetaddjitterdynamic(spet,sigma,p,0,Fs);
+[spetB,sigmaB,pB]=spetaddjitterdynamic(spet,sigmaA,pA,0,Fs);
+
+[JitterData]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+
+
+figure
+subplot(221)
+plot(JitterData.Tau,JitterData.Rab,'k')
+hold on
+plot(JitterData.Tau,JitterData.Raa,'color',[.6 .6 .6],'linewidth',1)
+axis([-20 20 -200 2500])
+
+
+subplot(222)
+plot(JitterData.Tau,JitterData.Rnoise,'k')
+hold on
+plot(JitterData.Tau,JitterData.Rmodel,'color',[.6 .6 .6],'linewidth',1)
+axis([-20 20 -200 2500])
+
+
+
+
+%Generating 1 sec rastergram for above conditions.
+figure
+Fsd=5000
+subplot(212)
+N=50
+sigma=[.5 1.5]
+p=[.25 .75]
+[spet]=poissongenstat(L,1,Fsd,refractory);
+[RASTER,sigma,p]=jitterrasterdynamic(spet,sigma,p,0,Fsd,Fsd,N);
+[RAS,Fs]=rasterexpand(RASTER,Fsd,1);
+[j,i]=find(RAS);
+plot(i/Fsd,j,'k.')
+xlim([0 .5])
+set(gca,'visible','off')
+
+subplot(411)
+plot([spet/Fsd*1000],sigma,'k+')
+axis([0 500 0 2])
+set(gca,'box','off')
+
+subplot(412)
+plot([spet/Fsd*1000],p,'k+')
+axis([0 500 0 1])
+set(gca,'box','off')

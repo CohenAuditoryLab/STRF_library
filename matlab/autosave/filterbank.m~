@@ -1,0 +1,27 @@
+
+
+X=randn(1,44100);
+Fs=44100
+dX=1/6
+f1=500
+Fm=500
+fN=16000
+OF=2
+Norm='Amp'
+dis='log'
+ATT=40
+[AudData]=audiogram(X,Fs,dX,f1,fN,Fm,OF,Norm,dis,ATT);
+
+N=1024*32
+for k=1:length(AudData.GammaTone)
+    
+%    semilogx((1:N)/N*Fs/1000,20*log10(abs(fft(AudData.GammaTone(k).H,N))),'k','linewidth',2)
+    semilogx((1:N)/N*Fs/1000,(abs(fft(AudData.GammaTone(k).H,N))),'k','linewidth',1)
+    hold on
+end
+%axis([.250 20 -60 5])
+axis([.250 20 0 1.2])
+set(gca,'Xtick',[.5 1 2 4 8 16])
+set(gca,'YTick',[0 .5 1])
+set(gca,'Box','off')
+%set(gca,'visible','off')

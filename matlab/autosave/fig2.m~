@@ -1,0 +1,66 @@
+load ./figdata2/figdata2.mat
+gray=[0.6 .6 .6]
+
+subplot(2,3,1)
+plot(JitterDataP5.Tau,JitterDataP5.Raa,'k--')
+hold on
+ch=plot(JitterDataP5.Tau,JitterDataP5.Rmodel+JitterDataP5.lambdap^2,'color',gray,'linewidth',3)
+plot(JitterDataP5.Tau,JitterDataP5.Rab,'k','linewidth',1)
+
+axis([-15 15 0 6000])
+set(gca,'Box','off')
+% set(gca,'XTick',[-10 0 10])
+% set(gca,'YTick',[0 500 1000])
+
+subplot(2,3,2)
+plot(JitterDataP4.Tau,JitterDataP4.Raa,'color',gray)
+hold on
+plot(JitterDataP4.Tau,JitterDataP4.Rab,'k')
+axis([-15 15 0 4000])
+set(gca,'Box','off')
+
+subplot(2,3,3)
+plot(JitterDataP3.Tau,JitterDataP3.Raa,'color',gray)
+hold on
+plot(JitterDataP3.Tau,JitterDataP3.Rab,'k')
+axis([-15 15 0 4000])
+set(gca,'Box','off')
+
+
+subplot(2,3,4)
+plot(JitterDataSig5.Tau,JitterDataSig5.Raa,'color',gray)
+hold on
+plot(JitterDataSig5.Tau,JitterDataSig5.Rab,'k')
+axis([-15 15 0 4000])
+set(gca,'Box','off')
+% set(gca,'XTick',[-10 0 10])
+% set(gca,'YTick',[0 500 1000])
+
+subplot(2,3,5)
+plot(JitterDataSig1.Tau,JitterDataSig1.Raa,'color',gray)
+hold on
+plot(JitterDataSig1.Tau,JitterDataSig1.Rab,'k')
+axis([-15 15 0 4000])
+set(gca,'Box','off')
+% set(gca,'XTick',[-10 0 10])
+% set(gca,'YTick',[0 500 1000])
+
+subplot(2,3,6)
+plot(JitterDataSig2.Tau,JitterDataSig2.Raa,'color',gray)
+hold on
+plot(JitterDataSig2.Tau,JitterDataSig2.Rab,'k')
+axis([-15 15 0 4000])
+set(gca,'Box','off')
+% set(gca,'XTick',[-10 0 10])
+% set(gca,'YTick',[0 500 1000])
+
+
+
+%Estimated jitter by selecting correlated spikes above baseline correlation
+%%%Poisson, sig=0.5
+%sum(JitterDataPoiss.Rab(51-6:51+6)-100)*dt/10
+%%%sig=0.5, , 0.185
+%sum(JitterDataPoissRefSigp5.Rab(51-6:51+6)-100)*dt/10
+%%%sig=1; 0.1836
+%sum(JitterDataPoissRefSig1.Rab(51-6:51+6)-100)*dt/10
+

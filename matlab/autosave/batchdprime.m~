@@ -1,0 +1,64 @@
+% k=2
+% for Layer=1:5
+% N1=size(AudNetData(k).Layer(Layer).Y{1},1);
+% N2=size(AudNetData(k).Layer(Layer).Y{1},2);
+% Data(Layer).Y=reshape(full(cell2mat(AudNetData(k).Layer(Layer).Y)),N1,N2,Ntrial);
+% 
+% %subplot(2,3,Layer)
+% %imagesc(Data(Layer).Y)
+% %xlim([0 1000])
+% end
+% 
+% 
+
+
+%%%%%%%%%%%%%%%%%%%% PLOTTING RESULTS 
+Layer=3
+for k=1:11
+    
+    N1=size(AudNetData(k).Layer(Layer).Y{1},1);
+    N2=size(AudNetData(k).Layer(Layer).Y{1},2);
+    taxis=(1:N2)/Fs*1000;
+    X=log2(faxis/100);
+    subplot(3,4,k)
+    Data(Layer).Y=reshape(full(cell2mat(AudNetData(k).Layer(Layer).Y)),N1,N2,Ntrial);
+    imagesc(taxis,X,mean(Data(Layer).Y,3))
+    i=strfind(List(1).name,'_AGram');
+    title(List(k).name(1:i-1))
+    xlim([0 600])
+    set(gca,'YDir','normal')
+    set(gca,'YTick',[0 2 4 6])
+    set(gca,'YTickLabel',[100 400 1600 6400])
+end
+
+subplot(3,4,9)
+xlabel('Time (msec)')
+ylabel('Freq (Hz)')
+%%%%%%%%%%%%%%%%%%%%% 
+k=1
+Layer=3
+Ntrial=100
+N1=size(AudNetData(k).Layer(Layer).Y{1},1);
+N2=size(AudNetData(k).Layer(Layer).Y{1},2);
+for k=1:11
+       k
+    Data(k).Y=reshape(full(cell2mat(AudNetData(k).Layer(Layer).Y)),N1,N2,Ntrial);
+    
+end
+
+W=ones(3,50)/150;
+for k=1:11
+    for l=1:50
+        [k l],pause(0)
+        DataW(k).Y(:,:,l)=conv2(Data(k).Y(:,:,l),W);
+        
+    end
+end
+
+for k=1:11
+    for l=1:11
+        [k l],pause(0)
+D12(k,l)=sqrt(sum(sum((abs(mean(DataW(k).Y,3)-mean(DataW(l).Y,3))).^2)))  /  sqrt(    sum(sum(var(DataW(k).Y,[],3)+var(DataW(l).Y,[],3)))      );
+
+    end
+end

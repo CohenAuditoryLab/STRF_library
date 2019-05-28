@@ -1,0 +1,128 @@
+%
+%function [JitterData]=jitterrastercorrfit(RASTER,Fsd,MaxTau,Disp)
+%
+%   FILE NAME       : JITTER RASTER CORR FIT
+%   DESCRIPTION     : Correlation model to fit Cross-Channel correlation
+%			          from RASTERGRAM.
+%
+%	RASTER          : Rastergram in compressed format
+%   Fsd             : Sampling rate for correlation measurement
+%   MaxTau          : Maximum Correlation Delay (msec)
+%   Disp            : Display Output (Optional; Default='n')
+%
+%Returned Variables
+%
+%   JitterData: Data Structure containgin
+%       .Tau         : Delay Axis (msec)
+%       .Raa         : Autocorrelation
+%       .Rab         : Crosscorrelation
+%       .Rnoise      : Noise Correlation - contains jitter and reliability
+%       .Rmodel      : Model Fitted Jitter Distribution Correlation
+%       .sigmag      : Spike timing jitter - Gaussian Estimate
+%       .pg          : Trial reproducibility - Gaussian Estimate
+%       .lambdag     : Hypothetical spike rate - Gaussian Estimate
+%                      (Assumesno jitter or trial reprodicibility errors)
+%       .sigma       : Spike Timing Jitter - Direct Estimate
+%       .p           : Trial reproducibility - Direct Estimate
+%       .lambda      : Hypothetical Spike rate - Direct Estimate
+%                      (Assumes no jitter or rial reprodicibility errors)
+%
+% (C) Monty A. Escabi, August 2006 (Edit August 2010)
+%
+function [JitterData]=jitterrastercorrfit(RASTER,Fsd,MaxTau,Disp)
+
+%Input Arguments
+if nargin<4
+	Disp='n';
+end
+
+%Shuffled and Auto Correlograms
+[CorrData]=rastercorr(RASTER,Fsd,MaxTau,NB);
+
+
+
+%Computing Shuffled, Auto, and Noise Correlograms
+[JitterData]=jittercorr(spetA,spetB,Fs,Fsd,T,MaxTau,'n');
+
+%Fitting Gaussian Jitter Model to Rnoise and Obtaining Direct Estimate
+%Paramaeters
+[JitterModel]=corrmodelfit(JitterData.Rnoise,JitterData.lambdap,JitterData.Tau,'n');
+
+%Combining Model and Estimated Parameters
+JitterData.Rmodel=JitterModel.Rmodel;
+JitterData.sigmag=JitterModel.sigmag;
+JitterData.pg=JitterModel.pg;
+JitterData.lambdag=JitterModel.lambdag;
+JitterData.sigma=JitterModel.sigma;
+JitterData.p=JitterModel.p;
+JitterData.lambda=JitterModel.lambda;
+
+
+
+%Mean Firing Rate
+lambda=mean(mean(RASTER));
+   
+%Jitter Correlation Function
+N=(length(Raa)-1)/2;
+Raa(N+1)=0;
+Rpp=Rab-Raa;
+Tau=(-N:N)/Fs;
+
+%This criteria is arbitrary - need some type of significant test
+if max(Rpp)>10
+    %Fitting Gaussian Jitter Model to Rpp
+    [Rmodel,Rpeak,sigmag]=corrmodelfit(Rpp,Tau,'n');
+    [Rmodel]=corrmodel([Rpeak sigmag],Tau);
+   
+    %Finding Optimal Jitter and Reproducibility Parameter
+    sigmag=sigmag/1000;			%Convert to Sec for evaluating p
+    pg=Rpeak/lambda*sqrt(4*pi*sigmag^2);
+    sigmag=sigmag*1000;			%Convert back to msec
+    
+    %Direct Estimate of Jitter and Reliability
+    Ncenter=(length(Rpp)-1)/2+1;
+    dN=min(max(find(Rpp>1/2*max(Rpp)))-Ncenter,floor((Ncenter-1)/6));   %Makes sure the 1/2 duration 
+                                                                        %does not exceed the number of samples
+    if dN==0    %In case jitter is too tight
+       dN=1; 
+    end
+    Rpp2=Rpp(Ncenter-dN*6:Ncenter+dN*6);    %Select segment 12 half heights wide relative to center
+    Tau2=Tau(Ncenter-dN*6:Ncenter+dN*6);
+    Mean=sum(Tau2.*Rpp2/sum(Rpp2));
+    sigma=sqrt(sum((Tau2-Mean).^2.*Rpp2/sum(Rpp2)));
+    sigma=sigma*1000/sqrt(2);       %Divide by sqrt(2) because correlation is sqrt(2) as wide as jitter    
+    p=sum(Rpp2)/Fs/lambda;
+
+    %Hypothetical Spike Rate
+    lambdag=lambda/pg;
+    lambda=lambda/p;
+    
+    %Plotting Results
+    if strcmp(Disp,'y')
+        subplot(211)
+        plot(Tau*1000,Raa)
+        hold on
+        plot(Tau*1000,Rab,'r')
+        ylabel('Raa (blue), Rab (red)')
+        hold off
+
+        subplot(212)
+        plot(Tau*1000,Rpp)
+        xlabel('Delay (msec)')
+        ylabel('Rpp - Jitter Correlation')
+        hold on
+        plot(Tau*1000,Rmodel,'r')
+        hold off
+        pause(0)
+    end
+    
+    
+else
+    sigmag=-9999;
+    lambdag=-9999;
+    pg=-9999;
+    sigma=-9999;
+    p=-9999;
+    Rmodel=Rpp;    
+end
+

@@ -1,0 +1,56 @@
+load ModNoisePreFu400HzOffBF30dB_param.mat
+
+
+load ../DataExamplesApr_05_2011.mat
+%DataTank=DataTank28;
+DataTank=DataTank9;
+
+DataTank.Trig=DataTank.Trig(1:10);
+
+
+[RASData]=mtfmodnoiseunifoffbfspet(DataTank,SoundParam);
+T1=0
+T2=40
+DF=2
+figure(1)
+
+for k=1:5
+SoundEstimationEnv1(k).Env=SoundEstimationEnv(k).Env1;
+SoundEstimationEnv2(k).Env=SoundEstimationEnv(k).Env2;
+end
+%figure,[Wkernel1]=wienerkernelenv(RASData,SoundEstimationEnv1,SoundParam,T1,T2,DF,'y');
+%figure,[Wkernel2]=wienerkernelenv(RASData,SoundEstimationEnv2,SoundParam,T1,T2,DF,'y');
+
+
+[Wkernel]=wienerkernelenv2input(RASData,SoundEstimationEnv,SoundParam,T1,T2,DF,'y')
+
+figure
+subplot(221)
+plot(Wkernel.T,Wkernel.k1_1,'k')
+set(gca,'XTick',[0 20 40])
+set(gca,'box','off')
+axis([0 40 -.5 1.5])
+subplot(222)
+plot(Wkernel.T,Wkernel.k1_2,'k')
+set(gca,'XTick',[0 20 40])
+axis([0 40 -.5 1])
+set(gca,'box','off')
+subplot(223)
+imagesc(Wkernel.T,Wkernel.T,Wkernel.Ryx1x2)
+set(gca,'XTick',[0 20 40])
+set(gca,'YTick',[0 20 40])
+set(gca,'YDir','normal')
+
+
+subplot(221)
+figure
+subplot(221)
+imagesc(log2(FTC.Freq),FTC.Level+85,FTC.data'/(FTC.T2-FTC.T1)*1000/FTC.NFTC)
+set(gca,'XTick',log2([1000 2000 4000 8000]))
+set(gca,'XTickLabel',[1 2 4 8 16])
+set(gca,'YDir','normal')
+colorbar
+
+
+
+

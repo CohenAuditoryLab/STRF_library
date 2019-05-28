@@ -1,0 +1,113 @@
+%
+%MODEL RESULTS SHOWING ERRORS IN CORRELATION and SPECTRAL MEASUREMENTS
+%
+
+cd figdata4
+load FigData4SigP
+Tau=Tau*1000;
+
+subplot(331)
+plot(JitterData1.Tau,JitterData1.Rmodel/1000,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterData1.Tau,JitterData1.Rnoise/1000,'k')
+axis([-10 10 -1 20])
+set(gca,'YTick',[0 10 20])
+
+subplot(332)
+plot(JitterData2.Tau,JitterData2.Rmodel/1000,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterData2.Tau,JitterData2.Rnoise/1000,'k')
+axis([-10 10 -1 20])
+set(gca,'YTick',[0 10 20])
+
+subplot(333)
+plot(JitterData3.Tau,JitterData3.Rmodel/1000,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterData3.Tau,JitterData3.Rnoise/1000,'k')
+axis([-10 10 -1 20])
+set(gca,'YTick',[0 10 20])
+
+subplot(334)
+plot(JitterSpecData1.F,JitterSpecData1.Pmodel,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterSpecData1.F,JitterSpecData1.Pnoise,'k')
+axis([0 500 -5 35])
+set(gca,'YTick',[0 15 30])
+set(gca,'XTick',[0 250 500])
+
+subplot(335)
+plot(JitterSpecData2.F,JitterSpecData2.Pmodel,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterSpecData2.F,JitterSpecData2.Pnoise,'k')
+axis([0 500 -5 35])
+set(gca,'YTick',[0 15 30])
+set(gca,'XTick',[0 250 500])
+
+subplot(336)
+plot(JitterSpecData3.F,JitterSpecData3.Pmodel,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterSpecData3.F,JitterSpecData3.Pnoise,'k')
+axis([0 500 -5 35])
+set(gca,'YTick',[0 15 30])
+set(gca,'XTick',[0 250 500])
+
+
+
+
+
+
+
+
+
+
+
+subplot(334)
+plot(JitterData4.Tau,JitterData4.Rmodel/1000,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterData4.Tau,JitterData4.Rnoise/1000,'k')
+axis([-10 10 -1 20])
+set(gca,'YTick',[0 10 20])
+
+subplot(335)
+plot(JitterData5.Tau,JitterData5.Rmodel/1000,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterData5.Tau,JitterData5.Rnoise/1000,'k')
+axis([-10 10 -1 20])
+set(gca,'YTick',[0 10 20])
+
+subplot(336)
+plot(JitterData6.Tau,JitterData6.Rmodel/1000,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterData6.Tau,JitterData6.Rnoise/1000,'k')
+axis([-10 10 -1 20])
+set(gca,'YTick',[0 10 20])
+
+
+figure
+
+subplot(334)
+plot(JitterSpecData4.F,JitterSpecData4.Pmodel,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterSpecData4.F,JitterSpecData4.Pnoise,'k')
+axis([0 500 -5 35])
+set(gca,'YTick',[0 15 30])
+set(gca,'XTick',[0 250 500])
+
+subplot(335)
+plot(JitterSpecData5.F,JitterSpecData5.Pmodel,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterSpecData5.F,JitterSpecData5.Pnoise,'k')
+axis([0 500 -5 35])
+set(gca,'YTick',[0 15 30])
+set(gca,'XTick',[0 250 500])
+
+subplot(336)
+plot(JitterSpecData6.F,JitterSpecData6.Pmodel,'color',[0.75 .75 .75],'linewidth',4)
+hold on
+plot(JitterSpecData6.F,JitterSpecData6.Pnoise,'k')
+axis([0 500 -5 35])
+set(gca,'YTick',[0 15 30])
+set(gca,'XTick',[0 250 500])
+
+
+cd ..

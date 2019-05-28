@@ -1,0 +1,71 @@
+
+%%%%%%%%%%%%%%%%%%%%% SAM p=1 case %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+unit=1;
+for k=1:65
+   
+    %Load Data
+    filename0=['/Users/escabi/Dropbox/info_bias_p/p1/SAMp1unit' int2str(k)];
+    filename00 = '/Users/escabi/Dropbox/info_bias_p/jitter0/model_sigma0p1.mat';
+    
+    if exist([filename0 '.mat'],'file')
+        %Load Data Files
+        load(filename0)
+        InfoDataModel = InfoDataModel0;
+        load(filename00)
+        InfoDataModel00 = InfoDataModel0;  
+        
+        %Computing Metrics
+        Hr = InfoDataModel00.HWordt(:,1); 
+        DataSAMp1.Hreli(:,:,unit) = repmat(Hr,1,21);
+        DataSAMp1.Htemp(:,:,unit) = InfoDataModel.HWordt(:,2:end)-DataSAMp1.Hreli(:,:,unit);
+        DataSAMp1.Info(:,:,unit)  = InfoDataModel.HWord(:,2:end)-InfoDataModel.HWordt(:,2:end)-InfoDataModel.Ibias(:,2:end);
+        DataSAMp1.Htot(:,:,unit)  = InfoDataModel.HWord(:,2:end);
+        DataSAMp1.Freli(:,:,unit) = DataSAMp1.Hreli(:,:,unit)./DataSAMp1.Htot(:,:,unit);
+        DataSAMp1.Ftemp(:,:,unit) = DataSAMp1.Htemp(:,:,unit)./DataSAMp1.Htot(:,:,unit);
+        DataSAMp1.Feffi(:,:,unit) = DataSAMp1.Info(:,:,unit)./DataSAMp1.Htot(:,:,unit);
+    
+        %Increasing unit counter
+        unit=unit+1;
+    end
+    
+end
+
+
+
+%%%%%%%%%%%%%%%%%%%%% PNB p=1 case %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+unit=1;
+for k=1:65
+   
+    %Load Data
+    filename0=['/Users/escabi/Dropbox/info_bias_p/p1/PNBp1unit' int2str(k)];
+    filename00 = '/Users/escabi/Dropbox/info_bias_p/jitter0/model_sigma0p1.mat';
+    
+    if exist([filename0 '.mat'],'file')
+        %Load Data Files
+        load(filename0)
+        InfoDataModel = InfoDataModel0;
+        load(filename00)
+        InfoDataModel00 = InfoDataModel0;  
+        
+        %Computing Metrics
+        Hr = InfoDataModel00.HWordt(:,1); 
+        DataPNBp1.Hreli(:,:,unit) = repmat(Hr,1,21);
+        DataPNBp1.Htemp(:,:,unit) = InfoDataModel.HWordt(:,2:end)-DataPNBp1.Hreli(:,:,unit);
+        DataPNBp1.Info(:,:,unit)  = InfoDataModel.HWord(:,2:end)-InfoDataModel.HWordt(:,2:end)-InfoDataModel.Ibias(:,2:end);
+        DataPNBp1.Htot(:,:,unit)  = InfoDataModel.HWord(:,2:end);
+        DataPNBp1.Freli(:,:,unit) = DataPNBp1.Hreli(:,:,unit)./DataPNBp1.Htot(:,:,unit);
+        DataPNBp1.Ftemp(:,:,unit) = DataPNBp1.Htemp(:,:,unit)./DataPNBp1.Htot(:,:,unit);
+        DataPNBp1.Feffi(:,:,unit) = DataPNBp1.Info(:,:,unit)./DataPNBp1.Htot(:,:,unit);
+    
+        %Increasing unit counter
+        unit=unit+1;
+    end
+    
+end
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% PLOTTING SAM p=1 RESULTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%

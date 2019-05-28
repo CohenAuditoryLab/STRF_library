@@ -1,0 +1,68 @@
+%
+%function []=comodenvelopefile(FileHeader,Fm,Beta,M,Fs,EnvType,seed,rt,p)
+%
+%       FILE NAME       : EL ENVELOPE FILE
+%       DESCRIPTION     : Generates an envelope used to modulation
+%                         electrical stimulation signals. Three types of
+%                         modulations can be generated. 
+%
+%       FileHeader      : File name header (No extension)
+%       Fm              : Modulation freq. or Max Modulation Freq. (Hz)
+%       M               : Number of samples
+%       EnvType         : Envelope type ('mls', 'sin' or 'sqr')
+%                           'mls' - maximum length sequence
+%                           'sin' - sinusoid
+%                           'sqr' - square wave
+%       Fs              : Sampling Rate (Hz, Default=12207.03125)
+%       seed            : Seed for random number generator
+%                         (Default = 0)
+%       rt              : Rise time for 'sqr' and 'mls' (ms, optional, default==5) 
+%       p               : Bslpline order for rise time (Default==5)
+%        
+%RETURNED VARIABLES
+%
+%       No returned values. Saves data to file.
+%
+% (C) Monty A. Escabi, Jan 2012
+%
+function []=comodenvelopefile(FileHeader,Fm,Beta,M,Fs,EnvType,rt,p,seed)
+
+%Input Args
+if nargin<7
+    rt=5;
+end
+if nargin<8
+    p=5;
+end
+if nargin<9
+    seed=0;    
+end
+
+%Smoothing Window
+rt=rt/1000;
+W1=ones(1,round(rt*Fs/p));
+W=ones(1,round(rt*Fs/p));
+for k=1:p-1
+	W=conv(W,W1);
+end
+
+%Generating Envelope
+if strcmp(EnvType,'mls')
+    UF=Fs/2/Fm;
+    N=ceil(log2(M/UF));
+    Et=mls(N);
+    E=round(interp1((0:length(Et)-1),Et,(0:1/UF:length(Et)-1),'nearest'));
+    E=(E(1:M)+1)*Beta/2+(1-Beta)/2;
+    E=conv(E,W);
+    E=E(1:M);
+elseif strcmp(EnvType,'sqr')
+    E=round(1/2+sin(2*pi*Fm*(1:M)/Fs))*Beta+(1-Beta);
+    E=conv(E,W);
+    E=E(1:M);
+else
+    E=(1/2+sin(2*pi*Fm*(1:M)/Fs)/2)*Beta+(1-Beta);
+end
+
+%Saving Envelope to File
+f=['save ' FileHeader 'Env E Fs Fm Beta M Fs seed'];
+eval(f)

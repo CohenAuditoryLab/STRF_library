@@ -1,0 +1,60 @@
+%
+%function [Xl,Xr,ITD]=itdrandamnoisegen(f1,f2,ITDMax,Fmb,Fs,M,seed,seed2)
+%
+%       FILE NAME       : ITD RAND AM NOISE GEN
+%       DESCRIPTION     : Generates a random noise "binaural beat". This is
+%                         done time warping the time axis of the signal by 
+%                         a random ITD profile and interpolating at the 
+%                         original samples times. The random ITD profile is
+%                         uniformly distributed with a maximum ITD
+%                         excursion of ITDMax. The maximum rate of change
+%                         of the ITD profile is given by Fmb.
+%
+%       f1              : Lower noise cutoff frequency (Hz)
+%       f2              : Upper noise cutoff frequency (Hz)
+%       ITDMax          : Maximum ITD (micro sec)
+%       Fmb             : ITD Upper Beat Frequency (Hz)
+%       Fs              : Sampling Frequency
+%       M               : Number of Samples
+%
+% (C) Monty A. Escabi, Jan 2009
+%
+function []=itdrandamnoisewavgen(outfile,f1,f2,ITDMax,Fmb,Fs,M)
+
+%Generating Noise with Random ITD Profile
+[Xl,Xr,ITD]=itdrandamnoisegen(f1,f2,ITDMax,Fm,Fs,M);
+
+
+%Saving Parameter File
+f=['save ' outfile '_Param f1 f2 ITDMax Fmb Fs T'];
+eval(f)
+
+
+XTrig=zeros(1,Fs);
+XTrig(1:500)=ones(1,500);
+Trig=[];
+for k=1:T
+    Trig=[Trig XT];
+end
+
+%Normalize Amplitude
+Max=max(max(abs([Xl Xr])));
+Y(1:4:4*length(Xl))=round(Xl*2^28);
+Y(2:4:4*length(Xl))=round(Xr*2^28);
+YT(1:4:4*length(Xl))=floor(Trig*2^31);
+YT(2:4:4*length(Xl))=floor(Trig*2^31);
+
+    TempFile=[outfile '.raw']
+    fidtemp=fopen(TempFile,'wb')
+    TempFileTrig=[outfile 'Trig.raw']
+    fidtrig=fopen(TempFileTrig,'wb')
+	fwrite(fidtrig,YT,'int32');
+
+%Using SOX to convert to WAV File
+f=['!sox -r ' int2str(Fs) ' -c 2 -4 -s ' TempFile ' -4 -f ' outfile '.wav' ];
+f2=['!sox -r ' int2str(Fs) ' -c 2 -4 -s ' TempFileTrig ' -4 -f ' outfile 'Trig.wav' ];
+%f=['!sox -r ' int2str(Fs) ' -c 4 -l -s ' TempFileTrig ' -l ' outfile 'Trig.wav' ];
+
+eval(f)
+eval(f2)
+

@@ -1,0 +1,190 @@
+load ./BFBWMapData/AC102610SingleTrialBFMap.mat
+
+
+
+
+
+
+
+figure
+
+subplot(223)
+k=12,l=12; %k=7,l=10
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).Rpp1trialThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+subplot(221)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).RppThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+k=8,l=8; %k=7,l=10
+subplot(224)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).Rpp1trialThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+subplot(222)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).RppThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+figure
+
+k=8,l=7; %k=7,l=10
+subplot(224)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).Rpp1trialThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+subplot(222)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).RppThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+        
+
+
+
+
+
+%Remove bad samples - Finding NAN for BF and BW - also 0 BW is undefined so remove 
+i=find(isnan(BF) | isnan(Std) | Std==0);
+BF(i)=NaN(size(i));
+Std(i)=NaN(size(i));
+MaskBF=ceil(mean(isnan(BF(:,:,7:9)),3));  %Mask containing All NaN for 65-85 dB
+MaskStd=ceil(mean(isnan(Std(:,:,7:9)),3));  %Mask containing All NaN for 65-85 dB
+Mask=ceil((MaskBF+MaskStd)/2);  %Combined Mask
+i=find(Mask==1);
+Mask(i)=NaN(size(i));   %Mask with NAN
+BF(:,:,7)=BF(:,:,7)+Mask;
+Std(:,:,7)=Std(:,:,7)+Mask;
+BF(:,:,8)=BF(:,:,8)+Mask;
+Std(:,:,8)=Std(:,:,8)+Mask;
+BF(:,:,9)=BF(:,:,9)+Mask;
+Std(:,:,9)=Std(:,:,9)+Mask;
+BF1(:,:,7)=BF1(:,:,7)+Mask;
+%Std1(:,:,7)=Std1(:,:,7)+Mask;
+BF1(:,:,8)=BF1(:,:,8)+Mask;
+%Std1(:,:,8)=Std1(:,:,8)+Mask;
+BF1(:,:,9)=BF1(:,:,9)+Mask;
+%Std1(:,:,9)=Std1(:,:,9)+Mask;
+
+
+k=7 %Sound Level
+figure
+subplot(222)
+imagesc(rot90(BF(:,:,k),-1))
+title('6 Trial Average')
+set(gca,'Visible','off')
+caxis([1 5.1])
+axis equal
+
+subplot(221)
+imagesc(rot90(BF1(:,:,k),-1))
+title('1 Trial')
+set(gca,'Visible','off')
+caxis([1 5.1])
+axis equal
+
+c=colormap
+c(1,:)=[ 1 1 1]
+colormap(c)
+
+
+
+
+
+%AI only
+subplot(223)
+i=find(A1Mask &~isnan(BF(:,:,k)) & ~isnan(BF1(:,:,k)));
+bf=BF(:,:,k);
+bf1=BF1(:,:,k);
+plot(bf(i),bf1(i),'ko')
+set(gca,'Box','off')
+axis([1 5.1 1 5.1])
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+set(gca,'YTick',[1 2 3 4 5 ])
+set(gca,'YTickLabel',[2 4 8 16 32])
+xlabel('BF (octave)')
+ylabel('1 Trial BF Octave')
+R=corrcoef(bf(i),bf1(i))
+R=R(1,2);
+title(['r=' num2str(R)])
+hold on
+plot([1 5.1],[1 5.1],'k:')
+axis equal
+axis([1 5.1 1 5.1])
+
+%FULL MAP
+subplot(224)
+i=find(~isnan(BF(:,:,k)) & ~isnan(BF1(:,:,k)));
+bf=BF(:,:,k);
+bf1=BF1(:,:,k);
+plot(bf(i),bf1(i),'ko')
+set(gca,'Box','off')
+axis([1 5.1 1 5.1])
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+set(gca,'YTick',[1 2 3 4 5 ])
+set(gca,'YTickLabel',[2 4 8 16 32])
+xlabel('BF (octave)')
+ylabel('1 Trial BF Octave')
+R=corrcoef(bf(i),bf1(i))
+R=R(1,2);
+title(['r=' num2str(R)])
+hold on
+plot([1 5.1],[1 5.1],'k:')
+axis equal
+axis([1 5.1 1 5.1])
+
+figure
+subplot(224)
+caxis([1 5.1])
+C=colorbar
+set(gca,'Visible','off')
+set(C,'YTick',[1 2 3 4 5])
+set(C,'YTickLabel',[2 4 8 16 32])
+
+%%%%%%%%%% CORRELATION COEFFICIENT A1 only %%%%%%%%%
+%load ./BFBWMapData/AC102610SingleTrialBFMap.mat
+BFA=BF(:,:,k);
+BFA1=BF1(:,:,k);
+i=find(A1Mask & ~isnan(BFA) & ~isnan(BFA1));
+BFA=BFA(i)';
+BFA1=BFA1(i)';
+load ./BFBWMapData/AC102710SingleTrialBFMap.mat
+BFB=BF(:,:,k);
+BFB1=BF1(:,:,k);
+i=find(A1Mask & ~isnan(BFB) & ~isnan(BFB1));
+BFB=BFB(i)';
+BFB1=BFB1(i)';
+bf=[BFA BFB];
+bf1=[BFA1 BFB1];
+
+R=corrcoef(bf,bf1)
+[Rb]=bootstrapcorrcoef(bf,bf1,1000);
+SD=std(Rb)
+R=R(1,2);
+
+

@@ -1,0 +1,37 @@
+
+Fss=125000/14/30
+X=reshape(data(197:210,:),1,14*size(data,2));
+
+[TrigTimes]=trigfindcont(X,0.10);
+[TrigTimes1,TrigTimes2]=trigfixstrf2(TrigTimes,400,1799);
+TrigTimes1=round(TrigTimes1/14);
+TrigTimes2=round(TrigTimes2/14);
+
+%Good sites = 23,24.36-41 ,52, 107, 121, 149, 150, 151, 163, 164,165
+k=23
+    Y=data(k,:);
+    
+    %NEED TO MAKE SURE I INTERPOLATE Y TO SAME RATE AS SPR
+
+[STRFData]=rtwstrfdbcontboot('movingrippleratctx25Hz.spr',100,Y,TrigTimes1,Fss,80,45,25,'float',25)
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+for k=150:195
+
+    Y=data(k,:);
+
+%Filtering Neural Data to get rid of 60 Hz
+H=bandpass(5,50,2,Fss,60,'n');
+N=(length(H)-1)/2;
+YL=conv(Y,H);
+YL=YL(N+1:length(YL)-N);
+
+
+Y1=YL(TrigTimes1(1):TrigTimes1(1799));
+Y2=YL(TrigTimes2(1):TrigTimes2(1799));
+plot(xcorr(Y1-mean(Y1),Y2-mean(Y2),1000)),k,pause
+
+end

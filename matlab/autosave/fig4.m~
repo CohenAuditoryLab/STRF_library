@@ -1,0 +1,154 @@
+load ./figdata4/FigData4Fs8
+RAS=RASFs8;
+RFmBW=RFmBWFs8;
+
+%Generaging and plotting dot rasters
+figure
+k=1
+l=5
+Fm=RAS(k,l).Param1;
+RASTER=rasterexpand(RAS(k,l).RASTER,Fsd,RAS(k,l).RASTER(1).T);
+T=0;
+dT=0;
+RASc=raster2cyclerasterordered(RAS(k,l).RASTER,Fm,Ncyc,T,dT);
+RASTERc=rasterexpand(RASc,Fsd,RASc(1).T);
+[j,i]=find(RASTER);
+subplot(611)
+plot(i/Fsd*1000,j,'k.')
+Tp=1/Fm;
+axis([0 4*1000 1 10])
+set(gca,'visible','off')
+set(gca,'XTick',[])
+set(gca,'YTick',[])
+hold on
+for m=0:10
+    plot(m*[Tp Tp]*2*1000,[1 10],'color',[0.6 .6 .6])
+end
+%plot([0 Tp*20]*2*1000,[0 0],'color',[0.6 .6 .6])
+%plot([0 Tp*20]*2*1000,[10 10],'color',[0.6 .6 .6])
+
+%Cycle raster
+k=1
+l=5
+Ncyc=2
+figure
+RASc=raster2cyclerasterordered(RAS(k,l).RASTER,Fm,Ncyc,T,dT);
+Rc=reshape(RASc,1,numel(RASc));
+Rcc=[];
+for k=8:-1:1
+   RRc=[Rcc Rc((k-1)*10+1:k*10)]; 
+end
+RRc=rasterexpand(RRc,Fsd,RASc(1).T);
+[j,i]=find(RRc);
+plot(i/Fsd*1000,j,'k.')
+for m=0:11
+    hold on
+    plot([0 1/Fm*2]*1000,.5+m*[10 10],'color',[0.6 .6 .6])
+end
+%plot([0 0],[0 4*Fm/2*10],'color',[0.6 .6 .6])
+%plot([1/Fm*2]*1000,[0 4*Fm/2*10],'color',[0.6 .6 .6])
+set(gca,'Visible','off')
+axis([0 1/Fm*2*1000 0 4*Fm/2*10+1])
+set(gca,'YTick',[])
+set(gca,'XTick',[0 1/Fm 1/Fm*2]*1000)
+
+%Plotting Shuffled Correlograms
+figure
+k=1 %Fm=16 Hz
+m=5 %BW=2048
+Fm=RAS(k,5).Param1;
+Max=max([RFmBW(k,m).Renvfs]/1000);
+gray=[0.7 .7 .7]
+subplot(3,2,1)
+plot(RFmBW(k,m).Tau,[RFmBW(k,m).Raa]/1000,'color',gray,'linewidth',1)
+hold on
+plot(RFmBW(k,m).Tau,[RFmBW(k,m).Renvfs]/1000,'k','linewidth',1)
+set(gca,'box','off')
+axis([-1/Fm*1000*2 1/Fm*1000*2 -.2 2])
+set(gca,'YTick',[0  1 2])
+set(gca,'XTick',[-500 -250 0 250 500])
+set(gca,'Box','off')
+
+subplot(323)
+plot(RFmBW(k,m).Tau,[RFmBW(k,m).Raa]/1000,'color',gray,'linewidth',1)
+hold on
+plot(RFmBW(k,m).Tau,[RFmBW(k,m).Renvfs]/1000,'k','linewidth',1)
+set(gca,'box','off')
+%axis([-1/Fm*1000 1/Fm*1000 -.2 2])
+%axis([-25 25 -.2 5])
+axis([-22.5 22.5 -.2 2])
+set(gca,'YTick',[0 1 2])
+set(gca,'Box','off')
+
+subplot(325)
+
+
+     Rnoise=RFmBW(k,m).Renvfs-RFmBW(k,m).Raa;
+     lambdap=RFmBW(k,m).lambdap;
+     Tau=RFmBW(k,m).Tau;
+     [JitterModel]=corrmodelfit(Rnoise,lambdap,Tau,'n');
+
+plot(RFmBW(k,m).Tau,JitterModel.Rmodel/1000,'color',gray,'linewidth',2)
+hold on
+plot(RFmBW(k,m).Tau,[RFmBW(k,m).Renvfs]/1000-[RFmBW(k,m).Raa]/1000,'k','linewidth',1)
+set(gca,'box','off')
+set(gca,'YTick',[0 2 4 6])
+set(gca,'Box','off')
+axis([-3 3 -1 1.1*Max])
+
+
+
+%%%%%%%%%%%%%%%%% SIMULATION %%%%%%%%%%%%%%%%%%
+
+
+%Sine Modulated Poisson spike train
+Fs=5000;
+Fsd=2000;
+time=(0:Fs*60*10)/Fs;    %5 minutes
+T=max(time);
+%L=max(200*sin(2*pi*10*time),0);
+L=200*sin(2*pi*10*time);
+dT=5;
+seed=1;
+[spet]=poissongen(L,Fs,Fs,dT,seed);
+
+%Adding Jitter
+sigma=0.5
+p=0.5
+lambdan=0
+[spetA]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+[spetB]=spetaddjitter(spet,sigma,p,lambdan,Fs);
+
+%Computing Shuffled Corr
+MaxTau=200;
+Disp='n'
+[JitterData]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+
+%Computing Noise Spectrum
+df=2.5;
+[JitterSpecData]=jitterspectrum(spetA,spetB,Fs,Fsd,df,T,Disp);
+
+figure
+subplot(321)
+plot(JitterData.Tau,JitterData.Raa/1000,'color',gray,'linewidth',2)
+hold on
+plot(JitterData.Tau,JitterData.Rab/1000,'k','linewidth',1)
+axis([-200 200 -.2 5.5])
+set(gca,'YTick',[0 2 4])
+set(gca,'box','off')
+
+subplot(323)
+plot(JitterData.Tau,JitterData.Raa/1000,'color',gray,'linewidth',2)
+hold on
+plot(JitterData.Tau,JitterData.Rab/1000,'k','linewidth',1)
+axis([-25 25 -.2 5.5])
+set(gca,'YTick',[0 2 4])
+set(gca,'box','off')
+
+subplot(325)
+plot(JitterData.Tau,JitterData.Rmodel/1000,'color',gray,'linewidth',2)
+hold on
+plot(JitterData.Tau,JitterData.Rnoise/1000,'k','linewidth',1)
+axis([-25 25 -.2 5.5])
+set(gca,'YTick',[0 2 4])
+set(gca,'box','off')

@@ -1,0 +1,39 @@
+%Generating a Dummy signal with time-varying instaneous frequency from 6
+%to 12 Hz with a rate of change of Fr
+Fr=0.5
+Fs=1000
+[Noise]=noiseunif(Fr,1000,1024*16,1);
+F=6*Noise+6;
+P=2*pi*intfft(F)/Fs;
+X=sin(P);
+
+
+%%%%%%%%%%%%%%%%%%% Using filtered Hilbert Transform instaneous frequency
+Xh=hilbert(X);
+Pest=unwrap(angle(Xh));
+Fest=1/2/pi*diff(Pest)*Fs;
+H=lowpass(3,2,1000,60)
+Ffilt=conv(Fest,H);
+N=(length(H)-1)/2;
+Ffilt=Ffilt(N+1:end-N);
+
+%NOTE: in theory we could 1) Filter phase 2) take derrivative. Right now we
+%are 1) taking derrivative and 2) filtering the result. Note that both of
+%these are linear operators so the result is theoretically the same.
+
+%%%%%%%%%%%%%%%%%%% INGO TITZE
+
+[To]=titze(X,Fs);
+time=intfft(To);
+L=length(To);
+plot(time(1:L),1./To)
+hold on
+
+
+%%%%%%%%%%%%%% ER Method
+%epsilon=0.0001;
+[Toer]=er(X,Fs);
+L=length(Toer);
+time=intfft(Toer);
+plot(time(1:L),1./Toer,'r')
+

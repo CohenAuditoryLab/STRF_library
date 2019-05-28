@@ -1,0 +1,30 @@
+load ModNoisePreFu400HzSPL30dB_param.mat
+
+
+load ../DataExamplesApr_05_2011.mat
+load ../DataExamplesApr_06_2011.mat
+load ../DataExamplesApr_11_2011.mat
+load ../DataExamplesApr_18_2011.mat
+
+%Tank36 Nice, changes polarity with intensity
+%6 interesting
+%55
+
+
+T1=5
+T2=100
+[FTC] = ftcgenerate(DataTank35,T1,T2);
+imagesc(log2(FTC.Freq/2000),FTC.Level+85,FTC.data'/(FTC.T2-FTC.T1)*1000/FTC.NFTC);
+    set(gca,'YDir','normal')
+    hold on
+    set(gca,'Xtick',[-1 0 1 2 3 4])
+    set(gca,'XtickLabel',[1 2 4 8 16 32])
+
+
+
+[RASDataSPL,SoundEstimationEnvSPL,SoundParamSPL]=mtfmodnoiseunifsplspet(DataTank36,SoundParam,SoundEstimationEnv);
+
+
+
+
+

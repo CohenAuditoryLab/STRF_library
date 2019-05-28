@@ -1,0 +1,53 @@
+Fs=1920
+tau=50
+
+Xdata.PSTH1=Wkernel.PSTH1;
+Xdata.PSTH2=Wkernel.PSTH2;
+Xdata.X=Wkernel.Ytot;
+Xdata.Fs=Fs;
+Xdata.Ntrials=15;
+Xdata.tau=tau;
+Xdata.lambda1=1/3
+Xdata.lambda2=1/3
+Xdata.lambda3=1/3
+Ntau=round(tau/1000*Fs); 
+
+
+
+%Setting Optimization values
+op=optimset('lsqcurvefit');
+op.DiffMinChange=0.1; 
+op.TolFun=0.01
+
+%Setting bounds
+%Beta0=[20 3 .25 0]
+LB=[1 .5 .25 -15]
+UB=[20 4 3 10]
+step=[1 .5 .25 2];
+
+%Optimization
+Ydata=0;
+for i1=1:(UB(1)-LB(1))/step(1)+1
+    for i2=1:(UB(2)-LB(2))/step(2)+1
+        for i3=1:(UB(3)-LB(3))/step(3)+1
+            for i4=1:(UB(4)-LB(4))/step(4)+1
+                Beta=[i1 i2 i3 i4].*step;
+                B(i1,i2,i3,i4).Beta=Beta;
+                
+                CostFun(i1,i2,i3,i4) = adjustedIntegrateFirePSTH1(Beta,Xdata);
+            end
+        end
+    end
+end
+for k=1:100
+    Beta0=rand(1,4).*(UB-LB)+LB;
+    [Data(k).Beta,Data(k).RESNORM,Data(k).RESIDUAL,EXITFLAG,OUTPUT]= lsqcurvefit('adjustedIntegrateFirePSTH1',Beta0,Xdata,Ydata,LB,UB,op);
+end
+
+ydata = adjustedIntegrateFirePSTH2(Beta,Xdata);
+R=xcorr(Wkernel.PSTH1,Wkernel.PSTH2,Ntau);
+
+hold off
+plot(ydata,'r')
+hold on
+plot(R)

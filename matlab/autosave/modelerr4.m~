@@ -1,0 +1,69 @@
+function [e,e_corrected,Err,N,H,p]=modelerr4(R1,R2,sig)
+
+% each unit, each condition
+for k=1:size(R1,1)
+%    clc
+    disp(['Analyzing Unit ' num2str(k)])
+    
+for l=1:size(R1,2)
+    if ~isempty(R1(k,l).Rab) & ~isempty(R1(k,l).gaussfun) & ~isempty(R2(k,l).Rab) & length(R2(k,l).Rab)==length(R1(k,l).Rab)
+      
+   
+    %Extracting Model, Shuffled Corr, and Noise
+    Rm=R1(k,l).gaussfun;    % model corr
+    Rab1=R1(k,l).Rab;       % shuffled corr trial 1
+    Rab2=R2(k,l).Rab;       % shuffled corr trial 2
+%    if length(Rab1)~=length(Rab2)
+%     hi=1   
+%    end
+    n=Rab2-Rab1;            % measured error
+     
+    %Data for several error and noise metrics
+    [k l]
+    size(Rab1)
+    size(Rab2)
+    size(Rm)
+    size(n)
+    
+    e_corrected(k,l)=abs(sum((Rab1-Rm).^2)-sum(n.^2))/(abs(sum(Rab1.^2)-sum(n.^2)));
+    e(k,l)=sum((Rab1-Rm).^2)/sum(Rab1.^2);
+    e2(k,l)=sum(abs(Rab1-Rm))/sum(abs(Rab1));
+    N(k,l)=sum(n.^2)/sum(Rab1.^2);
+    
+%         %Plotting for test purpose    
+%         plot(R1)
+%         hold on
+%         plot(R2,'k')
+%         hold on
+%         plot(Data1(FMi).gaussfun,'r')
+%         hold off
+%         title(['Error= ' num2str(e(i,FMi)*100,3) ' % ; Corrected Error= ' num2str(e_corrected(i,FMi)*100,3)],'fontsize',20)
+%         pause
+%         
+    % chisqrtest ********
+    Xref=randn(1,1024*16);
+    E_hat=Rab1-Rm;
+    E_hat=(E_hat-mean(E_hat))/std(E_hat);
+    [H(k,l),p(k,l),X2(k,l),V(k,l)]=chisqrtest(Xref,E_hat,0.05,-4,4);
+    % ****************
+    
+    end
+end
+end
+ 
+% % each condition
+% for l=1:18
+%     a=e(:,l);  % each condition
+%     
+%    %%%%%%%%%%%% 
+%    ii=find(a<1000); %Theres seems to be bad data points, demoninator is too small!!!!
+%    a=a(ii);
+%     
+%     
+%     a=a(find(a>0));
+%     m=median(a);
+%     Err(l)=m;  % each condition
+%    
+% end
+
+Err=[];

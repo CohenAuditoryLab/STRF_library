@@ -1,0 +1,58 @@
+
+X=DataF.Xt_env;
+V=VelData.Sh_real;
+X=resample(X-mean(X),1,20);
+V=resample(V-mean(V),1,20);
+Y=V-mean(V);
+X=X-mean(X);
+
+
+N=100
+eps=1/50*sqrt(var(Y)/var(X))
+h=zeros(1,N);
+E=[];
+for k=1:500
+   
+    if k<21
+        alpha=1;
+    else
+        alpha=abs((E(k-1)-E(k-20))/sum(Y.^2));
+%        alpha=1
+    end
+%    alpha=E(k-1)/var(Y);
+    Ep=[];
+    En=[];
+    for l=1:N
+     
+       ht=h;
+       ht(l)=ht(l)+eps*alpha;
+       Yp=conv(ht,X);
+       Ep(l)=sum((Y-Yp(1:length(Y))).^2);
+       
+       ht=h;
+       ht(l)=ht(l)-eps*alpha;
+       Yn=conv(ht,X);
+       En(l)=sum((Y-Yn(1:length(Y))).^2);
+       
+    end
+    
+    Minp=min(Ep);
+    Minn=min(En);
+    ip=find(Ep==Minp);
+    in=find(En==Minn);
+    if Minp<Minn
+        h(ip)=h(ip)+eps*alpha;
+        E(k)=Minp;
+    else
+        h(in)=h(in)-eps*alpha;
+        E(k)=Minn;
+    end
+        
+    k
+    subplot(211)
+    plot(h)
+    subplot(212)
+    plot(E/sum(Y.^2))
+    pause(0) 
+    
+end

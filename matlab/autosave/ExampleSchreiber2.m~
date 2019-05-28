@@ -1,0 +1,46 @@
+clf
+figure
+
+%%%%%%%%%%%% CORTICAL EXAMPLE %%%%%%%%%%%%%%
+subplot(221)
+load ./JitterExamples/CorticalHypNeurons/cell_14_JITTER.mat	
+load ./JitterExamples/CorticalHypNeurons/cell_14_Schreiber.mat	
+
+semilogx(sigma,Rschreiber,'k-')
+hold on
+semilogx(sigma,Rschreiber,'k.')
+plot(JitterData.sigma,JitterData.p,'k^')
+plot(JitterData.sigmag,JitterData.pg,'ko')
+plot(JitterSpecData.sigma,JitterSpecData.p,'k+')
+set(gca,'XTick',[0.1 1 10])
+set(gca,'XTickLabel',[0.1 1 10])
+
+
+
+%%%%%%%%%%%% ICC Example %%%%%%%%%%%%%%
+subplot(222)
+load ./JitterExamples/ICCExamples/IC97QJE3t3_f11_ch2_u1_JITTER
+load ./JitterExamples/ICCExamples/IC97QJE3t3_f11_ch2_u1_Schreiber
+
+semilogx(sigma,Rschreiber,'k-')
+hold on
+semilogx(sigma,Rschreiber,'k.')
+plot(JitterData.sigma,JitterData.p,'k^')
+plot(JitterData.sigmag,JitterData.pg,'ko')
+plot(JitterSpecData.sigma,JitterSpecData.p,'k+')
+set(gca,'XTick',[0.1 1 10])
+set(gca,'XTickLabel',[0.1 1 10])
+
+%%%%%%%%%%%% ICC Example 2 %%%%%%%%%%%%%%
+subplot(223)
+load ./JitterExamples/ICCExamples/CRYSTALt1_f17_ch2_u0_JITTER.mat	
+load ./JitterExamples/ICCExamples/CRYSTALt1_f17_ch2_u0_Schreiber.mat	
+
+semilogx(sigma,Rschreiber,'k-')
+hold on
+semilogx(sigma,Rschreiber,'k.')
+plot(JitterData.sigma,JitterData.p,'k^')
+plot(JitterData.sigmag,JitterData.pg,'ko')
+plot(JitterSpecData.sigma,JitterSpecData.p,'k+')
+set(gca,'XTick',[0.1 1 10])
+set(gca,'XTickLabel',[0.1 1 10])

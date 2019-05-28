@@ -1,0 +1,31 @@
+load 3d_data
+
+figure;
+    subplot(2,1,1);
+    imagesc(Fma,RDa,(tRTFsum));colorbar
+    axis([-500 500 0 4])
+    set(gca,'YDir','normal');
+    hold on
+    plot([Params1.cTMF],[Params1.cSMF],'k.')
+    hold on
+    plot([Params.cTMF],[Params.cSMF],'k.')
+    plot(-[Params1.cTMF],[Params1.cSMF],'k.')
+    plot(-[Params.cTMF],[Params.cSMF],'k.')
+    title('Norm to Max')
+    %caxis([-25 0]) 
+    xlabel('Temporal Modulation (cycles/octave)');
+    ylabel('Spectral Modulation (Hz)');
+    
+    
+    
+    subplot(2,1,2);
+    imagesc(Fma,RDa,(uRTFsum));colorbar
+    axis([-500 500 0 4])
+    set(gca,'YDir','normal');
+    hold on
+    plot([Params1.cTMF],[Params1.cSMF],'k.')
+    plot([Params.cTMF],[Params.cSMF],'k.')
+    hold on
+    plot(-[Params1.cTMF],[Params1.cSMF],'k.')
+    plot(-[Params.cTMF],[Params.cSMF],'k.')
+    title('Norm to Area')

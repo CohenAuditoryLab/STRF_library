@@ -1,0 +1,28 @@
+dX=1/10
+f1=200
+fN=16000
+Fm=500
+fm1=.5
+dfm=1
+Nms=10
+OF=2
+Norm='Amp'
+MSflag=1
+dis='log'
+ATT=30
+dT=0.05
+Overlap=0.9
+GDelay='y'
+dFm=10;
+Save='y'
+
+
+audiogramstatanalysisall(METAData,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save)
+
+% 
+% T1=1
+% T2=5
+% filename='31 American Bittern.wav'
+% 
+% 
+% [AudStatsData,AudData,AudDataMS] = audiogramstatalysis(filename,T1,T2,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,ATT,dT,Overlap,GDelay,dFm,Save)

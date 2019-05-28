@@ -1,0 +1,43 @@
+
+X=imread('Lion2.jpeg');
+XB=rgb2gray(X);
+X=im2double(XB);
+M=mean(mean(X))
+SD=std(reshape(X,1,485*728));
+
+
+%Draw Histograms
+subplot(221)
+[N,Z]=hist(reshape((((X-M)/SD*1*SD+M)*256),1,numel(X)),[0:4:256]);
+bar(Z,N,'r')
+set(gca,'Box','off')
+xlim([0 256])
+set(gca,'Box','off')
+set(gca,'Visible','off')
+ch=get(gca,'children')
+set(ch,'EdgeColor','r')
+
+subplot(222)
+[N,Z]=hist(reshape((((X-M)/SD*.5*SD+M)*256),1,numel(X)),[0:2:256])
+bar(Z,N,'r')
+set(gca,'Box','off')
+xlim([0 256])
+set(gca,'Box','off')
+set(gca,'Visible','off')
+ch=get(gca,'children')
+set(ch,'EdgeColor','r')
+
+subplot(223)
+[N,Z]=hist(reshape((((X-M)/SD*.25*SD+M)*256),1,numel(X)),[0:1:256])
+bar(Z,N,'r')
+set(gca,'Box','off')
+xlim([0 256])
+set(gca,'Box','off')
+set(gca,'Visible','off')
+ch=get(gca,'children')
+set(ch,'EdgeColor','r')
+
+imwrite(uint8(((X-M)/SD*.5*SD+M)*256),'Lion100%.gif','GIF')
+imwrite(uint8(((X-M)/SD*.5*SD+M)*256),'Lion50%.gif','GIF')
+imwrite(uint8(((X-M)/SD*.25*SD+M)*256),'Lion25%.gif','GIF')
+imwrite(uint8(((X-M)/SD*.125*SD+M)*256),'Lion12%.gif','GIF')

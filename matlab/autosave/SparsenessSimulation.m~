@@ -1,0 +1,28 @@
+
+Tau=5;
+Tref=1;
+Vtresh=-40;
+Vrest=-65;
+Nsig=1.5  ;    %You can play with this, this is the normalized threshold
+SNR=-10 ;      %in dB
+flag=3;
+In=randn(size(Y));
+detrendim='y';
+detrendin='n';
+[X1,Vm,R,C,sigma_m,sigma_i]=integratefire(Y,Tau,Tref,Vtresh,Vrest,Nsig,SNR,Fs,flag,In,detrendim,detrendin);
+[spet1]=impulse2spet(X1,Fs,Fsd);
+
+Tau=15;
+Tref=5;
+Vtresh=-40;
+Vrest=-65;
+Nsig=2.5  ;    %You can play with this, this is the normalized threshold
+SNR=-13 ;      %in dB
+flag=3;
+In=randn(size(Y));
+detrendim='y';
+detrendin='n';
+[X2,Vm,R,C,sigma_m,sigma_i]=integratefire(Y,Tau,Tref,Vtresh,Vrest,Nsig,SNR,Fs,flag,In,detrendim,detrendin);
+[spet2]=impulse2spet(X2,Fs,Fsd);
+
+[R]=xcorrspikefast(spet1,spet2,Fs,Fsd,25,600,'y','y','y')

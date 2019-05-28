@@ -1,0 +1,48 @@
+FsA=1/(.3/611)
+FsB=297.6
+
+load ../BFBWMapData/26n
+[SNRData]=ecogfrasnr(FTCn,FsB);
+save SNR26 SNRData
+
+load ../BFBWMapData/27n
+[SNRData]=ecogfrasnr(FTCn,FsB);
+save SNR27 SNRData
+
+
+%load /Users/escabi/data/ElectricalStimulation/RAT012512/ECoGFTCBlock4.mat
+%[SNRData]=ecogfrasnr(FTCn,FsA);
+%save SNRRAT012512Block4 SNRData
+
+%load /Users/escabi/data/ElectricalStimulation/RAT012512/ECoGFTCBlock5.mat
+%[SNRData]=ecogfrasnr(FTCn,FsA);
+%save SNRRAT012512Block5 SNRData
+
+
+
+ load /Users/escabi/data/ElectricalStimulation/Rat103013/FigData/ECoGFRARAT103013Tank2.mat FTCn
+ [SNRData]=ecogfrasnr(FTCn,FsA);
+ save SNRRAT103013Block2 SNRData
+
+
+ load /Users/escabi/data/ElectricalStimulation/Rat102213/FigData/ECoGFRARAT102213Tank2.mat FTCn
+ [SNRData]=ecogfrasnr(FTCn,FsA);
+ save SNRRAT102213Block4 SNRData
+
+
+load /Users/escabi/data/ElectricalStimulation/Rat072213/FigData/ECoGFRARAT072213Tank2.mat FTCn
+[SNRData]=ecogfrasnr(FTCn,FsA);
+save SNRRAT072213Block2 SNRData
+
+
+
+
+ load /Users/escabi/data/ElectricalStimulation/Rat103013/FigData/ECoGFRARAT103013Tank2AC.mat FTCn
+ [SNRData]=ecogfrasnr(FTCn,FsA);
+ save SNRRAT103013Block2AC SNRData
+ 
+ load /Users/escabi/data/ElectricalStimulation/Rat102213/FigData/ECoGFRARAT102213Tank2AC.mat FTCn
+ [SNRData]=ecogfrasnr(FTCn,FsA);
+ save SNRRAT102213Block2AC SNRData
+ 
+ 

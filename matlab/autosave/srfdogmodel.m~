@@ -1,0 +1,25 @@
+%
+%function [SRF]=srfdogmodel(beta,X)
+%
+%   FILE NAME       : SRF DOG MODEL
+%   DESCRIPTION     : Spectral receptive field difference of Gaussian model
+%
+%   beta            : DOG parameter vector
+%                     beta(1): Excitatory Peak Best Frequency (octaves)
+%                     beta(2): Inhibitory Peak Best Frequency (octaves)
+%                     beta(3): Excitatory Gaussian Bandwidth (octaves)
+%                     beta(4): Inhibitory Gaussian Bandwidth (octaves)
+%                     beta(5): Peak amplitude
+%   X               : Frequency Axis (octaves)
+%
+%RETURNED VARIABLES
+%
+%   SRF             : Model spectral receptive field (SRF)
+%
+% (C) Monty A. Escabi, Aug 2009
+%
+function [TRF]=srfdogmodel(beta,taxis);
+
+SRFe=exp(-(2*(X-beta(1)/1000)/(beta(3)/1000)).^2);
+SRFi=exp(-(2*(X-beta(2)/1000)/(beta(4)/1000)).^2);
+SRF=beta(5)*[SRFe-SRFi];

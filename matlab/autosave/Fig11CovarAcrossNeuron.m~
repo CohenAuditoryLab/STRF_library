@@ -1,0 +1,11 @@
+load ./figdata7/Figure11Data.mat
+
+for m=1:9
+    for k=1:16
+        for l=1:16
+            C(k,l,m)=max(TextureCov(m).CovData(k,l).R12);
+        end
+    end
+end
+
+    

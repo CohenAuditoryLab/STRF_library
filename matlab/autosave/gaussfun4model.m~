@@ -1,0 +1,17 @@
+
+
+function F=gaussfun4model(x,xdata,T)
+  
+  % x(1):   lambdaideal
+  % x(2):   lambdanoise
+  % x(3):   p
+  % x(4):   sigma
+
+  Fm=1/T;
+  lambdan=x(2);
+  lambda_period=Fm*p;
+  
+  DC=lambdan^2+2*x(3)*Fm*lambdan;
+  peak=x(3)^2*Fm*1/sqrt(4*pi*x(4)^2);
+  F=DC + peak*exp(-xdata.^2/(4*x(4)^2)) + peak*exp(-(xdata-T).^2/(4*x(4)^2)) + peak*exp(-(xdata+T).^2/(4*x(4)^2)) + peak*exp(-(xdata-2*T).^2/(4*x(4)^2)) + peak*exp(-(xdata+2*T).^2/(4*x(4)^2));
+  

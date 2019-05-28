@@ -1,0 +1,26 @@
+
+
+%Fsd=ceil(FMAxispnb(6)*2*1.2.^(1:25))
+Fsd=(5*1.2.^(1:30))
+B=2.^(0:7)
+
+
+for k=1:length(B)
+
+[InfoData]=infwordrasterperiodic(RASspet(51:60),B(k),FMAxispnb(6));
+
+Ht(k)=InfoData.HWordt; 
+H(k)=InfoData.HWord(length(InfoData.HWord));
+
+end
+
+% 
+% 
+% for k=1:length(Fsd)
+% 
+% [InfoData]=infwordrasterperiodic(RASspet(51:60),Fsd(k),FMAxissam(6));
+% 
+% Ht(k)=InfoData.HWordt; 
+% H(k)=InfoData.HWord(length(InfoData.HWord));
+% 
+% end

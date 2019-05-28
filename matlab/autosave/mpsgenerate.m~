@@ -1,0 +1,53 @@
+
+%Xt=Fm(1026:2048);
+    subplot(3,2,5);
+    %plot(Xt,10*log10(mean(abs(V(258:512,:)),2)'))
+    
+    i=find(Xt<=400 & Xt>=1);
+    Vt=mean(abs(V(1026:2048,:)'));
+    semilogx(Xt(i),10*log10(Vt(i))')
+    [P,S]=polyfit(log10(Xt(i)),10*log10(Vt(i)),1);
+    %Freq=Xt;
+    %Pxx=(mean(abs(V(1026:2048,:)),2)');
+    %betat=lsqcurvefit(@(betat,Freq) 10*log10(betat(1)*Freq.^betat(2)),[1 -1],Xt(i),10*log10(Vt(i)));
+betat=[P]
+    %beta(count,:)=betat;
+    %semilogx(Xt,10*log10(mean(abs(V(258:512,:)),2)'))
+    title('Temporal Background');
+    %[P,S]=polyfit(log10(Xt),10*log10(mean(abs(V(258:512,:)),2)'),1);
+    %slope_coeff(count,:)=P;
+    %count=count+1;
+    %Y = polyval(P,log10(Xt));
+    hold on;
+    %plot(Xt,Y,'r');
+    %semilogx(Freq,10*log10(betat(1)*Freq.^betat(2)),'r');
+    Y=polyval(P,log10(Freq));
+    semilogx(Freq,Y,'r');
+    axis([1 500 -40 0]);
+    set(gca,'XTick',[0 1 10 100 500],'XTickLabel',[0 1 10 100 500]);
+    hold off;
+    
+    Xs=RD(82:160);
+    subplot(3,2,6);
+    semilogx(Xs,10*log10(mean(abs(U(82:160,:)),2)'))
+    %plot(Xs,10*log10(mean(abs(U(82:160,:)),2)'))
+    hold off;
+    result(3).Xt=Xt;
+    result(3).Xs=Xs;
+    result(3).V=V(1026:2048,:);
+    result(3).U=U(82:160,:);
+    title('Spectral Background');
+    [P,S]=polyfit(log10(Xs),10*log10(mean(abs(U(82:160,:)),2)'),1);
+    [P30b,S30b]=polyfit(log10(Xs(1:30)),10*log10(mean(abs(U(82:111,:)),2)'),1); 
+    SFreq=Xs(1:30);
+    Psx=(mean(abs(U(82:111,:)),2)');%Psx=(mean(abs(U(82:160,:)),2)');
+    betas=lsqcurvefit(@(betas,SFreq) 10*log10(betas(1)*SFreq.^betas(2)),[.1 -.1],SFreq,10*log10(Psx));
+    beta(count,:)=betas;
+    slope_coeff(count,:)=P;
+    count=count+1;
+    hold on;
+    %semilogx(Xs,10*log10(betas(1)*Xs.^betas(2)),'r');%semilogx(SFreq,10*log10(betas(1)*SFreq.^betas(2)),'r');
+    semilogx(SFreq,10*log10(betas(1)*SFreq.^betas(2)),'r');
+    axis([0.2 4 -40 0])
+    set(gca,'XTick',[0.2 0.4 0.6 1 2 4],'XTickLabel',[0.2 0.4 0.6 1 2 4]);
+    hold off;  

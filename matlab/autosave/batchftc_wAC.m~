@@ -1,0 +1,13 @@
+%AC Presserved
+T1=0
+T2=300
+DFECoG=6
+f1=0
+f2=inf
+Order=[]
+SPLoffset=85
+
+load RAT103013.mat DataTank1  %DataTank2
+[FTCn] = ftcgenerateecogn(DataTank1,T1,T2,DFECoG,f1,f2,Order,SPLoffset);
+[FTCns] = ftcgenerateecogn(DataTank1,T1,T2,DFECoG,f1,f2,Order,SPLoffset,'y');
+save ECoGFRARAT103013Tank1AC FTCn FTCns T1 T2 DFECoG f1 f2 Order SPLoffset

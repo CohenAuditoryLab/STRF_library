@@ -1,0 +1,220 @@
+load('/Users/escabi/data/Yi Zheng/Yidata/FmAxis.mat')
+FMAxis=FMAxis(1:15);
+FMAxispnb=FMAxispnb(1:15);
+
+
+%%%%%%%%%%%%%%%%%%%%% SAM case %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+unit=1;
+for k=1:65
+   
+    %Load Data
+    filename0=['/Users/escabi/Dropbox/info_bias_p/jitter0/SAMjitter0unit' int2str(k)];
+    filename00 = ['/Users/escabi/Dropbox/info_bias_p/jitter0/SAMjitter00unit' int2str(k)];
+    filenamebias=['/Users/escabi/Dropbox/info_bias_p/SAM/SAM8000unit' int2str(k)];
+    
+    if exist([filename0 '.mat'],'file') & exist([filename00 '.mat'],'file')
+        
+        %Bias from jittered file - used 200 msec jitter
+        load(filenamebias)
+        if size(InfoDataModel.HWord,2)==22
+            DataSAMreal.Ibias=InfoDataModel.Ibias(:,2:end);
+        else
+            DataSAMreal.Ibias=InfoDataModel.Ibias(:,1:end);
+        end
+        
+        %Load Data Files
+        load(filename0)
+        load(filename00)
+        
+        %Computing Metrics
+        DataSAMreal.Hreli(:,unit) = InfoDataModel00.HWordt(:,1);
+ 
+        DataSAMreal.Htemp(:,unit) = InfoDataModel0.HWordt-DataSAMreal.Hreli(:,unit);
+        DataSAMreal.Info(:,unit)  = InfoDataModel0.HWord-InfoDataModel0.HWordt-DataSAM;
+        DataSAMreal.Htot(:,unit)  = InfoDataModel0.HWord;
+        DataSAMreal.Ibias(:,unit) = InfoDataModel0.Ibias;
+        DataSAMreal.Freli(:,unit) = DataSAMreal.Hreli(:,unit)./DataSAMreal.Htot(:,unit);
+        DataSAMreal.Ftemp(:,unit) = DataSAMreal.Htemp(:,unit)./DataSAMreal.Htot(:,unit);
+        DataSAMreal.Feffi(:,unit) = DataSAMreal.Info(:,unit)./DataSAMreal.Htot(:,unit);
+    
+        %Increasing unit counter
+        unit=unit+1;
+    end
+    
+end
+
+
+%%%%%%%%%%%%%%%%%%%%% PNB case %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+unit=1;
+for k=1:65
+   
+    %Load Data
+    filename0=['/Users/escabi/Dropbox/info_bias_p/jitter0/PNBjitter0unit' int2str(k)];
+    filename00 = ['/Users/escabi/Dropbox/info_bias_p/jitter0/PNBjitter00unit' int2str(k)];
+    
+    if exist([filename0 '.mat'],'file') & exist([filename00 '.mat'],'file')
+        %Load Data Files
+        load(filename0)
+        load(filename00)
+        
+        %Computing Metrics
+        DataPNBreal.Hreli(:,unit) = InfoDataModel00.HWordt(:,1);
+ 
+        DataPNBreal.Htemp(:,unit) = InfoDataModel0.HWordt-DataPNBreal.Hreli(:,unit);
+        DataPNBreal.Info(:,unit)  = InfoDataModel0.HWord-InfoDataModel0.HWordt;%-InfoDataModel0.Ibias;
+        DataPNBreal.Htot(:,unit)  = InfoDataModel0.HWord;
+        DataPNBreal.Ibias(:,unit) = InfoDataModel0.Ibias;
+       
+        
+        DataPNBreal.Freli(:,unit) = DataPNBreal.Hreli(:,unit)./DataPNBreal.Htot(:,unit);
+        DataPNBreal.Ftemp(:,unit) = DataPNBreal.Htemp(:,unit)./DataPNBreal.Htot(:,unit);
+        DataPNBreal.Feffi(:,unit) = DataPNBreal.Info(:,unit)./DataPNBreal.Htot(:,unit);
+    
+        %Increasing unit counter
+        unit=unit+1;
+    end
+    
+end
+
+%Converting INF to NAN
+l=find(isinf(DataPNBreal.Freli));
+DataPNBreal.Freli(l)=nan(length(l),1);
+l=find(isinf(DataPNBreal.Ftemp));
+DataPNBreal.Ftemp(l)=nan(length(l),1);
+l=find(isinf(DataPNBreal.Feffi));
+DataPNBreal.Feffi(l)=nan(length(l),1);
+l=find(isinf(DataSAMreal.Freli));
+DataSAMreal.Freli(l)=nan(length(l),1);
+l=find(isinf(DataSAMreal.Ftemp));
+DataSAMreal.Ftemp(l)=nan(length(l),1);
+l=find(isinf(DataSAMreal.Feffi));
+DataSAMreal.Feffi(l)=nan(length(l),1);
+
+
+% %Fixing Odd cases - due to null division (calculation error)
+i=find(DataSAMreal.Freli>1);
+DataSAMreal.Freli(i)=ones(size(i));
+i=find(DataSAMreal.Freli<0);
+DataSAMreal.Freli(i)=zeros(size(i));
+i=find(DataSAMreal.Ftemp>1);
+DataSAMreal.Ftemp(i)=ones(size(i));
+i=find(DataSAMreal.Ftemp<0);
+DataSAMreal.Ftemp(i)=zeros(size(i));
+
+i=find(DataPNBreal.Freli>1);
+DataPNBreal.Freli(i)=ones(size(i));
+i=find(DataPNBreal.Freli<0);
+DataPNBreal.Freli(i)=zeros(size(i));
+i=find(DataPNBreal.Ftemp>1);
+DataPNBreal.Ftemp(i)=ones(size(i));
+i=find(DataPNBreal.Ftemp<0);
+DataPNBreal.Ftemp(i)=zeros(size(i));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  EFFICINECY FIGURES %%%%%%%%%%%%%%%%%%%%%%%%%
+load('/Users/escabi/data/Yi Zheng/Yidata/FmAxis.mat')
+FMAxis=FMAxis(1:15);
+FMAxispnb=FMAxispnb(1:15);
+
+figure
+subplot(221)
+X = bootstrp(1000,'nanmean',DataSAMreal.Feffi');, SE=std(X);
+errorbar(log2(FMAxis),nanmean(DataSAMreal.Feffi,2),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmean',DataPNBreal.Feffi');, SE=std(X);
+errorbar(log2(FMAxispnb),nanmean(DataPNBreal.Feffi,2),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 0.5])
+set(gca,'Box','off')
+
+subplot(222)
+X = bootstrp(1000,'nanmean',DataSAMreal.Freli');, SE=std(X);
+errorbar(log2(FMAxis),nanmean(DataSAMreal.Freli,2),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmean',DataPNBreal.Freli');, SE=std(X);
+errorbar(log2(FMAxispnb),nanmean(DataPNBreal.Freli,2),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 1])
+set(gca,'Box','off')
+
+subplot(223)
+X = bootstrp(1000,'nanmean',DataSAMreal.Ftemp');, SE=std(X);
+errorbar(log2(FMAxis),nanmean(DataSAMreal.Ftemp,2),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmean',DataPNBreal.Ftemp');, SE=std(X);
+errorbar(log2(FMAxispnb),nanmean(DataPNBreal.Ftemp,2),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 1])
+set(gca,'Box','off')
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  INFORMATION FIGURES %%%%%%%%%%%%%%%%%%%%%%%%%
+load('/Users/escabi/data/Yi Zheng/Yidata/FmAxis.mat')
+FMAxis=FMAxis(1:15);
+FMAxispnb=FMAxispnb(1:15);
+
+figure
+subplot(221)
+X = bootstrp(1000,'nanmean',DataSAMreal.Info');, SE=std(X);
+errorbar(log2(FMAxis),nanmean(DataSAMreal.Info,2),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmean',DataPNBreal.Info');, SE=std(X);
+errorbar(log2(FMAxispnb),nanmean(DataPNBreal.Info,2),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 1.5])
+set(gca,'Box','off')
+
+
+subplot(222)
+X = bootstrp(1000,'nanmean',DataSAMreal.Info');, SE=FMAxis.*std(X);
+errorbar(log2(FMAxis),FMAxis'.*nanmean(DataSAMreal.Info,2),SE,'k')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+hold on
+X = bootstrp(1000,'nanmean',DataPNBreal.Info');, SE=FMAxispnb.*std(X);
+errorbar(log2(FMAxispnb),FMAxispnb'.*nanmean(DataPNBreal.Info,2),SE,'k-.')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+axis([log2(4) log2(512) 0 13])
+set(gca,'Box','off')
+
+
+
+%%%%%%%%%%%%% DISTRIBUTION OF INFORMAIOTN RATE BMF %%%%%%%%%%%%%%%%%%%%%%%
+
+for k=1:53
+    ipnb(k)=find(FMAxis'.*DataPNBreal.Info(:,k)==max(FMAxis'.*DataPNBreal.Info(:,k)))
+    Ipnb(k)=max(FMAxis'.*DataPNBreal.Info(:,k));
+    isam(k)=find(FMAxis'.*DataSAMreal.Info(:,k)==max(FMAxis'.*DataSAMreal.Info(:,k)))
+    Isam(k)=max(FMAxis'.*DataSAMreal.Info(:,k));
+end
+
+subplot(223)
+hist(log2(FMAxis(isam)),2:9),set(gca,'XScale','lin')
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+xlim(log2([4 512]))
+ch=get(gca,'children')
+set(ch,'facecolor','k')
+set(gca,'Box','off')
+subplot(224)
+hist(log2(FMAxispnb(ipnb)),2:9),set(gca,'XScale','lin')
+xlim(log2([4 512]))
+set(gca,'XTick',log2([2  8 32  128  512]))
+set(gca,'XTickLabel',([2  8  32  128  512]))
+ch=get(gca,'children')
+set(ch,'facecolor','k')
+set(gca,'Box','off')
+ylim([0 20])

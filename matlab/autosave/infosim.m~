@@ -1,0 +1,33 @@
+
+P=[1/16 1/16 0 0 0; 1/16 1/16 0 0 0; 0 0 3/16 0 3/8 ; 0 0 1/16 1/8 0 ]
+H=[];
+Pw=sum(P');
+Ps=sum(P);
+for k=1:4
+    for l=1:5
+        
+        H=[H P(k,l)*log2(P(k,l)/Pw(k)/Ps(l))]
+        
+    end
+end
+
+i=find(~isnan(H));
+I=sum(H(i))
+
+
+
+
+P=[1/4 0 ; 0 3/4]
+H=[];
+Pw=sum(P');
+Ps=sum(P);
+for k=1:2
+    for l=1:2
+        
+        H=[H P(k,l)*log2(P(k,l)/Pw(k)/Ps(l))]
+        
+    end
+end
+
+i=find(~isnan(H));
+II=sum(H(i))

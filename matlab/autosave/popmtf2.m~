@@ -1,0 +1,59 @@
+% i=find(Fma)>0;
+% FMA=[];
+% i2=find(RDa)>0;
+% RDA=[];
+% for k=1:length(RDa(i2))
+%     FMA=[FMA; Fma(i)];
+% end
+% for k=1:length(Fma(i));
+%     RDA=[RDA RDa(i2)'];
+% end
+% 
+% 
+% FM=[10*1.5.^(1:9)]
+% RD=[.1*1.5.^(0:9)]
+% for k=1:length(FM)-1
+%     for l=1:length(RD)-1
+%         [k l]
+%             
+%         i=find(FMA>FM(k) & FMA<FM(k+1) & RDA>RD(l) & RDA<RD(l+1))
+%         MTF(k,l)=mean(tRTFsum(i));
+%     end
+% end
+% 
+% 
+% 
+
+
+
+figure;
+    subplot(2,1,1);
+    i=find(Fma>0)
+    pcolor(Fma(i),RDa,(tRTFsum(:,i)));colorbar; colormap jet,shading flat
+    
+    
+    axis([-500 500 0 4])
+    set(gca,'YDir','normal');
+    hold on
+    plot([Params1.cTMF],[Params1.cSMF],'k.')
+    plot([Params.cTMF],[Params.cSMF],'b.')
+    %plot(-[Params1.cTMF],[Params1.cSMF],'k.')
+    %plot(-[Params.cTMF],[Params.cSMF],'k.')
+    title('Norm to Max')
+    %caxis([-25 0]) 
+    xlabel('Temporal Modulation (cycles/octave)');
+    ylabel('Spectral Modulation (Hz)');
+    
+    
+    
+    subplot(2,1,2);
+    imagesc(Fma,RDa,(uRTFsum));colorbar
+    axis([-500 500 0 4])
+    set(gca,'YDir','normal');
+    hold on
+    plot([Params1.cTMF],[Params1.cSMF],'k.')
+    plot([Params.cTMF],[Params.cSMF],'k.')
+    hold on
+    plot(-[Params1.cTMF],[Params1.cSMF],'k.')
+    plot(-[Params.cTMF],[Params.cSMF],'k.')
+    title('Norm to Area')

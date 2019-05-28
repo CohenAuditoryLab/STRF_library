@@ -1,0 +1,93 @@
+
+%load ./BFBWMapData/26n.mat
+
+%%%%% %%%%%%%%%%%%%% AVERAGE RESPONSE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+f1=figure
+set(f1,'Position',[60 115 1312 669])
+set(f1,'PaperPosition',[0.25 2.5 8 6])
+
+Nmax=25
+MinR=min(min(min(FTCn(7,7).Ravg))); 
+MaxR=max(max(max(FTCn(7,7).Ravg)));
+
+for k=1:9
+    XX=[];
+    for l=1:26
+        [k l]
+        LL=l+15;
+
+        %XX= [XX squeeze(FTCn(7,7).Ravg(LL,9-k+1,1:Nmax))' NaN(1,5)]
+        XX= [XX squeeze(mean(FTCn(7,7).Rtrial(LL,9-k+1,:,1:Nmax),3))' NaN(1,5)]
+    end
+    
+    subplot(9,1,k)
+    plot(XX,'k')
+    set(gca,'Visible','off')
+    set(gca,'Box','off')
+    ylim([ MinR MaxR])
+end
+
+
+%%%%% %%%%%%%%%%%%%% SINGLE TRIAL RESPONSE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+f2=figure
+set(f2,'Position',[60 115 1312 669])
+set(f2,'PaperPosition',[0.25 2.5 8 6])
+
+Nmax=25
+MinRST=min(min(min(min(FTCn(7,7).Rtrial(:,:,1,:)))))
+MaxRST=max(max(max(max(FTCn(7,7).Rtrial(:,:,1,:)))))
+
+for k=1:9
+    XX=[];
+    for l=1:26
+        [k l]
+        LL=l+15;
+
+        XX= [XX squeeze(FTCn(7,7).Rtrial(LL,9-k+1,1,1:Nmax))' NaN(1,5)]
+    end
+    
+    subplot(9,1,k)
+    plot(XX,'k')
+    set(gca,'Visible','off')
+    set(gca,'Box','off')
+    ylim([ MinRST MaxRST])
+end
+
+figure
+subplot(9,1,1)
+MaxR-MinR
+subplot(9,1,2)
+MaxRST-MinRST
+
+
+%%%%%%%%%%%%%%%%%%%%%% FRA %%%%%%%%%%%%%%%%%%%%%%%%
+figure
+imagesc(log2(FTCn(7,7).Freq(16:41)/4000),FTCn(7,7).Level+85,FTCn(7,7).Rpp(16:41,:)'/1E-3),set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3])
+set(gca,'XTickLabel',[8 16 32])
+
+Min=min([min(min(FTCn(7,7).Rpp(16:41,:))) ])/1E-3;
+Max=max([max(max(FTCn(7,7).Rpp(16:41,:))) ])/1E-3;
+caxis([Min Max])
+c=colorbar
+set(c,'YTick',[0.1:.1:.5])
+
+%%%%%%%%%%%%%%%%%%%%%% Single Trial FRA %%%%%%%%%%%%%%%%%%%%issio%%%%
+figure
+
+for k=1:9
+    for l=1:26
+       LL=l+15;
+        RppST(k,l)= max(squeeze(FTCn(7,7).Rtrial(LL,k,3,:))')-min(squeeze(FTCn(7,7).Rtrial(LL,k,3,:))');
+    end
+end
+
+imagesc(log2(FTCn(7,7).Freq(16:41)/4000),FTCn(7,7).Level+85,RppST/1E-3),set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3])
+set(gca,'XTickLabel',[8 16 32])
+Min=min([min(min(RppST))])/1E-3;
+Max=max([ max(max(RppST))])/1E-3;
+caxis([Min Max])
+c=colorbar
+set(c,'YTick',[0.2:.2:1.4])

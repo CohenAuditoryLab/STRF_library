@@ -1,0 +1,41 @@
+% Fatemeh Khatami Sep.2014
+Im=[zeros(1,100) ones(1,100) zeros(1,100) ones(1,100) zeros(1,100) ones(1,100)].*4e-6;
+In=zeros(size(Im));
+Tau=10;
+Tref=1;
+Taus=4;
+Gs=7;
+Vtresh=-20;
+Vrest=-60;
+Fs=1000;
+detrendim='n';
+detrendin='n';
+
+[X,Vm,Vt,R,C]=ifneuronadapt_new3(Im,Tau,Taus,Gs,Tref,Vtresh,Vrest,Fs,In,detrendim,detrendin);
+subplot(4,1,1);plot(Im);ylabel('Im')
+subplot(4,1,2);plot(Vm);ylabel('Vm')
+subplot(4,1,3);plot(Vt);ylabel('Adaptive Vt')
+subplot(4,1,4);plot(X);ylabel('Spikes');xlabel('Samples');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+clc
+clear
+Im=[zeros(1,100) ones(1,100) zeros(1,100) ones(1,100) zeros(1,100) ones(1,100)].*1e-6;
+In=zeros(size(Im));
+Tau=5;
+Tref=1;
+TauEs=1;
+TauIs=1;
+GEs=10;
+GIs=9;
+Vtresh=-20;
+Vrest=-60;
+Fs=1000;
+detrendim='n';
+detrendin='n';
+
+[X,Vm,Vt,R,C]=ifneuronadapt_new2(Im,Tau,TauEs,TauIs,GEs,GIs,Tref,Vtresh,Vrest,Fs,In,detrendim,detrendin);
+figure;subplot(4,1,1);plot(Im);ylabel('Im')
+subplot(4,1,2);plot(Vm);ylabel('Vm')
+subplot(4,1,3);plot(Vt);ylabel('Adaptive Vt')
+subplot(4,1,4);plot(X);ylabel('Spikes');xlabel('Samples');

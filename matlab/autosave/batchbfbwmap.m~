@@ -1,0 +1,49 @@
+clear all
+load ECoGFRARAT103013Tank2.mat
+
+L1=size(FTCn,1);
+L2=size(FTCn,2);
+N1=size(FTCn(1).Rpp,1);
+N2=size(FTCn(1).Rpp,2);
+f0=FTCn(1).Freq(1);
+for k=1:L1
+    for l=1:L2
+             
+       M=mean(reshape(FTCn2(k,l).Rpp,1,N1*N2));
+       S=std(reshape(FTCn2(k,l).Rpp,1,9));
+        
+       Rpp=FTCn(k,l).Rpp;
+       i=find(Rpp<M+3*S);
+       Rpp(i)=zeros(size(i));
+   
+       %Finding BF
+       bf=Rpp'*X'./sum(Rpp)';
+       bfhz=f0*2.^(bf);
+
+       %Computing Standard Deviation
+       XX=ones(length(bf),1)*X - bf*ones(size(X));  
+       sd=sqrt( sum(Rpp'.*XX.^2,2) ./sum(Rpp)' ) ;
+
+       BF(k,l,:)=bf;
+       BFHz(k,l,:)=bfhz;
+       Std(k,l,:)=sd;
+       
+%             FRA=FTCn(k,l).Rpp;
+%             FRAs=reshape(FTCns(k,l).Rpp,1,N1*N2);
+%             i=find(FRA<mean(FRAs)+std(FRAs)*3);
+%             FRA(i)=zeros(size(i));
+%             FTC(k,l).data=FRA;
+%             FTC(k,l).Freq=FTCn(k,l).Freq;
+%             FTC(k,l).Level=FTCn(k,l).Level;
+%             
+%             [FTCStats] = ftccentroid2(FTC(k,l));
+%             
+%             BFHz(k,l,:)=FTCStats.Mean;
+%             BF(k,l,:)=log2(FTCStats.Mean/f0);
+%             Std(k,l,:)=FTCStats.Std;
+    end
+end
+
+save BFBWMap103013Tank2 BF BFHz Std
+
+clear all

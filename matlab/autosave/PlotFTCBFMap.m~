@@ -1,0 +1,79 @@
+%load FTC
+
+% for k=1:14
+%     
+%     for l=1:14
+%         
+%    subplot(14,14,(14-l+1)+(k-1)*14)
+%    imagesc(log2(FTCn(k,l).Freq/1000),FTCn(k,l).Level,FTCn(k,l).Rpp')  
+%    set(gca,'YDir','normal')
+%         
+%     end
+% end
+
+
+load ./BFBWMapData/AuditoryCortexBFBWMap102710.mat
+
+figure
+subplot(331)
+imagesc(rot90(rot90(rot90(Std(:,:,7)))))
+title('65 dB SPL')
+set(gca,'XTickLabel','')
+set(gca,'YTickLabel','')
+set(gca,'YTick',[0:14]+.5)
+set(gca,'XTick',[0:14]+.5)
+set(gca,'XGrid','on')
+set(gca,'YGrid','on')
+set(gca,'GridLineStyle','-')
+caxis([0 2])
+axis 
+subplot(332)
+imagesc(rot90(rot90(rot90(Std(:,:,8)))))
+title('75 dB SPL')
+set(gca,'XTickLabel','')
+set(gca,'YTickLabel','')
+set(gca,'YTick',[0:14]+.5)
+set(gca,'XTick',[0:14]+.5)
+set(gca,'XGrid','on')
+set(gca,'YGrid','on')
+set(gca,'GridLineStyle','-')
+caxis([0 2])
+
+subplot(333)
+imagesc(rot90(rot90(rot90(Std(:,:,9)))))
+title('85 dB SPL')
+set(gca,'XTickLabel','')
+set(gca,'YTickLabel','')
+set(gca,'YTick',[0:14]+.5)
+set(gca,'XTick',[0:14]+.5)
+set(gca,'XGrid','on')
+set(gca,'YGrid','on')
+set(gca,'GridLineStyle','-')
+caxis([0 2])
+
+subplot(334)
+caxis([0 2])
+colorbar
+
+c=colormap 
+c(1,:)=[ 1 1 1]
+colormap(c)
+
+% 
+% 
+% 
+% %Computing Mean
+% Data=FTCt.data;
+% X=log2(FTCt.Freq/min(FTCt.Freq));
+% FTCStats.Mean=Data'*X'./sum(Data)';
+% FTCStats.Mean=min(FTCt.Freq)*2.^(FTCStats.Mean);
+% index=find(isnan(FTCStats.Mean));
+% FTCStats.Mask(index)=nan(size(index));
+% 
+% %Computing Standard Deviation
+% XX=ones(length(FTCStats.Mean),1)*X - log2(FTCStats.Mean/min(FTCt.Freq))*ones(size(X));
+% FTCStats.Std=sqrt( sum(Data'.*XX.^2,2) ./sum(Data)' ) ;
+% 
+% %Computing Standard Deviation in Hz (Aug 2012)
+% XX=ones(length(FTCStats.Mean),1)*FTCt.Freq - FTCStats.Mean*ones(size(X));
+% FTCStats.StdHz=sqrt( sum(Data'.*XX.^2,2) ./sum(Data)' ) ;

@@ -1,0 +1,60 @@
+load ./figdata6/Fig6Simulation_Jitter4000Hz.mat	
+Fs=4000
+gray=[0.7 0.7 0.7]
+
+subplot(321)
+[RASTER,Fs]=rasterexpand(RAS,Fs,RAS(1).T);
+[i,j]=find(RASTER);
+plot(j/Fs,i,'k.')
+xlim([1 1.5])
+set(gca,'Box','off')
+set(gca,'Visible','off')
+
+%load ./figdata6/IC97QJE3t4_f09_ch2_u0_Jitter4000Hz.mat
+load ./figdata6/IC97QJE3t4_f10_ch2_u0_Jitter4000Hz.mat
+subplot(3,2,3)
+[RASTER,Fs]=rasterexpand(RASTER(),Fs,RAS(1).T);
+[i,j]=find(RASTER);
+plot(j/Fs,i,'k.')
+xlim([1 1.5])
+set(gca,'Box','off')
+set(gca,'Visible','off')
+
+
+
+
+load ./figdata6/Fig6Simulation_Jitter4000Hz.mat	
+figure
+subplot(331)
+plot(JitterData.Tau,JitterData.Raa,'k','linewidth',1)
+hold on
+plot(JitterData.Tau,JitterData.Rab,'color',gray,'linewidth',1)
+axis([-10 10 -200 2000])
+set(gca,'Box','off')
+
+subplot(332)
+plot(JitterData.Tau,JitterData.Rab-JitterData.Raa,'k','linewidth',1)
+axis([-10 10 -200 2000])
+set(gca,'Box','off')
+
+
+
+%load ./figdata6/IC97QJE3t4_f09_ch2_u0_Jitter4000Hz.mat
+load ./figdata6/IC97QJE3t4_f10_ch2_u0_Jitter4000Hz.mat
+
+subplot(334)
+plot(JitterData.Tau,JitterData.Raa,'k','linewidth',1)
+hold on
+plot(JitterData.Tau,JitterData.Rab,'color',gray,'linewidth',1)
+axis([-30 30 -100 600])
+set(gca,'Box','off')
+
+subplot(335)
+plot(JitterData.Tau,JitterData.Rab-JitterData.Raa,'k','linewidth',1)
+axis([-30 30 -100 600])
+set(gca,'Box','off')
+
+
+
+
+

@@ -1,0 +1,40 @@
+tau=10       %Half life in msec
+tau=tau/1000;
+Fm=25       %Mod Freq in Hz
+fc=1000
+Fs=44100
+taxis=(1:round(1/Fm*Fs))/Fs;
+L=5         %Number of Seconds
+E=1/tau*exp(-taxis/tau);
+
+Env=[];
+for k=1:Fm*L
+   
+    Env=[Env E];
+    
+end
+
+N=length(Env);
+X=Env.*sin(2*pi*fc*(1:N)/Fs);
+XN=Env.*(rand(1,N)-0.5)*2;
+
+%Saving Sounds
+wavwri(X,Fs,16,1,'DampedSinusoid.wav')
+wavwri(fliplr(X),Fs,16,1,'RampedSinusoid.wav')
+wavwri(XN,Fs,16,1,'DampedNoise.wav')
+wavwri(fliplr(XN),Fs,16,1,'RampedNoise.wav')
+
+%Plotting Sounds
+figure
+N=1/Fm*5*44100;
+taxis=(0:N-1)/Fs;
+subplot(211)
+plot(taxis,X(1:N),'k','linewidth',3)
+hold on
+plot(taxis,Env(1:N),'r','linewidth',3)
+set(gca,'visible','off')
+subplot(212)
+plot(taxis,fliplr(X(1:N)),'k','linewidth',3)
+hold on
+plot(taxis,fliplr(Env(1:N)),'b','linewidth',3)
+set(gca,'visible','off')

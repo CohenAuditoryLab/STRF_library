@@ -1,0 +1,319 @@
+clear Fm F
+Fs=10000;
+Fsd=500
+sigma=12.5;
+x=1;
+lambdas=1;
+T=20;
+
+figure(1)
+
+    %4 Hz Fm
+    Fm = 4
+    N=round(1/Fm*Fs);
+    
+    spet=N:N:Fs*20;
+    for l=1:1000
+       RASTER(l).spet=spet;
+       RASTER(l).Fs=Fs;
+       RASTER(l).T=T;
+    end
+    [RAS]=rasteraddjitter(RASTER,sigma,x,lambdas);
+    [RAS,Fs]=rasterexpand(RAS,Fsd,RASTER(1).T);
+    R=mean(RAS);
+    RR=R(5*Fsd+1:15*Fsd);
+    faxis=(-length(RR)/2:length(RR)/2-1)/length(RR)*Fsd;
+    Prr=abs(fftshift(fft(RR))).^2/Fsd;
+ 
+    %Finding the temporal coding fraction
+    i=find(faxis<Fm/2 & faxis>-Fm/2);
+    m=find(faxis>Fm/2 & faxis<Fsd/2);
+    DC=sum(Prr(i));
+    AC=2*sum(Prr(m));   %Note I multiply by two to account for (-) frequencies
+    F=AC/(AC+DC);
+    
+    subplot(634)
+    RAS=RAS(:,round(1/Fm/2*Fsd):round(1/Fm*9/2*Fsd));
+    [i,j]=find(RAS(1:50,:));
+    plot(j/Fsd,i,'k.')
+    set(gca,'visible','off')
+    xlim([0 size(RAS,2)/Fsd])
+    
+    subplot(831)
+    plot((1:size(RAS,2))/Fsd,mean(RAS),'k')
+    axis([0 size(RAS,2)/Fsd 0 50])
+    set(gca,'box','off')
+    
+    subplot(337)
+    plot(faxis,sqrt(Prr),'k','linewidth',2),xlim([-1 32])
+    set(gca,'Box','off')
+    pause(0)
+    title(['x=' num2str(x,2) ', Fm=' int2str(Fm) ', F = ' num2str(F,2)])
+    
+    %Plotting LP Filter
+    P=exp(-(sigma/1000)^2*(2*pi*faxis).^2/2);
+    i=find(faxis==Fm);
+    P=P/P(i)*sqrt(max(Prr(i-3:i+3)));
+    hold on
+    plot(faxis,P,'color',[0.6 .6 .6],'linewidth',2)
+    hold off
+    
+    %8 Hz Fm
+    Fm = 8
+    N=round(1/Fm*Fs);
+    
+    spet=N:N:Fs*20;
+    for l=1:1000
+       RASTER(l).spet=spet;
+       RASTER(l).Fs=Fs;
+       RASTER(l).T=T;
+    end
+    [RAS]=rasteraddjitter(RASTER,sigma,x,lambdas);
+    [RAS,Fs]=rasterexpand(RAS,Fsd,RASTER(1).T);
+    R=mean(RAS);
+    RR=R(5*Fsd+1:15*Fsd);
+    faxis=(-length(RR)/2:length(RR)/2-1)/length(RR)*Fsd;
+    Prr=abs(fftshift(fft(RR))).^2/Fsd;
+
+    %Finding the temporal coding fraction
+    i=find(faxis<Fm/2 & faxis>-Fm/2);
+    m=find(faxis>Fm/2 & faxis<Fsd/2);
+    DC=sum(Prr(i));
+    AC=2*sum(Prr(m));   %Note I multiply by two to account for (-) frequencies
+    F=AC/(AC+DC);    
+    
+    subplot(635)
+    RAS=RAS(:,round(1/Fm/2*Fsd):round(1/Fm*9/2*Fsd));
+    [i,j]=find(RAS(1:50,:));
+    plot(j/Fsd,i,'k.')
+    set(gca,'visible','off')
+    xlim([0 size(RAS,2)/Fsd])
+    
+    subplot(832)
+    plot((1:size(RAS,2))/Fsd,mean(RAS),'k')
+    axis([0 size(RAS,2)/Fsd 0 50])
+    set(gca,'box','off')
+    
+    subplot(338)
+    plot(faxis,sqrt(Prr),'k','linewidth',2),xlim([-1 32])
+    set(gca,'Box','off')
+    pause(0)
+    title(['x=' num2str(x,2) ', Fm=' int2str(Fm) ', F = ' num2str(F,2)])
+    
+    %Plotting LP Filter
+    P=exp(-(sigma/1000)^2*(2*pi*faxis).^2/2);
+    i=find(faxis==Fm);
+    P=P/P(i)*sqrt(max(Prr(i-3:i+3)));
+    hold on
+    plot(faxis,P,'color',[0.6 .6 .6],'linewidth',2)
+    hold off
+    
+    %16 Hz Fm
+    Fm = 16
+    N=round(1/Fm*Fs);
+    
+    spet=N:N:Fs*20;
+    for l=1:1000
+       RASTER(l).spet=spet;
+       RASTER(l).Fs=Fs;
+       RASTER(l).T=T;
+    end
+    [RAS]=rasteraddjitter(RASTER,sigma,x,lambdas);
+    [RAS,Fs]=rasterexpand(RAS,Fsd,RASTER(1).T);
+    R=mean(RAS);
+    RR=R(5*Fsd+1:15*Fsd);
+    faxis=(-length(RR)/2:length(RR)/2-1)/length(RR)*Fsd;
+    Prr=abs(fftshift(fft(RR))).^2/Fsd;
+
+    %Finding the temporal coding fraction
+    i=find(faxis<Fm/2 & faxis>-Fm/2);
+    m=find(faxis>Fm/2 & faxis<Fsd/2);
+    DC=sum(Prr(i));
+    AC=2*sum(Prr(m));   %Note I multiply by two to account for (-) frequencies
+    F=AC/(AC+DC);
+    
+    subplot(636)
+    RAS=RAS(:,round(1/Fm/2*Fsd):round(1/Fm*9/2*Fsd));
+    [i,j]=find(RAS(1:50,:));
+    plot(j/Fsd,i,'k.')
+    set(gca,'visible','off')
+    xlim([0 size(RAS,2)/Fsd])
+    
+    subplot(833)
+    plot((1:size(RAS,2))/Fsd,mean(RAS),'k')
+    axis([0 size(RAS,2)/Fsd 0 50])
+    set(gca,'box','off')
+    
+    subplot(339)
+    plot(faxis,sqrt(Prr),'k','linewidth',2),xlim([-1 32])
+    set(gca,'Box','off')
+    pause(0)
+    title(['x=' num2str(x,2) ', Fm=' int2str(Fm) ', F = ' num2str(F,2)])
+    
+    %Plotting LP Filter
+    P=exp(-(sigma/1000)^2*(2*pi*faxis).^2/2);
+    i=find(faxis==Fm);
+    P=P/P(i)*sqrt(max(Prr(i-3:i+3)));
+    hold on
+    plot(faxis,P,'color',[0.6 .6 .6],'linewidth',2)
+    hold off
+    
+    figure(2) 
+    Fm=2
+    
+    %Rel=2
+    x=2
+    
+    N=round(1/Fm*Fs);
+    
+    spet=N:N:Fs*20;
+    for l=1:1000
+       RASTER(l).spet=spet;
+       RASTER(l).Fs=Fs;
+       RASTER(l).T=T;
+    end
+    [RAS]=rasteraddjitter(RASTER,sigma,x,lambdas);
+    [RAS,Fs]=rasterexpand(RAS,Fsd,RASTER(1).T);
+    R=mean(RAS);
+    RR=R(5*Fsd+1:15*Fsd);
+    faxis=(-length(RR)/2:length(RR)/2-1)/length(RR)*Fsd;
+    Prr=abs(fftshift(fft(RR))).^2/Fsd;
+ 
+    %Finding the temporal coding fraction
+    i=find(faxis<Fm/2 & faxis>-Fm/2);
+    m=find(faxis>Fm/2 & faxis<Fsd/2);
+    DC=sum(Prr(i));
+    AC=2*sum(Prr(m));   %Note I multiply by two to account for (-) frequencies
+    F=AC/(AC+DC);    
+    
+    subplot(634)
+    RAS=RAS(:,round(1/Fm/2*Fsd):round(1/Fm*9/2*Fsd));
+    [i,j]=find(RAS(1:50,:));
+    plot(j/Fsd,i,'k.')
+    set(gca,'visible','off')
+    xlim([0 size(RAS,2)/Fsd])
+    
+    subplot(831)
+    plot((1:size(RAS,2))/Fsd,mean(RAS),'k')
+    axis([0 size(RAS,2)/Fsd 0 70])
+    set(gca,'box','off')
+    
+    subplot(337)
+    plot(faxis,sqrt(Prr),'k','linewidth',2),xlim([-1 32])
+    set(gca,'Box','off')
+    pause(0)
+    title(['x=' num2str(x,2) ', Fm=' int2str(Fm) ', F = ' num2str(F,2)])
+    
+    %Plotting LP Filter
+    P=exp(-(sigma/1000)^2*(2*pi*faxis).^2/2);
+    i=find(faxis==Fm);
+    P=P/P(i)*sqrt(max(Prr(i-3:i+3)));
+    hold on
+    plot(faxis,P,'color',[0.6 .6 .6],'linewidth',2)
+    hold off
+    
+    %Rel = .5
+    x=.5
+    
+    N=round(1/Fm*Fs);
+    
+    spet=N:N:Fs*20;
+    for l=1:1000
+       RASTER(l).spet=spet;
+       RASTER(l).Fs=Fs;
+       RASTER(l).T=T;
+    end
+    [RAS]=rasteraddjitter(RASTER,sigma,x,lambdas);
+    [RAS,Fs]=rasterexpand(RAS,Fsd,RASTER(1).T);
+    R=mean(RAS);
+    RR=R(5*Fsd+1:15*Fsd);
+    faxis=(-length(RR)/2:length(RR)/2-1)/length(RR)*Fsd;
+    Prr=abs(fftshift(fft(RR))).^2/Fsd;
+    
+    %Finding the temporal coding fraction
+    i=find(faxis<Fm/2 & faxis>-Fm/2);
+    m=find(faxis>Fm/2 & faxis<Fsd/2);
+    DC=sum(Prr(i));
+    AC=2*sum(Prr(m));   %Note I multiply by two to account for (-) frequencies
+    F=AC/(AC+DC);
+    
+    subplot(635)
+    RAS=RAS(:,round(1/Fm/2*Fsd):round(1/Fm*9/2*Fsd));
+    [i,j]=find(RAS(1:50,:));
+    plot(j/Fsd,i,'k.')
+    set(gca,'visible','off')
+    xlim([0 size(RAS,2)/Fsd])
+    
+    subplot(832)
+    plot((1:size(RAS,2))/Fsd,mean(RAS),'k')
+    axis([0 size(RAS,2)/Fsd 0 70])
+    set(gca,'box','off')
+    
+    subplot(338)
+    plot(faxis,sqrt(Prr),'k','linewidth',2),xlim([-1 32])
+    set(gca,'Box','off')
+    pause(0)
+    title(['x=' num2str(x,2) ', Fm=' int2str(Fm) ', F = ' num2str(F,2)])
+     
+    %Plotting LP Filter
+    P=exp(-(sigma/1000)^2*(2*pi*faxis).^2/2);
+    i=find(faxis==Fm);
+    P=P/P(i)*sqrt(max(Prr(i-3:i+3)));
+    hold on
+    plot(faxis,P,'color',[0.6 .6 .6],'linewidth',2)
+    hold off
+    
+    %Rel = 0.125
+    x = .125
+    N=round(1/Fm*Fs);
+    
+    spet=N:N:Fs*20;
+    for l=1:1000
+       RASTER(l).spet=spet;
+       RASTER(l).Fs=Fs;
+       RASTER(l).T=T;
+    end
+    [RAS]=rasteraddjitter(RASTER,sigma,x,lambdas);
+    [RAS,Fs]=rasterexpand(RAS,Fsd,RASTER(1).T);
+    R=mean(RAS);
+    RR=R(5*Fsd+1:15*Fsd);
+    faxis=(-length(RR)/2:length(RR)/2-1)/length(RR)*Fsd;
+    Prr=abs(fftshift(fft(RR))).^2/Fsd;
+ 
+    %Finding the temporal coding fraction
+    i=find(faxis<Fm/2 & faxis>-Fm/2);
+    m=find(faxis>Fm/2 & faxis<Fsd/2);
+    DC=sum(Prr(i));
+    AC=2*sum(Prr(m));   %Note I multiply by two to account for (-) frequencies
+    F=AC/(AC+DC);
+    
+    subplot(636)
+    RAS=RAS(:,round(1/Fm/2*Fsd):round(1/Fm*9/2*Fsd));
+    [i,j]=find(RAS(1:50,:));
+    plot(j/Fsd,i,'k.')
+    set(gca,'visible','off')
+    xlim([0 size(RAS,2)/Fsd])
+    
+    subplot(833)
+    
+    
+    
+    
+    
+    plot((1:size(RAS,2))/Fsd,mean(RAS),'k')
+    axis([0 size(RAS,2)/Fsd 0 70])
+    set(gca,'box','off')
+    
+    subplot(339)
+    plot(faxis,sqrt(Prr),'k','linewidth',2),xlim([-1 32])
+    set(gca,'Box','off')
+    pause(0)
+    title(['x=' num2str(x,2) ', Fm=' int2str(Fm) ', F = ' num2str(F,2)])
+    
+    %Plotting LP Filter
+    P=exp(-(sigma/1000)^2*(2*pi*faxis).^2/2);
+    i=find(faxis==Fm);
+    P=P/P(i)*sqrt(max(Prr(i-3:i+3)));
+    hold on
+    plot(faxis,P,'color',[0.6 .6 .6],'linewidth',2)
+    hold off

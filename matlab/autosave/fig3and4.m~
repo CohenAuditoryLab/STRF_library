@@ -1,0 +1,135 @@
+
+clf
+
+%%%%%%%%%%%% CORTICAL EXAMPLE %%%%%%%%%%%%%%
+figure(1)
+load ./JitterExamples/CorticalHypNeurons/cell_14_JITTER.mat	
+load ./JitterExamples/CorticalHypNeurons/cell_14JIT.mat	
+T=7
+Fsd=5000
+MaxTau=50
+[RAS]=rastercompress(RASTER,Fs,T);
+
+subplot(231)
+[i,j]=find(RASTER);
+plot(j/Fs,i,'k.')
+axis([1 2 0 50])
+set(gca,'YTick',[])
+title('Cell 14 CTX')
+set(gca,'visible','off')
+
+subplot(232)
+plot(JitterData.Tau,JitterData.Rab/1000,'k','linewidth',1)
+hold on
+plot(JitterData.Tau,JitterData.Raa/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-30 30 -200 6500])
+set(gca,'Box','off')
+
+subplot(233)
+plot(JitterData.Tau,(JitterData.Rab-JitterData.Raa)/1000,'k','linewidth',1)
+hold on
+plot(JitterData.Tau,JitterData.Rmodel/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-30 30 -200 6500/1000])
+set(gca,'Box','off')
+
+figure(2)
+subplot(231)
+plot(JitterSpecData.F,JitterSpecData.Pkl,'k','linewidth',1)
+hold on
+plot(JitterSpecData.F,JitterSpecData.Pkk,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([0 1000 -1 12])
+set(gca,'Box','off')
+
+subplot(232)
+plot(JitterSpecData.F,JitterSpecData.Pnoise,'k','linewidth',1)
+hold on
+plot(JitterSpecData.F,JitterSpecData.Pmodel,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([0 1000 -1 12])
+set(gca,'Box','off')
+
+%%%%%%%%%%%% ICC Example %%%%%%%%%%%%%%
+figure(1)
+clear
+load ./JitterExamples/ICCExamples/IC97QJE3t3_f11_ch2_u1_JITTER
+load ./JitterExamples/ICCExamples/IC97QJE3t3_f11_ch2_u1_Pre24000Hz
+%load IC97QJE3t3_f11_Trig.mat	
+%load IC97QJE3t3_f11_ch2.mat
+%load IC97QJE3t3_f11_ch2_u1_Pre24000Hz.mat
+
+subplot(234)
+Fs=1/(taxis(2)-taxis(1))
+RASTER=RASTER(25:149,:);
+[i,j]=find(RASTER);
+plot(j/Fs,i,'k.')
+axis([1 2 0 50])
+set(gca,'visible','off')
+
+
+subplot(235)
+plot(JitterData.Tau,JitterData.Rab/1000,'k','linewidth',1)
+hold on
+plot(JitterData.Tau,JitterData.Raa/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-30 30 -100 4000])
+set(gca,'Box','off')
+
+subplot(236)
+plot(JitterData.Tau,(JitterData.Rab-JitterData.Raa)/1000,'k','linewidth',1)
+hold on
+plot(JitterData.Tau,JitterData.Rmodel/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-30 30 -100 4000])
+set(gca,'Box','off')
+
+figure(2)
+subplot(234)
+plot(JitterSpecData.F,JitterSpecData.Pkl,'k','linewidth',1)
+hold on
+plot(JitterSpecData.F,JitterSpecData.Pkk,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([0 1000 -1 15])
+set(gca,'Box','off')
+
+subplot(235)
+plot(JitterSpecData.F,JitterSpecData.Pnoise,'k','linewidth',1)
+hold on
+plot(JitterSpecData.F,JitterSpecData.Pmodel,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([0 1000 -1 15])
+set(gca,'Box','off')
+
+
+%%%%%%%%%%%% ICC Example 2 %%%%%%%%%%%%%%
+figure(3)
+clear
+%load ./JitterExamples/ICCExamples/IC97QJE3t3_f11_ch2_u1_JITTER
+%load ./JitterExamples/ICCExamples/IC97QJE3t3_f11_ch2_u1_Pre24000Hz
+%load IC97QJE3t3_f11_Trig.mat	
+%load IC97QJE3t3_f11_ch2.mat
+%load IC97QJE3t3_f11_ch2_u1_Pre24000Hz.mat
+load ./JitterExamples/ICCExamples/CRYSTALt1_f17_ch2_u0_JITTER.mat	
+
+subplot(232)
+plot(JitterData.Tau,JitterData.Rab/1000,'k')
+hold on
+plot(JitterData.Tau,JitterData.Raa/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-30 30 -.3 15])
+set(gca,'Box','off')
+
+subplot(233)
+plot(JitterData.Tau,(JitterData.Rab-JitterData.Raa)/1000,'k','linewidth',1)
+hold on
+plot(JitterData.Tau,JitterData.Rmodel/1000,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([-30 30 -.300 15])
+set(gca,'Box','off')
+
+figure(4)
+subplot(231)
+plot(JitterSpecData.F,JitterSpecData.Pkl,'k','linewidth',1)
+hold on
+plot(JitterSpecData.F,JitterSpecData.Pkk,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([0 1000 -1 35])
+set(gca,'Box','off')
+
+subplot(232)
+plot(JitterSpecData.F,JitterSpecData.Pnoise,'k','linewidth',1)
+hold on
+plot(JitterSpecData.F,JitterSpecData.Pmodel,'color',[0.6 0.6 0.6],'linewidth',1)
+axis([0 1000 -1 35])
+set(gca,'Box','off') 

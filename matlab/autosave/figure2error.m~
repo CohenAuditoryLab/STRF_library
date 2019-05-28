@@ -1,0 +1,182 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% PNB ANALYSIS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+load R1R2forchisquaretest.mat
+load sig
+load FMAxis
+
+% R1=Rs1;
+% R2=Rs2;
+% sig=sigsam;
+% FMAxis=FMAxis;
+
+ R1=Rp1;
+ R2=Rp2;
+ sig=sigpnb;
+ FMAxis=round(FMAxispnb);
+
+for k=1:64
+    for l=1:18
+        
+        ValidationData(k,l)=modelerr5(R2(k,l),R1(k,l),sig(k,l))
+        
+    end
+end
+
+
+N=[]
+ErrBoxPlot=[];
+ErrcBoxPlot=[];
+BoxPlotAxis=[];
+for l=1:15
+    
+    Err=[];
+    Err_corrected=[];
+    Err2=[];
+    HH=[];
+    NN=[];
+    for k=1:64
+        
+        if(ValidationData(k,l).flag==1)
+           Err_corrected=[Err_corrected ValidationData(k,l).e_corrected];
+           Err=[Err ValidationData(k,l).e];
+           Err2=[Err ValidationData(k,l).e2];
+           HH=[HH ValidationData(k,l).H];
+           NN=[NN ValidationData(k,l).N];
+        end
+        
+    end
+
+    if length(Err)>0
+        %figure(1)
+        %plot(FMAxis(l),Err,'ro')
+        %hold on
+        
+        ErrBoxPlot=[ErrBoxPlot Err];
+        ErrcBoxPlot=[ErrcBoxPlot Err_corrected];
+        BoxPlotAxis=[BoxPlotAxis ones(size(Err))*FMAxis(l)];
+
+        
+        E_c(l)=median(Err_corrected);
+        E(l)=median(Err);
+        E2(l)=median(Err2);
+        H(l)=mean(HH);
+        N(l)=median(NN);
+        
+%        figure(1)
+%        plot(FMAxis(l),H(l),'ro')
+%        hold on
+    end
+end
+%plot(FMAxis,E,'b')
+
+subplot(323)
+boxplot(ErrBoxPlot,BoxPlotAxis,'notch','on','color','k','symbol','k+')
+ylabel('Percent Model Error')
+xlabel('Modulation Frequency (Hz)')
+ylim([.01 150])
+set(gca,'YScale','log')
+set(gca,'YTick',[0.1 1 10 100])
+set(gca,'YTickLabel',[0.1 1 10 100])
+set(gca,'Box','off')
+subplot(324)
+boxplot(ErrcBoxPlot,BoxPlotAxis,'notch','on','color','k','symbol','k+')
+ylabel('Percent Model Error')
+xlabel('Modulation Frequency (Hz)')
+ylim([.01 150])
+set(gca,'YScale','log')
+set(gca,'YTick',[0.1 1 10 100])
+set(gca,'YTickLabel',[0.1 1 10 100])
+set(gca,'Box','off')
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% SAMN ANALYSIS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+load R1R2forchisquaretest.mat
+load sig
+load FMAxis
+
+R1=Rs1;
+R2=Rs2;
+sig=sigsam;
+FMAxis=FMAxis;
+
+%  R1=Rp1;
+%  R2=Rp2;
+%  sig=sigpnb;
+%  FMAxis=round(FMAxispnb);
+
+for k=1:64
+    for l=1:18
+        
+        ValidationData(k,l)=modelerr5(R2(k,l),R1(k,l),sig(k,l))
+        
+    end
+end
+
+
+N=[]
+ErrBoxPlot=[];
+ErrcBoxPlot=[];
+BoxPlotAxis=[];
+for l=1:15
+    
+    Err=[];
+    Err_corrected=[];
+    Err2=[];
+    HH=[];
+    NN=[];
+    for k=1:64
+        
+        if(ValidationData(k,l).flag==1)
+           Err_corrected=[Err_corrected ValidationData(k,l).e_corrected];
+           Err=[Err ValidationData(k,l).e];
+           Err2=[Err ValidationData(k,l).e2];
+           HH=[HH ValidationData(k,l).H];
+           NN=[NN ValidationData(k,l).N];
+        end
+        
+    end
+
+    if length(Err)>0
+        %figure(1)
+        %plot(FMAxis(l),Err,'ro')
+        %hold on
+        
+        ErrBoxPlot=[ErrBoxPlot Err];
+        ErrcBoxPlot=[ErrcBoxPlot Err_corrected];
+        BoxPlotAxis=[BoxPlotAxis ones(size(Err))*FMAxis(l)];
+
+        
+        E_c(l)=median(Err_corrected);
+        E(l)=median(Err);
+        E2(l)=median(Err2);
+        H(l)=mean(HH);
+        N(l)=median(NN);
+        
+%        figure(1)
+%        plot(FMAxis(l),H(l),'ro')
+%        hold on
+    end
+end
+%plot(FMAxis,E,'b')
+
+subplot(321)
+boxplot(ErrBoxPlot,BoxPlotAxis,'notch','on','color','k','symbol','k+')
+ylabel('Percent Model Error')
+xlabel('Modulation Frequency (Hz)')
+ylim([.01 150])
+set(gca,'YScale','log')
+set(gca,'YTick',[0.1 1 10 100])
+set(gca,'YTickLabel',[0.1 1 10 100])
+set(gca,'Box','off')
+subplot(322)
+boxplot(ErrcBoxPlot,BoxPlotAxis,'notch','on','color','k','symbol','k+')
+ylabel('Percent Model Error')
+xlabel('Modulation Frequency (Hz)')
+ylim([.01 150])
+set(gca,'YScale','log')
+set(gca,'YTick',[0.1 1 10 100])
+set(gca,'YTickLabel',[0.1 1 10 100])
+set(gca,'Box','off')

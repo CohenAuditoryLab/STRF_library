@@ -1,0 +1,30 @@
+%
+%function [D]=sdmraster(RASTER1,RASTER2,Fsd,tc)
+%
+%       FILE NAME       : Spike Distance Raster
+%       DESCRIPTION     : Computes the spike distance metric between two
+%                         rasters as described by Van Rossum, 1999. Returns
+%                         a matrix containing the spike distance between
+%                         all possible trial combinations
+%
+%       RASTER1         : RASTER containing spike even times for condition 1
+%       RASTER2         : RASTER containing spike even times for condition 2
+%       Fs              : Desired sampling rate (Hz)
+%       tc              : Time constant (msec)
+%
+%RETURNED VARIABLES
+%
+%       D               : Spike distance matrix
+%
+%       (C) Monty A. Escabi, March 2009
+%
+function [Dp]=sdmrasterdprime(RASTER1,RASTER2,Fsd,tc)
+
+%Generating Dprime
+[D12]=sdmraster(RASTER1,RASTER2,Fsd,tc);
+[D11]=sdmraster(RASTER1,RASTER1,Fsd,tc);
+[D22]=sdmraster(RASTER2,RASTER2,Fsd,tc);
+
+V12=mean(reshape(D12,1,size(D12,1)*size(D))
+Dp=sqrt(V12)/sqrt( V1 +V2);
+

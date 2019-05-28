@@ -1,0 +1,76 @@
+load DCNmean
+
+L=1799      %Is it 1706 triggers ????
+DF=48       %CHECK from ripple param file
+
+sprfile='dynamicripple500ic.spr';
+load dynamicripple500ic_param
+MdB=30;
+S=downsample(DCNmean',2)';      %Chen, please check this. Im downsampling because you upsampled the STRF by 2. Is this correct? I want the samplint rate to be the same as the SPR file
+STRF1=zeros(659,size(S,2));
+STRF1(94:565,:)=S;
+STRF2=zeros(size(STRF1));
+
+Fs=96000/DF;    %CHECK: 96000 should be sampling rate for ripple and DF should be downsampling factor (DF=24???)
+Fsd=Fs;
+taxis=(0:size(STRF1,2))/Fs;
+[T,Y,Y1,Y2,Trig]=strfsprpretrig(sprfile,taxis,faxis,STRF1,STRF2,MdB,L);
+
+save Yinterp Fs Fsd T Trig UF Y taxis
+
+%%
+load DCNmean
+load Yinterp
+
+%Integrate Fire nueron
+Tau=1;  %Time constant is a bit long to get adequate results; alpha model uses shorter time constant
+Tref=0;
+Vtresh=-40;
+Vrest=-65;
+Nsig=1.5  ;    %You can play with this, this is the normalized threshold
+SNR=-10 ;      %in dB
+flag=1;
+In=randn(size(Y));
+detrendim='n';
+detrendin='n';
+[X,Vm,R,C,sigma_m,sigma_i]=integratefire(Y.^2,Tau,Tref,Vtresh,Vrest,Nsig,SNR,Fs,flag,In,detrendim,detrendin);
+[spet]=impulse2spet(X,Fs,Fsd);
+
+%Generating STC
+sprfile='dynamicripple500ic'
+%[taxis,faxis,STRF1r,STRF2r]=rtwstrfdbint(sprfile ,0,0.025,spet,Trig,Fsd,80,30,'dB','MR' ,100,4,'float');
+%[taxis,faxis,STC1,STC2,PP,Wo1,Wo2,No1,No2,SPLN]=rtwstrfdbstc(sprfile,0,0.025,spet,Trig,Fsd,80,30,'MR',100)
+ 
+
+
+ [taxis,faxis,STC1,STC2,PP,Wo1,Wo2,No1,No2,SPLN]=rtwstrfdbstcboot(sprfile,0,0.025,spet,Trig,Fsd,80,30,'MR',100,10);
+ spetJ=spet+round(0.025*Fsd*rand(1,length(spet)));
+ [taxis,faxis,STC1j,STC2j,PP,Wo1j,Wo2j,No1j,No2j,SPLN]=rtwstrfdbstcboot(sprfile,0,0.025,spetJ,Trig,Fsd,80,30,'MR',100,10);
+ 
+ spetJ1=spet+round(0.025*Fsd*rand(1,length(spet)));
+ spetJ2=spet+round(0.025*Fsd*rand(1,length(spet)));
+ [taxis,faxis,STC1n1,STC2n1,PP,Wo1n1,Wo2n1,No1n1,No2n1,SPLN]=rtwstrfdbstcboot(sprfile,0,0.025,spetJ1,Trig,Fsd,80,30,'MR',100,10);
+ [taxis,faxis,STC1n2,STC2n2,PP,Wo1n2,Wo2n2,No1n2,No2n2,SPLN]=rtwstrfdbstcboot(sprfile,0,0.025,spetJ2,Trig,Fsd,80,30,'MR',100,10);
+ 
+ [taxis,faxis,STC11,STC22,PP,Wo11,Wo22,No11,No22]=rtwstrfdbstc(sprfile,0,0.025,spet,Trig,Fsd,80,30,'MR',100);
+ spetJ=spet+round(0.025*Fsd*rand(1,length(spet)));
+ [taxis,faxis,STC11j,STC22j,PP,Wo11j,Wo22j,No11j,No22j]=rtwstrfdbstc(sprfile,0,0.025,spetJ,Trig,Fsd,80,30,'MR',100);
+ 
+ 
+ 
+ 
+%[taxis,faxis,STRF1r,STRF2r]=rtwstrfdb2(sprfile ,0,0.025,spet,Trig,Fsd,80,30,'dB','MR' ,400,'float',10);
+
+%Plotting Results
+figure
+subplot(221)
+imagesc(taxis(1:2:end),log2(faxis/faxis(1)),DCNmean),shading interp %Chen, check this; make sure the sampling rate is correct; I believe it should be half of the interpolated STRF1r (which I interpolated by 4).
+set(gca,'Ydir','normal')
+Max=max(max(abs(DCNmean)));
+caxis([-Max Max])
+
+subplot(222)
+Max=max(max(abs(STRF1r)))
+imagesc(taxis,log2(faxis/faxis(1)),STRF1r)
+set(gca,'Ydir','normal')
+caxis([-Max Max])

@@ -1,0 +1,47 @@
+clear Data
+Fm=[-10 -5 0 5 10  -10 -5 0 5 10  -10 -5 0 5 10]
+RD=[0 0 0 0 0 .5 .5 .5 .5 .5 1 1 1 1 1]
+Fm=[-10 -5]
+RD=[.5 .5]
+Ntrial=2
+Nlayer=6
+clear Data
+Nnode=128
+Nsig=0.5
+
+for m=1:length(Fm)
+    [Y,S]=mripple(200,6400,RD(m),Fm(m),30,'Log',500,1000,128,0,1);
+    %imagesc(S)
+ 
+    for l=1:Ntrial
+        l
+        [X]=integratefirenetworkcontmulti(S,Nnode,5,1,Nsig,5,.03,.05,1,1000,3,'n','n');
+
+        Data(1,m,l).Y=X;
+        for k=1:Nlayer
+            [Data(k+1,m,l).Y(:,:)]=integratefirenetworklayer(Data(k,m,l).Y,Nnode,5*2^(k-1),10*2^(k-1),1,Nsig,4,.03,.06,1,1000,3,'y','n');
+        end
+    end
+
+
+end
+
+
+
+
+clear Z
+k=5 %layer    
+for m=1:length(Fm)
+    
+        for l=1:Ntrial
+            Z(:,:,m,l)=Data(k,m,l).Y; 
+        end
+
+end
+
+
+for k=1:length(Fm)
+    subplot(5,3,k)
+    imagesc(squeeze(mean(Z(:,:,k,:),4)))
+    xlim([0 800])
+end

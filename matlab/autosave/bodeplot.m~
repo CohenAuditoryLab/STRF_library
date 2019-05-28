@@ -1,0 +1,14 @@
+num=[100000 0]
+den=[1 100 10000 10000 10000]
+sys = tf(num,den);
+bode(sys)
+
+nichols(sys)
+
+num=[1]
+den=[1 5 1]
+sys = tf(num,den);
+
+
+num=[1]
+den=[1 5 1]

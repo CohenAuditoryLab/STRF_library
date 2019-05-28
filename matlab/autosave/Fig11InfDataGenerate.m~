@@ -1,0 +1,84 @@
+
+
+
+RASTER=[RASSpline(1,1).RASTER RASSpline(2,2).RASTER RASSpline(3,3).RASTER RASSpline(4,4).RASTER RASSpline(5,5).RASTER RASSpline(6,6).RASTER];
+FMAxis=[4 8 16 32 128 256];
+L=5
+T=.5
+Fsd=4000
+RAS=rasterexpand(RASTER,Fsd);
+RAS=RAS(:,1:Fsd*5);
+
+RASTER4k=rastercompress(RAS,Fsd,5); 
+%RASTERs=shufflerandraster2(RASTER4k,3);
+RASTERs=shuffleraster(RASTER4k);
+
+[InfoData,InfoMaxData]=infperiodicfm(RASTER4k,FMAxis,L,T);
+[InfoDataS,InfoMaxDataS]=infperiodicfm(RASTERs,FMAxis,L,T);
+
+save FigData11 InfoMaxData InfoData 
+
+% for k=1:60
+%     lambda=length(RASTER4k(k).spet)/5
+%     [RASTERs(k).spet]=poissongenstat(lambda,5,4000,2);
+%     RASTERs(k).Fs=4000;
+%     RASTERs(k).T=5;
+% end
+% 
+
+
+
+
+
+subplot(221)
+k=1
+HBias=InfoMaxDataS(k).HWord-InfoMaxDataS(k).HWordt;
+H=InfoMaxData(k).HWord-InfoMaxData(k).HWordt;
+semilogx(1/FMAxis(k)*1000./InfoMaxData(k).B,H-HBias,'k','linewidth',2)
+hold on
+k=2
+HBias=InfoMaxDataS(k).HWord-InfoMaxDataS(k).HWordt;
+H=InfoMaxData(k).HWord-InfoMaxData(k).HWordt;
+semilogx(1/FMAxis(k)*1000./InfoMaxData(k).B,H-HBias,'r','linewidth',2)
+k=3
+HBias=InfoMaxDataS(k).HWord-InfoMaxDataS(k).HWordt;
+H=InfoMaxData(k).HWord-InfoMaxData(k).HWordt;
+semilogx(1/FMAxis(k)*1000./InfoMaxData(k).B,H-HBias,'b','linewidth',2)
+axis([.1 500 0 1.5 ])
+
+
+subplot(221)
+k=1
+HBias=InfoMaxDataS(k).HSec-InfoMaxDataS(k).HSect;
+H=InfoMaxData(k).HSec-InfoMaxData(k).HSect;
+semilogx(1/FMAxis(k)*1000./InfoMaxData(k).B,H-HBias,'k','linewidth',2)
+hold on
+k=2
+HBias=InfoMaxDataS(k).HSec-InfoMaxDataS(k).HSect;
+H=InfoMaxData(k).HSec-InfoMaxData(k).HSect;
+semilogx(1/FMAxis(k)*1000./InfoMaxData(k).B,H-HBias,'r','linewidth',2)
+k=3
+HBias=InfoMaxDataS(k).HSec-InfoMaxDataS(k).HSect;
+H=InfoMaxData(k).HSec-InfoMaxData(k).HSect;
+semilogx(1/FMAxis(k)*1000./InfoMaxData(k).B,H-HBias,'b','linewidth',2)
+axis([.1 500 0 17 ])
+
+
+
+for k=1:6
+    HBias=InfoMaxDataS(k).HWord-InfoMaxDataS(k).HWordt;
+    H=InfoMaxData(k).HWord-InfoMaxData(k).HWordt;
+
+    HBias=InfoMaxDataS(k).HSec-InfoMaxDataS(k).HSect;
+    H=InfoMaxData(k).HSec-InfoMaxData(k).HSect;
+    
+%     HBias=InfoMaxDataS(k).HSpike-InfoMaxDataS(k).HSpiket;
+%     H=InfoMaxData(k).HSpike-InfoMaxData(k).HSpiket;
+    
+    
+    HMax(k)=max(H-HBias);
+end
+subplot(223)
+semilogx(FMAxis,HMax,'k','linewidth',2)
+%axis([2 512 0 1])
+set(gca,'XTick',[4 8 16 32 64 128 256 ])

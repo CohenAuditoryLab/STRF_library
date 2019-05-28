@@ -1,0 +1,49 @@
+%
+%
+%function []=spatiotemporalelectricalmultitrialfile(FileHeader,Lambda,fm,Trefractory,PW,PulseType,ChArray,Fs,M,MaxAmp,MaxdB,AmpDist,NB,seed)
+%
+%       FILE NAME       : SPATIO TEMPORAL ELECTRICAL MULTI TRIAL FILE
+%       DESCRIPTION     : Spatio temporal electrical stimulation pattern
+%                         across 16 channels.Uses poisson pulse train for
+%                         each channel and modulates the amplitude of the
+%                         pulse seqeunce. 
+%
+%       FileHeader      : File name header (No extension)
+%       T               : Duration for repeated segment (sec)
+%
+% (C) Monty A. Escabi, Jan 2012
+%
+function []=spatiotemporalelectricalmultitrialfile(FileName,T)
+
+%Loading Data
+load(FileName);
+who
+i=strfind(FileName,'_Block');
+FileHeader=[FileName(1:i-1) '_REPEAT'];
+
+%Segmenting repeated segmnents into stimulus blocks half the buffer size
+Fs=ParamList.Fs;
+NB=ParamList.NB;
+M=ParamList.M;
+N=NB/2;         %Half the buffer size
+L=M/N;          %Number of buffer segments
+Mrepeat=N/floor(N/(T*Fs));      %Number of samples for repeated segment
+Lrepeat=floor(N/(T*Fs));        %Number of repeated segments per buffer segment
+Sr=[];
+Er=[];
+for k=1:Lrepeat
+   Sr=[Sr S(:,1:Mrepeat)]; 
+   Er=[Er E(:,1:Mrepeat)];
+end
+E=Er;
+S=Sr;
+ParamList=Mrepeat
+
+%Saving to File
+for l=1:L
+   
+    %Saving data for each block
+    S=sparse(S);
+    f=['save ' FileHeader '_Block' num2str(l) ' S E ParamList' ];
+    eval(f)
+end

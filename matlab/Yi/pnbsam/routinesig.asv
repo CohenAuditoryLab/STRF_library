@@ -1,0 +1,9 @@
+function [SIG]=routinesig(Shufreal,Shufrand,FMAxis)
+
+for FMi=1:length(FMAxis)
+    [MI,EI]=meanstdMI(Shufreal(1,FMi).R.Rshuf,Shufreal(1,FMi).R.RshufJt,FMAxis(FMi)*10,FMAxis(FMi));
+    [MIrand,E]=meanstdMI(Shufrand(1,FMi).R.Rshuf,Shufrand(1,FMi).R.RshufJt,FMAxis(FMi)*10,FMAxis(FMi));
+    n1=size(Shufreal(1,FMi).R.RshufJt,1);
+    n2=size(Shufrand(1,FMi).R.RshufJt,1);
+    [SIG(1,FMi)]=sigtest2(MImean,MIstd,n1,MIrandmean,MIrandstd,n2,0.01)
+end

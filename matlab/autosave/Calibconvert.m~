@@ -1,0 +1,6 @@
+
+
+
+load 09I01FIR.mat
+H1=[calib.hL 0];    %contra
+H2=[calib.hR 0];    %ipsi

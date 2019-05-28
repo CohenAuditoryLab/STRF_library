@@ -1,0 +1,25 @@
+outfile='DMR750icMultiTrial'
+filename='dynamicripple750ic'
+f1=1000
+f2=48000
+fRD=0.25
+fFM=1
+MaxRD=4
+MaxFM=750
+App=30
+Fs=96000
+M=Fs*5
+NS=ceil(100*log2(48000/500))
+NB=1
+Axis='log'
+Block='n'   
+DF=16       %Will require that we upsample STRFs by 3, DF for STRF DMR is 48
+AmpDist='dB'
+seed=1
+
+L=75   %Number of trials
+
+for k=1:L
+    filename=[outfile num2str(k)];
+    ripnoise(filename,f1,f2,fRD,fFM,MaxRD,MaxFM,App,M,Fs,NS,NB,Axis,Block,DF,AmpDist,seed)
+end

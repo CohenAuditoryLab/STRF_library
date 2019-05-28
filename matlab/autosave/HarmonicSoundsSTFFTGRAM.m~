@@ -1,0 +1,76 @@
+clear all
+
+%Generating Harmonic Sounds
+Fs=44100
+df1=100, df2=200, df3=300
+[X1]=amharmonicnoise(100,22050,df1,0,0,0,.1,Fs);
+[X2]=amharmonicnoise(200,22050,df2,0,0,0,.1,Fs);
+[X3]=amharmonicnoise(300,22050,df3,0,0,0,.1,Fs);
+
+%Generating STFFTGRAM
+df=150
+UT=8
+UF=2
+win='gauss'
+ATT=30
+method='3dB'
+dis='n'
+TW=50
+[Data1]=stfftgram(X1,Fs,df,UT,UF,win,ATT,method,dis,TW);
+[Data2]=stfftgram(X2,Fs,df,UT,UF,win,ATT,method,dis,TW);
+[Data3]=stfftgram(X3,Fs,df,UT,UF,win,ATT,method,dis,TW)
+St1=mean(Data1.S)/mean(mean(Data1.S));
+St2=mean(Data2.S)/mean(mean(Data2.S));
+St3=mean(Data3.S)/mean(mean(Data3.S));
+Sf1=mean(Data1.S')'/mean(mean(Data1.S));
+Sf2=mean(Data2.S')'/mean(mean(Data2.S));
+Sf3=mean(Data3.S')'/mean(mean(Data3.S));
+
+subplot(334)
+imagesc(Data1.taxis*1000,Data1.faxis/1000,Data1.S/mean(mean(Data1.S)))
+axis([0 100 .5 3])
+set(gca,'YDir','normal')
+set(gca,'YTick',[0 1 2 3])
+set(gca,'XTick',[0 50 100])
+caxis([0 2])
+subplot(6,3,1)
+plot(Data1.taxis*1000,St1,'k')
+axis([0 100 0 2])
+set(gca,'visible','off')
+subplot(3,6,13)
+plot(Sf1,Data1.faxis/1000,'k')
+axis([0 2 0.5 3])
+set(gca,'visible','off')
+
+
+subplot(335)
+imagesc(Data2.taxis*1000,Data2.faxis/1000,Data2.S/mean(mean(Data2.S)))
+axis([0 100 .5 3])
+set(gca,'YDir','normal')
+set(gca,'YTick',[0 1 2 3])
+set(gca,'XTick',[0 50 100])
+caxis([0 2])
+subplot(6,3,2)
+plot(Data1.taxis*1000,St2,'k')
+axis([0 100 0 2])
+set(gca,'visible','off')
+subplot(3,6,15)
+plot(Sf2,Data2.faxis/1000,'k')
+axis([0 2 0.5 3])
+set(gca,'visible','off')
+
+subplot(336)
+imagesc(Data3.taxis*1000,Data3.faxis/1000,Data3.S/mean(mean(Data2.S)))
+axis([0 100 .5 3])
+set(gca,'YDir','normal')
+set(gca,'YTick',[0 1 2 3])
+set(gca,'XTick',[0 50 100])
+caxis([0 2])
+subplot(6,3,3)
+plot(Data1.taxis*1000,St3,'k')
+axis([0 100 0 2])
+set(gca,'visible','off')
+subplot(3,6,18)
+plot(Sf3,Data3.faxis/1000,'k')
+axis([0 2 0.5 3])
+set(gca,'visible','off')

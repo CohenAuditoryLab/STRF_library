@@ -1,0 +1,26 @@
+
+dX=1/8
+f1=100
+fN=6400
+Fm=500
+OF=2
+Norm='Amp'
+
+
+subplot(331)
+[y1,Fs]=audioread('WATER-CULVERT_GEN-HDF-25451.wav',[10*Fs 11*Fs]);
+y1=y1(:,1)';
+[AudData]=audiogram(y1,Fs,dX,f1,fN,Fm,OF,Norm)
+imagesc(AudData.taxis,(AudData.faxis/100),20*log10((AudData.S))),colormap jet,set(gca,'YDir','normal')
+
+subplot(334)
+[y1,Fs]=audioread('WATER-CULVERT_GEN-HDF-25452.wav',[10*Fs 11*Fs]);
+y1=y1(:,1)';
+[AudData]=audiogram(y1,Fs,dX,f1,fN,Fm,OF,Norm)
+imagesc(AudData.taxis,(AudData.faxis/100),20*log10((AudData.S))),colormap jet,set(gca,'YDir','normal')
+
+subplot(337)
+[y1,Fs]=audioread('WATER-CULVERT_GEN-HDF-25453.wav',[10*Fs 11*Fs]);
+y1=y1(:,1)';
+[AudData]=audiogram(y1,Fs,dX,f1,fN,Fm,OF,Norm)
+imagesc(AudData.taxis,(AudData.faxis/100),20*log10((AudData.S))),colormap jet,set(gca,'YDir','normal')

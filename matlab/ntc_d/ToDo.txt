@@ -1,0 +1,20 @@
+done:
+-----
+x  smaller dots in dot-histograms
+x  ask for CF before allowing latency and rate measurements
+
+to do:
+------
+improve measure function on dots (nearest point?  or at least give
+    both frequency and amplitude info)
+rate doesn't update right unless CF is set
+option to bin in latency window?
+box for measurement of spontaneous rate
+
+---------
+
+peter heil type stuff at cf
+multipeaked options?
+confidence flags/scale
+automatic boundary choosing for tc
+uses tc boundary for range in latency, etc

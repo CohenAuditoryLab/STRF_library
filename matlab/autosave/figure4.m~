@@ -1,0 +1,86 @@
+load Figure4Data
+
+figure
+T=2
+[RAS,Fs]=rasterexpand([MTFSRAF.RASTER],Fsd);
+[i,j]=find(RAS);
+plot(j/Fsd,i,'k.')
+hold on
+for k=1:10
+    plot([0 2],(10*(k-1))*[1 1],'k')
+end
+hold off
+print -dpsc fig4a.ps
+
+figure
+for k=1:10
+    subplot(10,1,10-k+1)
+    plot(CorrDataSRAF(k).RData.Tau,CorrDataSRAF(k).RData.Rshuf,'k')
+    ylim([0 1000])
+    set(gca,'visible','off')
+end
+print -dpsc fig4b.ps
+
+figure
+Dp=MTFDiscSRAF(18).Dp;
+for k=1:10
+    for l=1:10
+        
+        if l>=k
+           Dp(k,l)=Inf;
+        end
+    end
+end
+imagesc(Dp)
+C=colormap(jet);
+caxis([0 1.2])
+C(64,:)=[1 1 1];
+colormap(C)
+colorbar
+set(gca,'Box','off')
+set(gca,'YDir','normal')
+print -dpsc fig4c.ps
+
+
+
+%%%%%%%%%%%% A1 Example
+figure
+T=2
+[RAS,Fs]=rasterexpand([MTFA1.RASTER],Fsd);
+[i,j]=find(RAS);
+plot(j/Fsd,i,'k.')
+hold on
+for k=1:10
+    plot([0 2],(10*(k-1))*[1 1],'k')
+end
+hold off
+print -dpsc fig4d.ps
+
+figure
+for k=1:10
+    subplot(10,1,10-k+1)
+    plot(CorrDataA1(k).RData.Tau,CorrDataA1(k).RData.Rshuf,'k')
+    ylim([0 500])
+    set(gca,'visible','off')
+end
+print -dpsc fig4e.ps
+
+figure
+Dp=MTFDiscA1(2).Dp;
+for k=1:10
+    for l=1:10
+        
+        if l>=k
+           Dp(k,l)=Inf;
+        end
+    end
+end
+imagesc(Dp)
+C=colormap(jet);
+caxis([0 1.1])
+C(64,:)=[1 1 1];
+colormap(C)
+colorbar
+set(gca,'Box','off')
+set(gca,'YDir','normal')
+print -dpsc fig4f.ps

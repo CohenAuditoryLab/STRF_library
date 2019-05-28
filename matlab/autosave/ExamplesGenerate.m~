@@ -1,0 +1,57 @@
+%%%%%%%%%%%% CTX SLICE EXAMPLE %%%%%%%%
+cd CorticalHypNeurons/
+load cell_14JIT.mat	
+T=7
+Fsd=5000
+MaxTau=100
+[RAS]=rastercompress(RASTER,Fs,T);
+[JitterData]=jitterrastercorrfit(RAS,Fsd,MaxTau,'y');
+df=20
+Disp='n'
+[JitterSpecData]=jitterrasterspectrum(RAS,Fsd,df,Disp)
+
+save cell_14_JITTER JitterData JitterSpecData
+cd ..
+
+
+%%%%%%%%%%%% ICC Example %%%%%%%%%%%%%%
+cd ICCExamples
+load IC97QJE3t3_f11_ch2_u1_Pre24000Hz.mat
+
+T=5
+Fsd=4000
+MaxTau=100
+RASTER=RASTER(25:149,:);
+Fs=1/(taxis(2)-taxis(1));
+[RAS]=rastercompress(RASTER,Fs,T);
+[JitterData]=jitterrastercorrfit(RAS,Fsd,MaxTau,'y');
+i=find(abs(JitterData.Tau)<1);
+JitterData.Raa(i)=zeros(size(i));
+df=20
+Disp='n'
+[JitterSpecData]=jitterrasterspectrum(RAS,Fsd,df,Disp)
+
+
+save IC97QJE3t3_f11_ch2_u1_JITTER JitterData JitterSpecData
+
+cd ..
+
+%%%%%%%%%%%%%%%%%ICC Two Trial Examples %%%%%%%%%%%%%%%%%
+
+clear
+cd ICCExamples
+df=20
+Fsd=4000
+MaxTau=100
+load CRYSTALt1_f17_Trig.mat
+load CRYSTALt1_f17_ch2.mat
+[spetA,spetB,TrigA,TrigB,T]=spet2spetab(spet0,TrigA,TrigB,Fs);
+figure
+[JitterData]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'y');
+pause(0)
+figure
+[JitterSpecData]=jitterspectrum(spetA,spetB,Fs,Fsd,df,T,'y');
+ 
+save CRYSTALt1_f17_ch2_u0_JITTER JitterData JitterSpecData
+
+cd ..

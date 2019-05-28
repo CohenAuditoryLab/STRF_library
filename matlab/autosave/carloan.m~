@@ -1,0 +1,24 @@
+
+
+
+
+P=13000
+I=.019
+dI=I/12
+M=36
+
+
+Payment = P * I /12 / (1 - (1+I/12)^(-M))
+Total=Payment * M 
+TotalInterest=Total-P
+
+I=.029
+dI=I/12
+M=48
+
+
+Payment = P * I /12 / (1 - (1+I/12)^(-M))
+Total=Payment * M 
+TotalInterest=Total-P
+
+

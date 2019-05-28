@@ -1,0 +1,45 @@
+
+load RabbitME0610003Mar2011Tank1RASTER.mat
+
+load('ModNoisePreFu400HzSAM30dB_param.mat')
+
+T1=0
+T2=40
+DF=1
+Disp='y'
+%[RASData]=mtfmodnoiseunifsamspet(Data,SoundParam);
+[Wkernel]=wienerkernelenv(RASData,SoundEstimationEnv,SoundParam,T1,T2,DF,Disp);
+
+
+    %Wkernel=model.Wkernel;
+    FMAxis=RASData.SAM.FMAxis;
+    %Fm=RASData.SAM.FMAxis;
+    Beta=1;
+    Ncyc=1;
+    Mcyc=20
+    Disp='n';
+
+%    [SAMPreData]=wienerkernelsampre(Wkernel,SoundParam,FMAxis,Beta,Ncyc,Disp);
+    
+    
+    %SECOND TRIAL IS NO GOOD
+%    [SAMValData]=wienerkernelsamvalidate(Wkernel,SoundParam,RASData.SAM.RASTER(1:2:end),FMAxis,Beta,Ncyc,'n')
+    
+
+    [Wkernelb]=wienerkernelenvboot(RASData,SoundEstimationEnv,SoundParam,T1,T2,DF,10,Disp)
+    [SAMPreb]=wienerkernelsampreboot(Wkernelb,SoundParam,FMAxis,Beta,Ncyc,Mcyc,Disp);
+    [MTFb] = mtfgenerateboot(RASData.SAM.RASTER(1:2:end),FMAxis,0,Ncyc,Mcyc,100,Disp);
+    [SAMValData]=wienerkernelsamvalidate(MTFb,SAMPreb);
+    
+    
+    [Wkernelb1,Wkernelb2]=wienerkernelenvboot2(RASData,SoundEstimationEnv,SoundParam,T1,T2,DF,10,Disp)
+    [SAMPreb1,SAMPreb2]=wienerkernelsampreboot2(Wkernelb1,Wkernelb2,SoundParam,FMAxis,Beta,Ncyc,Mcyc,Disp)
+    [MTFb1,MTFb2] = mtfgenerateboot2(RASData.SAM.RASTER(1:2:end),FMAxis,0,Ncyc,Mcyc,100,Disp);
+    [SAMValData]=wienerkernelsamvalidate(MTFb1,MTFb2,SAMPreb1,SAMPreb2);
+   
+    
+    
+    
+    
+    %Phase locking index
+PLI=(max(Wkernelb(1).k1)-min(Wkernelb(1).k1)).*sqrt(Wkernelb(1).Varxx)/Wkernelb(1).k0/sqrt(12);

@@ -1,0 +1,38 @@
+Fs=10000
+
+H=lowpass(1000,200,Fs,30,'y');
+
+X=randn(1,1024*32);
+Y=conv(H,X);, Y=Y(1:length(X));
+
+
+Cxy=csd(X,Y,1024,10000);
+[Pxx,F]=psd(X,1024,10000);
+
+
+
+subplot(211)
+plot(F,20*log10(abs(Cxy)))
+hold on
+plot(F,20*log10(abs(Pxx)),'r')
+axis([0 2000 -80 10])
+
+subplot(212)
+plot(F,20*log10(abs(Cxy./Pxx)))
+hold on
+plot((0:1023)/1024*10000,20*log10(abs(fft(H,1024))),'r')
+axis([0 2000 -80 10])
+
+subplot(211)
+time=(0:1024-1)/Fs;
+plot(time,X(1:1024))
+subplot(212)
+plot(time,Y(1:1024))
+
+
+h=xcorr(Y,X,100);
+figure
+subplot(212)
+plot(H)
+hold on
+plot(h,'r')

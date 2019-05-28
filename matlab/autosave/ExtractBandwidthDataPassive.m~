@@ -1,0 +1,83 @@
+%Extracting Bandwidht data, A=7/22/13 , B=10/22/13 and C=10/30/13
+
+clear FTCn FTCns
+load /Users/escabi/data/ElectricalStimulation/Rat072213/ECoGFRARAT072213Tank2.mat
+
+L1=size(FTCn,1);
+L2=size(FTCn,2);
+N1=size(FTCn(1).Rpp,1);
+N2=size(FTCn(1).Rpp,2);
+for k=1:L1
+    for l=1:L2
+            
+            FRA=FTCn(k,l).Rpp;
+            FRAs=reshape(FTCns(k,l).Rpp,1,N1*N2);
+            i=find(FRA<mean(FRAs)+std(FRAs)*2);
+            FRA(i)=zeros(size(i));
+            FTC(k,l).data=FRA;
+            FTC(k,l).Freq=FTCn(k,l).Freq;
+            FTC(k,l).Level=FTCn(k,l).Level;
+            
+            [FTCStats] = ftccentroid2(FTC(k,l));
+            
+            MeanA(k,l,:)=FTCStats.Mean;
+            StdA(k,l,:)=FTCStats.Std;
+    end
+end
+
+
+clear FTCn FTCns
+load /Users/escabi/data/ElectricalStimulation/Rat102213/ECoGFRARAT102213Tank2.mat
+
+L1=size(FTCn,1);
+L2=size(FTCn,2);
+N1=size(FTCn(1).Rpp,1);
+N2=size(FTCn(1).Rpp,2);
+for k=1:L1
+    for l=1:L2
+            
+        
+            FRA=FTCn(k,l).Rpp;
+            FRAs=reshape(FTCns(k,l).Rpp,1,N1*N2);
+            i=find(FRA<mean(FRAs)+std(FRAs)*2);
+            FRA(i)=zeros(size(i));
+            FTC(k,l).data=FRA;
+            FTC(k,l).Freq=FTCn(k,l).Freq;
+            FTC(k,l).Level=FTCn(k,l).Level;
+            
+            [FTCStats] = ftccentroid2(FTC(k,l));
+            
+            MeanB(k,l,:)=FTCStats.Mean;
+            StdB(k,l,:)=FTCStats.Std;
+    end
+end
+
+clear FTCn FTCns
+load /Users/escabi/data/ElectricalStimulation/Rat103013/ECoGFRARAT103013Tank2.mat
+
+L1=size(FTCn,1);
+L2=size(FTCn,2);
+N1=size(FTCn(1).Rpp,1);
+N2=size(FTCn(1).Rpp,2);
+for k=1:L1
+    for l=1:L2
+            
+            FRA=FTCn(k,l).Rpp;
+            FRAs=reshape(FTCns(k,l).Rpp,1,N1*N2);
+            i=find(FRA<mean(FRAs)+std(FRAs)*2);
+            FRA(i)=zeros(size(i));
+            FTC(k,l).data=FRA;
+            FTC(k,l).Freq=FTCn(k,l).Freq;
+            FTC(k,l).Level=FTCn(k,l).Level;
+            
+            [FTCStats] = ftccentroid2(FTC(k,l));
+            
+            MeanC(k,l,:)=FTCStats.Mean;
+            StdC(k,l,:)=FTCStats.Std;
+    end
+end
+
+clear FTC FTCns
+
+Information='A=7/22/13 , B=10/22/13 and C=10/30/13'
+save RatEcOGBandwidthPassiveData MeanA MeanB MeanC StdA StdB StdC Information

@@ -1,0 +1,33 @@
+
+Wc=2*pi*1000;                       %Cutoff Frequency in Radians / Sec
+Fs=10000;                           %Sampling Rate in Hz
+
+N=100;                              %Filter Order
+t=(-N:N)/Fs;                        %Time Axis Sampled at Fs
+h_ideal=Wc/pi*sinc(1/pi*Wc*t);      %Sampled Ideal Filter Impulse Response
+h_hanning=h_ideal.*hanning(2*N+1)'; %Hanning Filter Impulse Response
+NFFT=1024*8;
+faxis=(0:NFFT-1)/NFFT*Fs;           %Frequency Axis
+H_ideal=abs(fft(h_ideal,NFFT))/Fs;  %Ideal Filter Transfer Function Magnitude
+H_hanning=abs(fft(h_hanning,NFFT))/Fs;  %Hanning Filter Transfer Function Magnitude
+
+
+
+
+subplot(221)
+plot(t,h_ideal,'k')
+
+subplot(222)
+plot(faxis,H_ideal,'k');
+axis([0 2000 0 1.2])
+
+
+figure
+subplot(221)
+
+subplot(222)
+plot(t,h_hanning,'k')
+
+subplot(223)
+plot(faxis,H_hanning,'k');
+axis([0 2000 0 1.2])

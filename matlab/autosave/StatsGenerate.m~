@@ -1,0 +1,59 @@
+clear all
+Fs=44100 
+dX=1/10
+f1=200
+fN=16000
+Fm=500
+fm1=.5
+dfm=1
+Nms=10
+OF=2
+Norm='Amp'
+MSflag=1
+dis='log'
+ATT=30
+dT=0.05
+Overlap=0.9
+GDelay='y'
+dFm=10;
+
+%Drill Original
+XDrillOrig=wavread('CSE-22 Pneumatic drills at road works_10111119000110.wav');
+XDrillOrig=XDrillOrig/std(XDrillOrig);
+[AudDataDrillOrig]=audiogram(XDrillOrig,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSDrillOrig]=audiogrammultiscale(AudDataDrillOrig,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[AmpDataDrillOrig]=audiogramampdist(AudDataDrillOrig,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSDrillOrig]=audiogramchancorrmultiscale(AudDataMSDrillOrig,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataDrillOrig]=audiogramchancorr(AudDataDrillOrig,Fs,dX,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpecDrillOrig]=ripplespec(AudDataDrillOrig,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT)
+
+%Insects Full
+XInsectsFull=wavread('InsectsInASwamp.wav');
+XInsectsFull=XInsectsFull/std(XInsectsFull);
+[AudDataInsectsFull]=audiogram(XInsectsFull,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSInsectsFull]=audiogrammultiscale(AudDataInsectsFull,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[AmpDataInsectsFull]=audiogramampdist(AudDataInsectsFull,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSInsectsFull]=audiogramchancorrmultiscale(AudDataMSInsectsFull,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataInsectsFull]=audiogramchancorr(AudDataInsectsFull,Fs,dX,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpecInsectsFull]=ripplespec(AudDataInsectsFull,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT)
+
+
+
+%Insects Full
+XInsectsFull=wavread('InsectsInASwamp.wav');
+XInsectsFull=XInsectsFull/std(XInsectsFull);
+[AudDataInsectsFull]=audiogram(XInsectsFull,Fs,dX,f1,fN,Fm,OF,'Amp','log');
+[AudDataMSInsectsFull]=audiogrammultiscale(AudDataInsectsFull,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[AmpDataInsectsFull]=audiogramampdist(AudDataInsectsFull,Fs,dX,[],[],[],[],.05,0.9);
+[CorrDataMSInsectsFull]=audiogramchancorrmultiscale(AudDataMSInsectsFull,Fs,dX,f1,fN,Fm,fm1,dfm,Nms,OF,Norm,MSflag,dis,ATT);
+[CorrDataInsectsFull]=audiogramchancorr(AudDataInsectsFull,Fs,dX,f1,fN,Fm,OF,Norm,GDelay,dis,ATT);
+[RipSpecInsectsFull]=ripplespec(AudDataInsectsFull,Fs,dX,dFm,f1,fN,Fm,OF,Norm,GDelay,dis,ATT)
+
+
+
+
+
+
+
+
+save Stats

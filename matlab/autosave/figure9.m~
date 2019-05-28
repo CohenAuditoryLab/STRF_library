@@ -1,0 +1,112 @@
+
+%Setting Print Area
+fighandle=figure;
+%set(fighandle,'position',[10,400,560,350],'paperposition',[.25 1.5  8 8.5]);
+
+color='k'
+
+cd ~/data/figure/SFN99/figdata9
+
+subplot(5,1.5,1)
+Min=1
+Max=1.5
+hold on
+plotraster('IC97QJE3t4_f00_ch2_u1_Pre.mat','Ras',color,'n',1)
+axis([Min Max 25 150])
+set(gca,'XTick',[Min Max])
+set(gca,'visible','off')
+Pos=get(gca,'Position')
+set(gca,'Position',[Pos(1) Pos(2)+0.02 Pos(3) Pos(4)])
+
+subplot(8,1.5,11.5)
+load IC97QJE3t4_f00_ch2_u1_Pre.mat
+plot(taxis,PSTH,'k')
+axis([Min Max 0 700])
+set(gca,'visible','off')
+Pos=get(gca,'Position')
+set(gca,'Position',[Pos(1) Pos(2)+.85 Pos(3) Pos(4)])
+
+subplot(5,1.5,2.5)
+hold on
+plotraster('IC97QJE3t3_f10_ch2_u1_Pre.mat','Ras',color,'n',1)
+axis([Min Max 25 150])
+set(gca,'XTick',[Min Max])
+set(gca,'visible','off')
+Pos=get(gca,'Position')
+set(gca,'Position',[Pos(1) Pos(2)-0.04 Pos(3) Pos(4)])
+
+subplot(8,1.5,11.5)
+load IC97QJE3t3_f10_ch2_u1_Pre.mat
+plot(taxis,PSTH,'k')
+axis([Min Max 0 700])
+set(gca,'visible','off')
+Pos=get(gca,'Position')
+set(gca,'Position',[Pos(1) Pos(2)+.62 Pos(3) Pos(4)])
+
+subplot(5,1.5,7)
+hold on
+plotraster('IC97QJE3t3_f11_ch2_u1_Pre.mat','Ras',color,'n',1)
+axis([Min Max 25 150])
+set(gca,'XTick',[Min Max])
+set(gca,'visible','off')
+Pos=get(gca,'Position')
+set(gca,'Position',[Pos(1) Pos(2)+.24 Pos(3) Pos(4)])
+
+subplot(8,1.5,10)
+load IC97QJE3t3_f11_ch2_u1_Pre.mat
+plot(taxis,PSTH,'k')
+axis([Min Max 0 700])
+set(gca,'XTick',[])
+set(gca,'visible','off')
+Pos=get(gca,'Position')
+set(gca,'Position',[Pos(1) Pos(2)+.28 Pos(3) Pos(4)])
+
+
+
+%Changing Raster Point Size
+%change - 2 copy moveto lineto stroke
+%to -  gsave 10 setlinewidth 2 copy moveto lineto stroke grestore
+%
+
+%orient landscape 
+cd ~/data/figure/GRANT/NIH/NIH_Feb2010/NeuronExamples
+
+
+
+
+%Generating Shuffled Correlograms 
+
+cd figdata9
+load Figure9Data
+
+figure
+subplot(321)
+plot(JitterDataLin.Tau,JitterDataLin.Raa/1000,'color',[0.6 .6 .6],'linewidth',2)
+hold on
+plot(JitterDataLin.Tau,JitterDataLin.Rab/1000,'k','linewidth',1)
+axis([-100 100 -.2 3.5])
+set(gca,'Box','off')
+
+subplot(323)
+plot(JitterDataLin.Tau,JitterData30.Raa/1000,'color',[0.6 .6 .6],'linewidth',2)
+hold on
+plot(JitterDataLin.Tau,JitterData30.Rab/1000,'k','linewidth',1)
+axis([-100 100 -.2 3.5])
+set(gca,'Box','off')
+
+subplot(325)
+plot(JitterDataLin.Tau,JitterData60.Raa/1000,'color',[0.6 .6 .6],'linewidth',2)
+hold on
+plot(JitterDataLin.Tau,JitterData60.Rab/1000,'k','linewidth',1)
+axis([-100 100 -.2 3.5])
+set(gca,'Box','off')
+
+cd ..
+
+%Plotting Jitter and Reliability
+figure
+C=[4.4 8.8 17.6];
+Sigma=[JitterDataLin.sigmag JitterData30.sigmag JitterData60.sigmag]
+
+
+

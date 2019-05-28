@@ -1,0 +1,31 @@
+load 3d_data
+
+tRTFsum=10.^(tRTFsum/20)
+i=find(isnan(tRTFsum));
+tRTFsum(i)=zeros(size(i));
+
+figure;
+    subplot(2,1,1);
+    imagesc(Fma,RDa,(tRTFsum));colorbar
+
+%    axis([-500 500 0 4])
+    set(gca,'YDir','normal');
+    hold on
+   
+    caxis([.2 .9]) 
+    
+    
+  
+tRTFsum=tRTFsum/max(max(tRTFsum));
+T=0.99;
+index=find(tRTFsum>T);
+
+while sum(tRTFsum(index))/sum(sum(tRTFsum))<0.9
+    
+    T=T-0.01;
+    index=find(tRTFsum>T);
+end
+    
+
+hold on
+contour(Fma,RDa,(tRTFsum),[1 1]*T,'k')

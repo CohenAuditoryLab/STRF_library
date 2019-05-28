@@ -1,0 +1,55 @@
+
+
+
+subplot(322)
+load 'SAM MTF data 10f02n.mat'
+semilogx(data(12).modfreq,data(5).syncrate,'r','linewidth',2)
+hold on
+semilogx(data(12).modfreq,data(4).syncrate,'k','linewidth',2)
+xlim([1 600])
+set(gca,'Box','Off')
+
+load KernelData
+
+subplot(345)
+subplot(323)
+plot(WkernelBinaural_23.T,WkernelBinaural_23.k1_1,'r','linewidth',2)
+hold on
+plot(WkernelBinaural_23.T,WkernelBinaural_23.k1_2,'b','linewidth',2)
+set(gca,'Box','off')
+axis([0 35 -2.2 2.2])
+
+subplot(349)
+subplot(325)
+plot(WkernelContraMon_30.T,WkernelContraMon_30.k1_1,'r','linewidth',2)
+set(gca,'Box','off')
+axis([0 35 -2.2 2.2])
+
+
+%Generating MTF
+Fs=inv(WkernelBinaural_23.T(2)/1000);
+NFFT=1024
+FMAxis=(0:NFFT-1)/NFFT*Fs;
+MTF23_1=abs(fft(WkernelBinaural_23.k1_1,NFFT));
+MTF23_2=abs(fft(WkernelBinaural_23.k1_2,NFFT));
+MTF30_1=abs(fft(WkernelContraMon_30.k1_1,NFFT));
+
+subplot(324)
+Max=max([MTF23_1 MTF23_2 MTF30_1]);
+semilogx(FMAxis,MTF23_1/Max,'r','linewidth',2)
+hold on
+semilogx(FMAxis,MTF23_2/Max,'b','linewidth',2)
+axis([1 600 0 1])
+set(gca,'Box','off')
+
+subplot(326)
+semilogx(FMAxis,MTF30_1/Max,'r','linewidth',2)
+axis([1 600 0 1])
+set(gca,'Box','off')
+
+figure
+subplot(221)
+Max=max(max(WkernelBinaural_23.Ryx1x2))
+imagesc(WkernelBinaural_23.T1,WkernelBinaural_23.T2,WkernelBinaural_23.Ryx1x2),set(gca,'YDir','normal')
+caxis([-Max Max]*.8)
+axis([0 25 0 25])

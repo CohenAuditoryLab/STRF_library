@@ -1,0 +1,30 @@
+%
+%function [STRFData]=strfcontsig(STRFData)
+%
+%   FILE NAME   : STRF CONT SIG
+%   DESCRIPTION : Spectro-temporal receptive field from SPR file using a 
+%                 continuous field potential response (no spike train). 
+%
+%   SpecFile	: Spectral Profile File
+%   T           : Evaluation delay interval for STRF(T,F), T>0 (msec)
+%   Y           : Continuous Neural Response
+%   Trig		: Array of Trigger Times
+%   Fss         : Sampling Rate for Neural Response (Y) and Trig
+%   SPL         : Signal RMS Sound Pressure Level
+%   MdB         : Signal Modulation Index in dB
+%   NBlocks     : Number of Blocks Between Displays
+%   sprtype     : SPR File Type : 'float' or 'int16'
+%                 Default=='float'	
+%
+%	RETURNED VALUES 
+%   
+%   STRFData    : Data Structure containing the following elements
+%                 .taxis - Time Axis
+%                 .faxis - Frequency Axis (Hz)
+%                 .STRF1 - Spectro-Temporal Receptive Field for channel 1
+%                 .STRF2 - Spectro-Temporal Receptive Field for channel 2
+%                 .SPLN  - Sound Pressure Level per Frequency Band
+%
+% (C) Monty A. Escabi, July 2010
+%
+function [STRFData]=strfcontsig(STRFData)

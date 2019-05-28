@@ -1,0 +1,56 @@
+function [err,Err,H,p]=modelerr2(MTFJ1,MTFJ2)
+
+% each unit, each condition
+for FMi=1:18
+    for i=1:60
+    Data1=MTFJ1(i,:);
+    Data2=MTFJ2(i,:);
+
+    if ~isempty(Data1(FMi).gaussfun)
+    Rm=Data1(FMi).gaussfun;  % model
+    R=Data1(FMi).Rab; % shuf-corr
+    n=Data2(FMi).Rab-Data1(FMi).Rab; % measured error
+%    err(i,FMi)=abs(sum((R-Rm).^2)-sum(n.^2))/abs(sum(R.^2)-sum(n.^2));
+    err(i,FMi)=abs(sum((R-Rm).^2)-sum(n.^2))/abs(sum(R.^2));
+    cc=corrcoef(R,Rm);
+    CC(i,FMi)=cc(1,2);
+
+% err(i,FMi)=sum((R-Rm).^2)/sum(R.^2);
+    % err(i,FMi)=sum(abs(R-Rm))/sum(abs(R));
+    % chisqrtest ********
+    Xref=randn(1,1024*8);
+    E_hat=R-Rm;
+
+%    ii=find(R~=0);
+%    plot(R,'r'),hold on,plot(E_hat),hold off,pause
+
+    plot(R,'r')
+   hold on
+   plot(Rm)
+   hold off
+   cc(1,2)
+   err(i,FMi)
+   pause
+
+%    E_hat=E_hat(ii);
+    E_hat=(E_hat-mean(E_hat))/std(E_hat);
+    
+    [H(i,FMi),p(i,FMi),X2(i,FMi),V(i,FMi)]=chisqrtest(Xref,E_hat,0.05,-4,4);
+    % ****************
+    else
+        err(i,FMi)=-9999;
+        CC(i,FMi)=-9999;
+        H(i,FMi)=-9999;
+    end
+end
+end
+ 
+% each condition
+for FMi=1:18
+    a=err(:,FMi);  % each condition
+    a=a(find(a>0));
+    m=mean(a);
+    Err(FMi)=m;  % each condition
+   
+end
+

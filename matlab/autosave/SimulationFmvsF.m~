@@ -1,0 +1,223 @@
+%%%%%%%%%%%%%%%% SPIKE TRAIN SIMULATION - COMPUTE FREQ BASED TEMPORAL
+%%%%%%%%%%%%%%%% CODING FRACTION FOR DIFFERENT FM
+%%%%%%%%%%%%%%%%
+
+clear Fm F
+alpha=sqrt(2);
+Fm=alpha.^(0:12);
+Fs=10000;
+Fsd=500
+sigma=5;
+x=1;
+lambdas=0;
+T=20;
+
+
+for k=1:length(Fm)
+    Fm(k)
+    
+    N=round(1/Fm(k)*Fs);
+    
+    spet=N:N:Fs*20;
+    for l=1:3000
+       RASTER(l).spet=spet;
+       RASTER(l).Fs=Fs;
+       RASTER(l).T=T;
+    end
+    [RAS]=rasteraddjitter(RASTER,sigma,x,lambdas);
+    [RAS,Fs]=rasterexpand(RAS,Fsd,RASTER(1).T);
+    R=mean(RAS);
+    RR=R(5*Fsd+1:15*Fsd);
+    faxis=(0:length(RR)-1)/length(RR)*Fsd;
+    Prr=abs(fft(RR)).^2;
+    
+    plot(faxis,Prr)
+    xlim([0 100])
+    pause(1)
+    
+    i=find(faxis<Fm(k)/2);
+    m=find(faxis>Fm(k)/2 & faxis<Fsd/2);
+    DC=sum(Prr(i));
+    AC=2*sum(Prr(m));   %Note I multiply by two to account for (-) frequencies
+    F(k)=AC/(AC+DC);
+ 
+end
+
+save Fig1DataSimulationFmvsFsig5
+semilogx(Fm,F,'ko')
+
+hold on
+
+
+clear Fm F
+alpha=sqrt(2);
+Fm=alpha.^(0:12);
+Fs=10000;
+Fsd=500
+sigma=10;
+x=1;
+lambdas=0;
+T=20;
+
+
+for k=1:length(Fm)
+    Fm(k)
+    
+    N=round(1/Fm(k)*Fs);
+    
+    spet=N:N:Fs*20;
+    for l=1:3000
+       RASTER(l).spet=spet;
+       RASTER(l).Fs=Fs;
+       RASTER(l).T=T;
+    end
+    [RAS]=rasteraddjitter(RASTER,sigma,x,lambdas);
+    [RAS,Fs]=rasterexpand(RAS,Fsd,RASTER(1).T);
+    R=mean(RAS);
+    RR=R(5*Fsd+1:15*Fsd);
+    faxis=(0:length(RR)-1)/length(RR)*Fsd;
+    Prr=abs(fft(RR)).^2;
+    
+    plot(faxis,Prr)
+    xlim([0 100])
+    pause(1)
+    
+    i=find(faxis<Fm(k)/2);
+    m=find(faxis>Fm(k)/2 & faxis<Fsd/2);
+    DC=sum(Prr(i));
+    AC=2*sum(Prr(m));   %Note I multiply by two to account for (-) frequencies
+    F(k)=AC/(AC+DC);
+    
+end
+
+save Fig1DataSimulationFmvsFsig10
+semilogx(Fm,F,'ko')
+
+
+clear Fm F
+alpha=sqrt(2);
+Fm=alpha.^(0:12);
+Fs=10000;
+Fsd=500
+sigma=20;
+x=1;
+lambdas=0;
+T=20;
+
+
+for k=1:length(Fm)
+    Fm(k)
+    
+    N=round(1/Fm(k)*Fs);
+    
+    spet=N:N:Fs*20;
+    for l=1:3000
+       RASTER(l).spet=spet;
+       RASTER(l).Fs=Fs;
+       RASTER(l).T=T;
+    end
+    [RAS]=rasteraddjitter(RASTER,sigma,x,lambdas);
+    [RAS,Fs]=rasterexpand(RAS,Fsd,RASTER(1).T);
+    R=mean(RAS);
+    RR=R(5*Fsd+1:15*Fsd);
+    faxis=(0:length(RR)-1)/length(RR)*Fsd;
+    Prr=abs(fft(RR)).^2;
+    
+    plot(faxis,Prr)
+    xlim([0 100])
+    pause(1)
+    
+    i=find(faxis<Fm(k)/2);
+    m=find(faxis>Fm(k)/2 & faxis<Fsd/2);
+    DC=sum(Prr(i));
+    AC=2*sum(Prr(m));   %Note I multiply by two to account for (-) frequencies
+    F(k)=AC/(AC+DC);
+    
+end
+
+save Fig1DataSimulationFmvsFsig20
+semilogx(Fm,F,'ko')
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%% THEORETICAL SOLUTION FOR F
+
+sig=0.005;
+lambda_s=0;
+x=1;
+w0=2*pi*(.1:.01:100);
+
+for l=1:length(w0)
+        k=1:100;
+        DCt(l)=4*pi^2*(lambda_s+x*w0(l)/2/pi).^2;
+        ACt(l)=2*x^2.*w0(l).^2*sum(exp(-k.^2*sig^2.*w0(l).^2));
+        Ft(l)=ACt(l)./(ACt(l)+DCt(l));     
+end
+        
+hold on
+semilogx(w0/2/pi,Ft,'r')
+%hold off
+
+save Fig1DataTheoreticalFvsFmsig5
+
+sig=0.010;
+lambda_s=0;
+x=1;
+w0=2*pi*(.1:.01:100);
+
+for l=1:length(w0)
+        k=1:100;
+        DCt(l)=4*pi^2*(lambda_s+x*w0(l)/2/pi).^2;
+        ACt(l)=2*x^2.*w0(l).^2*sum(exp(-k.^2*sig^2.*w0(l).^2));
+        Ft(l)=ACt(l)./(ACt(l)+DCt(l));     
+end
+        
+hold on
+semilogx(w0/2/pi,Ft,'r')
+%hold off
+
+save Fig1DataTheoreticalFvsFmsig10
+
+
+sig=0.020;
+lambda_s=0;
+x=1;
+w0=2*pi*(.1:.01:100);
+
+for l=1:length(w0)
+        k=1:100;
+        DCt(l)=4*pi^2*(lambda_s+x*w0(l)/2/pi).^2;
+        ACt(l)=2*x^2.*w0(l).^2*sum(exp(-k.^2*sig^2.*w0(l).^2));
+        Ft(l)=ACt(l)./(ACt(l)+DCt(l));     
+end
+        
+hold on
+semilogx(w0/2/pi,Ft,'r')
+%hold off
+
+save Fig1DataTheoreticalFvsFmsig20
+
+
+%PLOTTING RESULTS
+load Fig1DataSimulationFmvsFsig5.mat
+semilogx(Fm,F,'ko')
+hold on
+
+load Fig1DataSimulationFmvsFsig10.mat
+semilogx(Fm,F,'ko')
+
+load Fig1DataSimulationFmvsFsig20.mat
+semilogx(Fm,F,'ko')
+
+load Fig1DataTheoreticalFvsFmsig5
+semilogx(w0/2/pi,Ft,'r')
+
+load Fig1DataTheoreticalFvsFmsig10
+semilogx(w0/2/pi,Ft,'r')
+
+load Fig1DataTheoreticalFvsFmsig20
+semilogx(w0/2/pi,Ft,'r')
+

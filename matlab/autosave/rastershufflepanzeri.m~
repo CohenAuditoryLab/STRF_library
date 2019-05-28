@@ -1,0 +1,27 @@
+%
+%function [RASTERsh]=rastershufflepanzeri(RASTER,Fsd)
+%
+%   FILE NAME       : RASTER SHUFFLE PANZERI
+%   DESCRIPTION     : Shuffles a raster by randomizing individual bins
+%                     across trials using the procedure by Panzeri.
+%
+%	RASTER          : Dot raster in compressed (spet) format
+%   Fsd             : Desired sampling rate to perform shuffling (Hz)
+%
+%Returned Variables
+%	RASTERsh        : Shuffled rastergram. The shuffled rastergram is
+%                     sampled at a resolution of Fsd
+%
+% (C) Monty A. Escabi, Aug 2012
+%
+function [RASTERsh]=rastershufflepanzeri(RASTER,Fsd)
+
+%Randomizing bins across trials
+[R]=rasterexpand(RASTER,Fsd,RASTER(1).T);
+N2=size(R,2);
+N1=size(R,1);
+for k=1:size(R,2)
+    index=randperm(N1)';
+    Rsh(:,k)=R(index,k);
+end
+RASTERsh=rastercompress(Rsh,Fsd,RASTER(1).T);

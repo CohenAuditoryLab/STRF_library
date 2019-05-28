@@ -1,0 +1,38 @@
+
+figure
+
+%Temporal Coding Fraction vs. Fm
+subplot(221)
+load Fig1DataTheoreticalFvsFm.mat
+semilogx(w0/2/pi,Ft,'k')
+hold on
+set(gca,'box','off')
+set(gca,'xtick',[1 10 100])
+set(gca,'xticklabel',[1 10 100])
+
+i=min(find(Ft<0.5));
+plot([1 w0(i)/2/pi],[0.5 .5],'k-.')
+plot([w0(i)/2/pi w0(i)/2/pi],[0 0.5],'k-.')
+title(['Fc=' num2str(w0(i)/2/pi,3) ' Hz'])
+
+load Fig1DataSimulationFmvsF.mat
+semilogx(Fm,F,'ko')
+
+
+
+figure
+beta(1)=10
+beta(2)=2
+
+sigma=2.^(1/10*(0:70));
+
+for k=1:length(sigma)
+    
+   beta(3)=sigma(k);
+   w(k) = lsqnonlin(@(w) halfpowfreq(w,beta),2*pi*100);
+    
+end
+
+loglog(sigma,w/2/pi,'k')
+hold on
+

@@ -1,0 +1,52 @@
+%%%% Shuffled Autocorrelogram (SAC) batch file
+
+
+Fs=96000;   %Sampling rate for spikes and triggers
+Fsd=8000;   %desired sampling rate for computing SAC
+T=180       %Stimulus duration
+MaxTau=20;  %Maximum delay for SAC
+
+
+
+
+%%%%%%%%% 10 dB
+
+XA=load('/Users/escabi/data/Arek/ShuffledCorrExamples/1589 004 004; OF; 08260; 041,1; 000,0; 10dB; 01sw/A 00.00ms/1589 004 004; all chunks spike times ASCII;  stimulus length 180[s].txt');
+XB=load('/Users/escabi/data/Arek/ShuffledCorrExamples/1589 004 005; OF; 08260; 041,1; 000,0; 10dB; 01sw/A 00.00ms/1589 004 005; all chunks spike times ASCII;  stimulus length 180[s].txt');
+
+
+spetA=round(Fs/1000*X1);                      %Spike event times in sample number for trial A
+spetB=round(Fs/1000*X2);                      %Spike event times in sample number for trial B
+
+[JitterData10dB]=jittercorrfitspon(spetA,spetB,Fs,Fsd,T,MaxTau,'y');
+%[JitterData10dB]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'y');
+
+
+
+
+%%%%%%%% 20 dB
+
+XA=load('/Users/escabi/data/Arek/ShuffledCorrExamples/1589 004 006; OF; 08260; 041,1; 000,0; 20dB; 01sw/A 00.00ms/1589 004 006; all chunks spike times ASCII;  stimulus length 180[s].txt');
+XB=load('/Users/escabi/data/Arek/ShuffledCorrExamples/1589 004 007; OF; 08260; 041,1; 000,0; 20dB; 01sw/A 00.00ms/1589 004 007; all chunks spike times ASCII;  stimulus length 180[s].txt');
+
+
+spetA=round(Fs/1000*X1);                      %Spike event times in sample number for trial A
+spetB=round(Fs/1000*X2);                      %Spike event times in sample number for trial B
+
+[JitterData20dB]=jittercorrfitspon(spetA,spetB,Fs,Fsd,T,MaxTau,'y');
+%[JitterData20dB]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'y');   %Simpler version of program/model
+
+%%%%%%%% 40 dB
+
+XA=load('/Users/escabi/data/Arek/ShuffledCorrExamples/1589 004 008; OF; 08260; 041,1; 000,0; 40dB; 01sw/A 00.00ms/1589 004 008; all chunks spike times ASCII;  stimulus length 180[s].txt');
+XB=load('/Users/escabi/data/Arek/ShuffledCorrExamples/1589 004 009; OF; 08260; 041,1; 000,0; 40dB; 01sw/A 00.00ms/1589 004 009; all chunks spike times ASCII;  stimulus length 180[s].txt');
+
+
+spetA=round(Fs/1000*X1);                      %Spike event times in sample number for trial A
+spetB=round(Fs/1000*X2);                      %Spike event times in sample number for trial B
+
+[JitterData40dB]=jittercorrfitspon(spetA,spetB,Fs,Fsd,T,MaxTau,'y');
+%[JitterData40dB]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,'y');
+
+
+

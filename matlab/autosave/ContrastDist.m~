@@ -1,0 +1,60 @@
+D=pwd;
+cd /Users/escabi/data/figure/contrast_jns/EnsembleStat3rdOctaveBank03_20_2003
+
+
+subplot(221)
+load Hamlet_EnsStat.mat
+i=find(Ensemble.dBContDist==max(Ensemble.dBContDist));
+bar(Ensemble.dBAmp-Ensemble.dBAmp(i),Ensemble.dBContDist,'k'),axis([-50 50 0 0.065])
+set(gca,'Box','off')
+
+subplot(222)
+load Neo1_EnsStat.mat
+i=find(Ensemble.dBContDist==max(Ensemble.dBContDist));
+bar(Ensemble.dBAmp-Ensemble.dBAmp(i),Ensemble.dBContDist,'k'),axis([-50 50 0 0.065])
+set(gca,'Box','off')
+
+subplot(223)
+load NatParSF_EnsStat.mat
+i=find(Ensemble.dBContDist==max(Ensemble.dBContDist));
+bar(Ensemble.dBAmp-Ensemble.dBAmp(i),Ensemble.dBContDist,'k'),axis([-50 50 0 0.065])
+set(gca,'Box','off')
+
+subplot(224)
+load White_EnsStat.mat
+i=find(Ensemble.dBContDist==max(Ensemble.dBContDist));
+bar(Ensemble.dBAmp-Ensemble.dBAmp(i),Ensemble.dBContDist,'k'),axis([-50 50 0 0.065])
+set(gca,'Box','off')
+
+
+
+figure
+
+subplot(221)
+load Hamlet_EnsStat.mat
+bar(Ensemble.dBAmp-Ensemble.dBAmp(i),Ensemble.dBContDist,'k'),axis([-50 50 0 0.065])
+set(gca,'Box','off')
+
+subplot(222)
+load Neo1_EnsStat.mat
+i=find(Ensemble.dBContDist==max(Ensemble.dBContDist));
+bar(Ensemble.dBAmp-Ensemble.dBAmp(i),Ensemble.dBContDist,'k'),axis([-50 50 0 0.065])
+set(gca,'Box','off')
+
+subplot(223)
+load NatParSF_EnsStat.mat
+i=find(Ensemble.dBContDist==max(Ensemble.dBContDist));
+bar(Ensemble.dBAmp-Ensemble.dBAmp(i),Ensemble.dBContDist,'k'),axis([-50 50 0 0.065])
+set(gca,'Box','off')
+
+subplot(224)
+load White_EnsStat.mat
+i=find(Ensemble.dBContDist==max(Ensemble.dBContDist));
+bar(Ensemble.dBAmp-Ensemble.dBAmp(i),Ensemble.dBContDist,'k'),axis([-50 50 0 0.065])
+set(gca,'Box','off')
+
+
+
+
+
+cd(D)

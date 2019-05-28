@@ -1,0 +1,17 @@
+
+
+
+
+load VR4Monty
+
+HH=hitsRDzero;
+H=[];
+FM=[];
+FM1=FM4RDzero';
+for k=1:size(HH,2)
+    for l=1:size(HH,1)
+            H=[H ones(1,HH(l,k)) zeros(1,30-HH(l,k))];
+            FM=[FM FM1(l)*ones(1,30);
+            
+    end
+end

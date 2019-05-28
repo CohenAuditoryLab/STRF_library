@@ -1,0 +1,194 @@
+cd Data
+load SplineData.mat
+cd ..
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%Computing Shuffled Envelope Correlogram and Measuring Response Parameters
+T=0;
+dT=0;
+Ncyc=4;
+Lambda=zeros(6,6);
+LambdaN=zeros(6,6);
+LambdaAC=zeros(6,6);
+LambdaDC=zeros(6,6);
+Sigma=zeros(6,6);
+Xhat=zeros(6,6);
+F=zeros(6,6);
+FM=zeros(6,6);
+FC=zeros(6,6);
+MI=zeros(6,6);
+for l=1:6
+    for k=1:l
+        
+        %Genrating Shuffled Correlogram
+        [RASc]=raster2cyclerasterordered(RASSpline(k,l).RASTER,RASSpline(k,l).FM,Ncyc,T,dT);
+        [REnv(k,l)]=rastercircularshufcorrenv(RASc,Fsd,RASSpline(k,l).FM,Delay);
+        [RASc]=raster2cyclerasterordered(RASSpline(k,l).RASTER,4,Ncyc,T,dT);
+        [REnvPeriod(k,l)]=rastercircularshufcorrenv(RASc,Fsd,RASSpline(k,l).FM,Delay);
+        
+        %Shape & Peridicity paramters
+        FM(k,l)=REnv(k,l).Fm;
+        FC(k,l)=RASSpline(k,l).FC;
+        
+        %Response Parameters
+        F(k,l)=REnv(k,l).F;
+        Lambda(k,l)=REnv(k,l).lambda;
+        LambdaAC(k,l)=REnv(k,l).lambdaAC;
+        LambdaDC(k,l)=REnv(k,l).lambdaDC;
+        Sigma(k,l)=REnv(k,l).sigma;
+        Xhat(k,l)=REnv(k,l).xhat;
+        MI(k,l)=REnv(k,l).MI1;
+        
+    end
+end
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%PLOTING Shape RASTER%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure
+RASShape=[RASSpline(1,:).RASTER];
+[RAS,Fs]=rasterexpand(RASShape(1:50),1000,1.2);
+[j,i]=find(flipud(RAS));
+plot(i/1000,j,'k.')
+hold on
+for k=1:5
+   plot([0 2],[k k]*10,'k') 
+end
+xlim([0 1.15])
+
+
+%%%%%%%%%%%%%%%%%%%%%% Plotting Correlograms - Shape %%%%%%%%%%%%%%%%%%%%%%
+figure
+for k=1:5
+   
+    subplot(5,2,(k-1)*2+1)
+    plot(REnv(1,k).Tau,REnv(1,k).Rmodel,'r')
+    hold on
+    plot(REnv(1,k).Tau,REnv(1,k).Renv,'k')
+    ylim([0 6000])
+    set(gca,'box','off')
+    
+end
+
+subplot(222)
+plot((1:5),Lambda(1,1:5),'k')
+hold on
+plot((1:5),LambdaAC(1,1:5),'r')
+plot((1:5),LambdaDC(1,1:5),'b')
+set(gca,'box','off')
+set(gca,'XTick',[1:5])
+set(gca,'XTickLabel',[FC(1,1:5)])
+
+subplot(224)
+plot((1:5),Sigma(1,1:5),'k')
+set(gca,'XTick',[1:5])
+set(gca,'XTickLabel',[FC(1,1:5)])
+
+
+%%%%%%%%%%%%%%%%%%%%%%%PLOTING PERIODICITY RASTER%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+RASPer=[RASSpline(:,4).RASTER];
+[RAS,Fs]=rasterexpand(RASPer(1:40),1000,3);
+[j,i]=find(flipud(RAS));
+plot(i/1000,j,'k.')
+hold on
+for k=1:4
+   plot([0 2],[k k]*10,'k') 
+end
+xlim([0 1.15])
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%% PERIODICITY CORRELOGRAM %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%Plotting Correlograms - Periodicity
+figure
+for k=1:4
+   
+    subplot(6,2,(k-1)*2+1)
+%    plot(REnvPeriod(k,4).Tau,REnvPeriod(k,4).Rmodel,'color',[0.75 .75 .75],'linewidth',2)
+    plot(REnvPeriod(k,4).Tau,REnvPeriod(k,4).Rmodel,'r')
+    hold on
+    plot(REnvPeriod(k,4).Tau,REnvPeriod(k,4).Renv,'k')
+    ylim([0 6000])
+    set(gca,'box','off')
+    axis([-500 500 0 2500])
+    
+end
+
+
+subplot(222)
+plot((1:4),Lambda(1:4,4),'k')
+hold on
+plot((1:4),LambdaAC(1:4,4),'r')
+plot((1:4),LambdaDC(1:4,4),'b')
+set(gca,'box','off')
+set(gca,'XTick',[1:5])
+set(gca,'XTickLabel',[FC(1,1:5)])
+
+subplot(224)
+plot((1:4),Sigma(1:4,4),'k')
+set(gca,'XTick',[1:5])
+set(gca,'XTickLabel',[FC(1,1:5)])
+
+
+
+% 
+% subplot(1,6,5)
+% plot(F(1,1:5),(1:5),'ko-')
+% ylim([1 6])
+% set(gca,'YTick',[1:6])
+% set(gca,'YTickLabel',FC(1,:))
+% set(gca,'YDir','reverse')
+% set(gca,'BOx','off')
+% 
+% subplot(1,6,6)
+% plot(Sigma(1,1:5),(1:5),'ko-')
+% ylim([1 6])
+% set(gca,'YTick',[1:6])
+% set(gca,'YTickLabel',FC(1,:))
+% set(gca,'YDir','reverse')
+% set(gca,'BOx','off')
+% 
+
+
+
+
+
+
+% %Plotting Correlograms
+% RASPeriod=[];
+% for k=1:6
+%     RASPeriod=[RASPeriod ; RASSpline(k,k).RASTER'];
+% end
+% T=0
+% dT=0
+% Ncyc=4
+% FMAxis=4
+% Fsd=1000
+% Delay=0
+% Fsd=400
+% %Periodicity
+% for k=1:6
+%     RAS=RASPeriod((k-1)*10+1:k*10);
+%     [RASc]=raster2cyclerasterordered(RAS,FMAxis,Ncyc,T,dT)
+% %    [REnv(k)]=rastercircularshufcorrenvfine(RASc,Fsd,Delay)
+% %[RFmBW]=rastercircularcorrfmbw(RASc,FMAxis,BWAxis,Ncyc,Fsd,T,Disp)
+% [REnv(k)]=rastercircularshufcorrenv(RASc,Fsd,FMAxis,Delay);
+%     subplot(6,1,k)
+%     plot(REnv(k).Tau,REnv(k).Renv,'k')
+%     ylim([0 20000])
+%     set(gca,'box','off')
+% end
+

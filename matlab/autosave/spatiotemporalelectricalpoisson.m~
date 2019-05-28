@@ -1,0 +1,69 @@
+%
+%
+%function [S]=spatiotemporalelectricalpoisson(Lambda,Trefractory,PW,ChArray,Fs,M,MaxAmp,MaxdB,AmpDist,seed)
+%
+%       FILE NAME       : SPATIO TEMPORAL ELECTRICAL POISSON
+%       DESCRIPTION     : Spatio temporal electrical stimulation pattern
+%                         across 16 channels.Uses poisson pulse train for
+%                         each channel.
+%
+%       Lambda          : Average pulese rate (Hz)
+%       Trefractory     : Refractory interval for pulse train (msec)
+%       PW              : Pulse width (micro sec)
+%       ChArray         : Array containing the electrode channels to
+%                         provide stimulation. "0" designates no
+%                         stimulation while "1" designates stimulation is
+%                         on.
+%       Fs              : Sampling Frequency for electrical stimulation
+%                         signal (Hz)
+%       M               : Number of time samples
+%       MaxAmp          : Maximum voltage amplitude in Volts
+%       MaxdB           : Used for 'Log' amp distribution. Peak to peak
+%                         range in dB
+%       AmpDist         : Pulse amplitude distribution 
+%                        'Lin' - Linear uniformly distributed 
+%                        'Log' - Log uniformly distributed (i.e., in dB)
+%                        'Bin' - Binary 
+%                        (Default == 'Bin')
+%       seed            : Seed for random number generator
+%                         (Default = 0)
+%
+% (C) Monty A. Escabi, June 2011
+%
+function [S]=spatiotemporalelectricalpoisson(Lambda,Trefractory,PW,ChArray,Fs,M,MaxAmp,MaxdB,AmpDist,seed)
+
+%Input arguments
+if nargin<6
+    MaxdB=40;    %Not really used when nargin<6
+end
+if nargin<7
+    AmpDist='Bin';
+end
+if nargin<8
+    seed=0;
+end
+
+%Generating Pulse
+=
+%Generating Electrical Stimulation Signal
+for k=1:length(ChArray)
+   
+    if ChArray(k)==1
+        %Generating spatiotemporal POISSON sequence and interpolating to original sampling rate
+        T=M/Fs;
+        spet=poissongenstat(Lambda,T,Fs,Trefractory);
+        s=spet2impulse(spet,Fs,Fs,T)/Fs;
+        
+        S(k,:)=s-[0 s(1:end-1)];
+        
+        if strcmp(AmpDist,'Lin')
+            S(k,:)=S(k,:).*rand(size(S(k,:)))*MaxAmp;
+        elseif strcmp(AmpDist,'Log')
+            S(k,:)=S(k,:).*10.^((MaxdB*rand(size(S(k,:)))-MaxdB)/20)*MaxAmp;
+        elseif strcmp(AmpDist,'Bin')
+            S(k,:)=S(k,:)*MaxAmp;
+        end
+
+    end
+    
+end

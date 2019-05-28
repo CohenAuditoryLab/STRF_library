@@ -1,0 +1,4 @@
+
+FileName='/Users/escabi/data/ElectricalStimulation/ElectricalStimuli/AmplitudeMod25HzCarrier200Hz/Mod25HzCarrier200Hz_Block1.mat'
+T=5
+spatiotemporalelectricalmultitrialfile(FileName,T)

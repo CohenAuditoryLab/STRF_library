@@ -1,0 +1,26 @@
+clear all
+
+load ../DataExamplesJan_24_2011.mat
+DataTank=DataTank55;                %This is the best example unit
+%DataTank=DataTank53;
+
+load ModNoisePreFu300Hz30dB_param.mat
+
+[RASData]=mtfmodnoiseunifspet(DataTank,SoundParam);
+
+
+
+
+Fs= RASData.Est(1).Fs;
+spetA=[];
+spetB=[];
+for k=1:5
+    spetA=[spetA RASData.Est((k-1)*2+1).spet+30*Fs*(k-1)];
+    spetB=[spetB RASData.Est(k*2).spet+30*Fs*(k-1)];
+end
+
+T=30*5
+MaxTau=25
+Disp='y'
+[JitterData]=jittercorrfitspon(spetA,spetB,Fs,5000,T,MaxTau,Disp)
+ 

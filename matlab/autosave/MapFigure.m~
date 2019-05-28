@@ -1,0 +1,78 @@
+alpha=0.05
+C=colormap
+C(1,:)=[1 1 1];
+
+%Contains Map and A1 Mask
+load ./MapData/Map_07_26_2010_Final.mat 
+%load ./MapData/Map_07_27_2010_Final.mat
+%load ./MapData/Map_07_28_2010_Final.mat
+
+A1Mask=MapData.A1Mask;
+ i=find(MapData.tvalue>erfinv(1-alpha/2));
+ Mask=nan(14,14);
+ Mask(i)=ones(size(i));
+ Mask=A1Mask.*Mask2;
+
+
+
+figure(1)
+
+subplot(221)
+imagesc(MapData.BW.*Mask)
+caxis([0 1.5])
+%colorbar
+colormap(C)
+title('Bandwidth (octave)')
+set(gca,'XTick',[1:14]+.5)
+set(gca,'YTick',[1:14]+.5)
+set(gca,'XTickLabel',[])
+set(gca,'YTickLabel',[])
+set(gca,'GridLineStyle','-')
+set(gca,'XGrid','on')
+set(gca,'YGrid','on')
+
+
+subplot(223)
+imagesc((MapData.PeakDelay-100).*Mask)
+imagesc((MapData.PeakDelay-100).*Mask)
+caxis([15 30])
+%colorbar
+colormap(C)
+title('Response Delay (msec)')
+set(gca,'XTick',[1:14]+.5)
+set(gca,'YTick',[1:14]+.5)
+set(gca,'XTickLabel',[])
+set(gca,'YTickLabel',[])
+set(gca,'GridLineStyle','-')
+set(gca,'XGrid','on')
+set(gca,'YGrid','on')
+
+
+
+subplot(222)
+imagesc(MapData.cSMF.*Mask)
+colorbar
+caxis([-.1 2])
+colormap(C)
+title('Best spectral modulation (cycles/octave)')
+set(gca,'XTick',[1:14]+.5)
+set(gca,'YTick',[1:14]+.5)
+set(gca,'XTickLabel',[])
+set(gca,'YTickLabel',[])
+set(gca,'GridLineStyle','-')
+set(gca,'XGrid','on')
+set(gca,'YGrid','on')
+
+subplot(224)
+imagesc(MapData.cTMF.*Mask)
+colorbar
+caxis([9 15])
+colormap(C)
+title('Best temporal modulation (cycles/octave)')
+set(gca,'XTick',[1:14]+.5)
+set(gca,'YTick',[1:14]+.5)
+set(gca,'XTickLabel',[])
+set(gca,'YTickLabel',[])
+set(gca,'GridLineStyle','-')
+set(gca,'XGrid','on')
+set(gca,'YGrid','on')

@@ -1,0 +1,38 @@
+load Background.mat
+%load Vocalizations
+subplot(221)
+Freq=Xt;
+ i=find(Xt<=400 & Xt>=2);
+ Vt=mean(abs(V(1026:2048,:)'));
+% betat=lsqcurvefit(@(betat,Freq) (betat(1)*Freq.^betat(2)),[1 -1],Xt(i),(Vt(i)));
+
+%S=inf;
+%betat=[];
+%for betat1=0:.02:2
+%    for betat2=-2:0.02:0
+%   
+%       if mean((10*log10(betat1*Freq(i).^betat2)-10*log10(Vt(i))).^2)<S
+%          S= mean((10*log10(betat1*Freq(i).^betat2)-10*log10(Vt(i))).^2);
+%          betat=[betat1 betat2];
+%          
+%       end
+%    end
+%    
+%end
+
+%Freq=Freq(i);
+betat=lsqcurvefit(@(betat,Freq) 10*log10(betat(1)*Freq.^betat(2)),[1 -1],Xt(i),10*log10(Vt(i)));
+ semilogx(Xt,10*log10(Vt)')
+ hold on
+ semilogx(Freq,10*log10(betat(1)*Freq.^betat(2)),'r');
+ xlim([1 400])
+ 
+ subplot(222)
+ SFreq=Xs(1:30);
+ i=find(Xs>=.2 & Xs<=1.5);
+ Us=mean(abs(U(82:160,:)),2)';
+ betas=lsqcurvefit(@(betas,SFreq) (betas(1)*SFreq.^betas(2)),[.1 -.1],SFreq(i),Us(i));
+ semilogx(Xs,10*log10(Us)')
+ hold on
+ semilogx(SFreq,10*log10(betas(1)*SFreq.^betas(2)),'r');
+ axis([0.2 4 -40 0]) 

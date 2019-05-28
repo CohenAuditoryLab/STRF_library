@@ -1,0 +1,94 @@
+load ModNoisePreFu400HzSPL30dB_param.mat
+
+
+load ../DataExamplesApr_05_2011.mat
+load ../DataExamplesApr_06_2011.mat
+load ../DataExamplesApr_11_2011.mat
+load ../DataExamplesApr_18_2011.mat
+
+%Tank36 Nice, changes polarity with intensity
+%6 interesting
+%55
+
+
+T1=5
+T2=100
+[FTC] = ftcgenerate(DataTank35,T1,T2);
+imagesc(log2(FTC.Freq/2000),FTC.Level+85,FTC.data'/(FTC.T2-FTC.T1)*1000/FTC.NFTC);
+    set(gca,'YDir','normal')
+    hold on
+    set(gca,'Xtick',[-1 0 1 2 3 4])
+    set(gca,'XtickLabel',[1 2 4 8 16 32])
+
+
+
+[RASDataSPL,SoundEstimationEnvSPL,SoundParamSPL]=mtfmodnoiseunifsplspet(DataTank36,SoundParam,SoundEstimationEnv);
+T1=0
+T2=20
+DF=1
+figure(1)
+[Wkernel1]=wienerkernelenv(RASDataSPL(1),SoundEstimationEnvSPL(1).SPL,SoundParamSPL(1).Param,T1,T2,DF,'y');
+figure(2)
+[Wkernel2]=wienerkernelenv(RASDataSPL(2),SoundEstimationEnvSPL(2).SPL,SoundParamSPL(2).Param,T1,T2,DF,'y');
+figure(3)
+[Wkernel3]=wienerkernelenv(RASDataSPL(3),SoundEstimationEnvSPL(3).SPL,SoundParamSPL(3).Param,T1,T2,DF,'y');
+
+figure
+subplot(331)
+plot(Wkernel1.T,Wkernel1.k1,'k','linewidth',1)
+set(gca,'Box','off')
+axis([0 20 -4 4])
+
+subplot(334)
+plot(Wkernel2.T,Wkernel2.k1,'k','linewidth',1)
+set(gca,'Box','off')
+axis([0 20 -4 4])
+
+subplot(337)
+plot(Wkernel3.T,Wkernel3.k1,'k','linewidth',1)
+set(gca,'Box','off')
+axis([0 20 -.75 .75])
+
+
+subplot(332)
+imagesc(Wkernel1.T1,Wkernel1.T2,Wkernel1.k2)
+caxis([-.4 .4])
+set(gca,'Ydir','normal')
+
+subplot(335)
+imagesc(Wkernel2.T1,Wkernel2.T2,Wkernel2.k2)
+caxis([-.4 .4])
+set(gca,'Ydir','normal')
+
+
+subplot(338)
+imagesc(Wkernel3.T1,Wkernel3.T2,Wkernel3.k2)
+caxis([-.05 .05])
+set(gca,'Ydir','normal')
+
+
+
+subplot(333)
+plot(Wkernel1.T,Wkernel1.k2_1,'b','linewidth',1)
+hold on
+plot(Wkernel1.T,Wkernel1.k2_2,'r','linewidth',1)
+set(gca,'Box','off')
+axis([0 20 -.6 .6])
+
+subplot(336)
+plot(Wkernel2.T,Wkernel2.k2_1,'b','linewidth',1)
+hold on
+plot(Wkernel1.T,-Wkernel2.k2_2,'r','linewidth',1)
+set(gca,'Box','off')
+axis([0 20 -.6 .6])
+
+subplot(339)
+plot(Wkernel3.T,Wkernel3.k2_1,'b','linewidth',1)
+hold on
+plot(Wkernel1.T,Wkernel3.k2_2,'r','linewidth',1)
+set(gca,'Box','off')
+axis([0 20 -.6 .6])
+
+
+
+

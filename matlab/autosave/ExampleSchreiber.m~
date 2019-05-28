@@ -1,0 +1,59 @@
+L=50
+T=60*5
+Fsd=10000
+Fs=Fsd
+refractory=5
+MaxTau=50
+Disp='y'
+[spet]=poissongenstat(L,T,Fsd,refractory);
+
+
+%Condition 1
+sigma=1
+p=.5
+[spetA]=spetaddjitter(spet,sigma,p,0,10000);
+[spetB]=spetaddjitter(spet,sigma,p,0,10000);
+[JitterData]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+sig=[.25 .5 1 2 4 8 ]
+RASTER(1).spet=spetA;
+RASTER(1).Fs=Fs;
+RASTER(1).T=T;
+RASTER(2).spet=spetB;
+RASTER(2).Fs=Fs;
+RASTER(2).T=T;
+[R]=jitterrasterschreiber(RASTER,sig,Fsd);
+
+semilogx(sig,R,'gr)
+
+%Condition 2
+sigma=.25
+p=.5
+[spetA]=spetaddjitter(spet,sigma,p,0,10000);
+[spetB]=spetaddjitter(spet,sigma,p,0,10000);
+[JitterData]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+
+sig=[.25 .5 1 2 4 8 ]
+RASTER(1).spet=spetA;
+RASTER(1).Fs=Fs;
+RASTER(1).T=T;
+RASTER(2).spet=spetB;
+RASTER(2).Fs=Fs;
+RASTER(2).T=T;
+[R]=jitterrasterschreiber(RASTER,sig,Fsd);
+
+%Condition 2
+sigma=4
+p=.5
+[spetA]=spetaddjitter(spet,sigma,p,0,10000);
+[spetB]=spetaddjitter(spet,sigma,p,0,10000);
+[JitterData]=jittercorrfit(spetA,spetB,Fs,Fsd,T,MaxTau,Disp);
+
+sig=[.25 .5 1 2 4 8 ]
+RASTER(1).spet=spetA;
+RASTER(1).Fs=Fs;
+RASTER(1).T=T;
+RASTER(2).spet=spetB;
+RASTER(2).Fs=Fs;
+RASTER(2).T=T;
+[R]=jitterrasterschreiber(RASTER,sig,Fsd);
+

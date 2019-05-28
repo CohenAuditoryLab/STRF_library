@@ -1,0 +1,30 @@
+Fs=20000;
+Fsd=8000;   %Correlation Desired Sampling Rate
+Fsds=2000;  %Spectrum Desired Sampling Rate
+T=7;        %Stimulus duration for each trial
+MaxTau=50;  %Maximum Correlation Width
+df=50;      %Spectral Resolution in Hz for jitter spectrum
+Disp='n';
+
+%File List
+List=dir('*JIT.mat');
+
+%Computingn Jitter Correlation and Spectrum
+for k=1:length(List)
+    
+    %Converting Rastergram to Appropriate Format/Resolution
+    %[RASC1]=rastercompress(Cell10Crtx,Fs,T);
+    [RASTER]=rasterexpand(RASC1,Fsd);
+    
+    %Computing Jitter Correlation Functions
+    [Tau,Raa,Rab,Rpp,Rmodel,sigmag,pg,lambdag,sigma,p,lambda]=jitterrastercorrfit(RASTER,Fsd,MaxTau,Disp);
+    
+    %Computing Jitter Spectrum
+    [F,Pkk,Pkl,PkkS,PklS,PNoise,Pss,df]=jitterrasterspectrum(RASC1,Fsds,df,Disp);
+    
+    %Saving Data
+    index=findstr(List(k).name,'JIT.mat');
+    f=['save ' List(k).name(1:index-1) '_JITTER Tau Raa Rab Rpp Rmodel sigmag pg lambdag sigma p lambda F Pkk Pkl PkkS PklS PNoise Pss df'];
+    eval(f)
+    %disp(f)
+end

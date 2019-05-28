@@ -1,0 +1,60 @@
+%Simulation for Full Model Errors
+%Vary the following parameters
+%
+%sigma
+%pho
+%Nd - number of driven spikes (1000, 2000, 4000)
+%SNR=lambdad^
+
+Fs=10000
+T=300
+lambdai=40;
+refractory=5
+Fsd=4000
+MaxTau=15;
+[spet]=poissongenstat(lambdai,2000,Fs,refractory);
+
+pho=[0.1:.1:1]
+N=10;
+beta=log10(5/.5)/N;
+sigma=.5*10.^(beta*(0:N));
+
+Nd=[1000 2000 4000];        %Number of driven spikes
+
+SNR=5:5:20
+for k=1:length(pho)
+    for l=1:length(sigma)
+        for m=1:length(SNR)
+            for n=1:length(Nd)
+                
+            lambdad=lambdai*pho(k);
+            lambdas=10.^(-SNR(m)/20)*lambdad;
+    
+%            [(lambdad/lambdas)^2 10^(SNR(m)/10)] 
+            
+            T=Nd(n)/lambdad;
+            
+    ii=find((spet)/Fs<T);
+    [spetJ1]=spetaddjitter2(spet(ii),sigma(l),pho(k),lambdas,refractory,Fs,T);
+    [spetJ2]=spetaddjitter2(spet(ii),sigma(l),pho(k),lambdas,refractory,Fs,T);
+    
+    [JitterData(k,l,m,n)]=jittercorrfitspon(spetJ1,spetJ2,Fs,Fsd,T,MaxTau,'y');
+    JitterDataActual(k,l,m,n).sigma=sigma(l);
+    JitterDataActual(k,l,m,n).pho=pho(k);
+    JitterDataActual(k,l,m,n).p=pho(k)*lambdad/(lambdas+lambdad);
+    JitterDataActual(k,l,m,n).lambdad=lambdad;
+    JitterDataActual(k,l,m,n).lambdas=lambdas;
+    JitterDataActual(k,l,m,n).SNR=SNR(m);
+    JitterDataActual(k,l,m,n).Nd=Nd(n);
+    
+    
+    [sigma(l) pho(k)*lambdad/(lambdas+lambdad); JitterData(k,l,m,n).sigmag JitterData(k,l,m,n).pg]
+    pause(0.1)
+    
+    [k l m n]
+            end
+        end
+    end
+end
+
+save SimulationErrorFullModel JitterData JitterDataActual Fs T lambdai refractory Fsd MaxTau pho N beta sigma Nd  SNR

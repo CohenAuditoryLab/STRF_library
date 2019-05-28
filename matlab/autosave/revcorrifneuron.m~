@@ -1,0 +1,43 @@
+
+Fs=20000;
+F1=250;
+F2=700;
+TW=300
+H=bandpass(F1,F2,TW,Fs,40,'y');
+
+%Simulating System
+X=randn(1,20000*10);
+
+Y=conv(X,H);
+
+Y=X;
+[Y]=integratefire(Y,20,1,-55,-65,1,5,Fs,3,randn(size(Y)),'y','n');
+Y=Y*Fs;
+
+
+%Plotting Input and Output
+figure
+subplot(211)
+T=(0:length(X)-1)/Fs;
+plot(T,X)
+xlim([0 .1])
+subplot(212)
+T=(0:length(Y)-1)/Fs;
+plot(T,Y)
+xlim([0 .1])
+xlabel('time (sec)')
+
+%Estimating Impulse Response
+figure
+dt=1/Fs;
+N=(length(H)-1)/2;
+Y=Y(N+1:length(Y));
+Hest=xcorr(Y,X,N*3)*dt/var(X)*1/length(Y)/dt;
+subplot(211)
+Tau=(-N:N)*1000/Fs;
+plot(Tau,H,'k')
+xlim([-4 4])
+subplot(212)
+Taue=(-3*N:3*N)/Fs;
+plot(Taue*1000,Hest,'r')
+xlim([-4 4])

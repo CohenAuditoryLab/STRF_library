@@ -1,0 +1,18 @@
+Fs=44100
+Fm=[4 8 16 32 64]
+p=8
+fc=max(Fm)
+T=1/Fm(1)*1.1
+TT=1/(Fm(1))+1/max(Fm)/2
+for k=1:length(Fm)
+    subplot(length(Fm),1,k)
+    [X,Env,FM(k)]=pnbsplinemodnoise(inf,Fm(k),1,fc,8,T,Fs); 
+     Time=(1:length(X))/Fs;
+     plot(Time,X,'k')
+     hold on
+     plot(Time,Env,'r','linewidth',2)
+     set(gca,'visible','off')
+     imin=min(find(max(Env)==Env));
+     imax=max(find(max(Env)==Env));
+     axis([imin/Fs-1/Fm(4)/2 imin/Fs-1/Fm(4)/2+TT -1 1])
+ end

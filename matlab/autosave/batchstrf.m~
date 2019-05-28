@@ -1,0 +1,59 @@
+Fs=96000;   %Sampling rate for spikes and triggers
+X=load('/Users/escabi/data/Arek/180_v01/DATA 01/1581 013 005; UN; 07200; 082,1; 000,0; 20dB; 01sw/A 00.00ms/1581 013 005; all chunks spike times ASCII;  stimulus length 180[s].txt');
+spet=round(Fs/1000*X);                      %Spike event times in sample number
+Trig=(1:32000:96000*180); 					%Trigger times in sample number - marks the beginnig of each 32000 sample block
+ 
+SpecFileDMR='/Users/escabi/data/Arek/180_v01/DMRS_1000_20000_3#0_1#5_4#0_500_all_0180_96k_432_01_log_32_both_1_xxCN.spr'
+SpecFileRN='/Users/escabi/data/Arek/180_v01/DRNS_1000_20000_3#0_1#5_4#0_500_all_0180_96k_432_16_log_32_both_1_xxCN.spr'
+ 
+ 
+T1=0		%Start delay for computing the strf
+T2=.050 	%End delay for computing the strf in sec
+Fss=Fs 		%Sampling rate for spet and Trig
+SPL=60		
+MdB=30
+Sound='MR'	%Moving Ripple - change ro RN for ripple noise
+NBlocks=100 	%This is for the online display - it will display after every Nblocks of the sound
+ModType='dB'	%Modulation type for the strf - well be using dB
+ 
+%Generating the STRF
+[taxis,faxis,STRF1,STRF2,PP,Wo1,Wo2,No1,No2,SPLN]=rtwstrfdb(SpecFileDMR,T1,T2,spet,Trig,Fss,SPL,MdB,ModType,Sound,NBlocks);
+
+%PP is the spectrogram variance in dB^2
+%Wo1 is the spike rate 
+%No1 is the total number of spikes
+%SPLN is the SPL for each of the sinusoid components that is used to generate the ripple sound
+
+
+%Finding statistically significant strf samples
+p=0.001
+[STRF1s,Tresh]=wstrfstat(STRF1,p,No1,Wo1,PP,MdB,ModType,Sound,ModType);
+
+%Computing STRF parameters
+MaxRD=4;
+MaxFm=500;
+[RFParam]=strfparam(taxis,faxis,STRF1s,Wo1,PP,Sound,MaxFm,MaxRD);
+
+%Generating Ripple Transfer function
+[Fm,RD,RTF,RTFVar]=strf2rtf(taxis,faxis,STRF1s,MaxFm,MaxRD,'y')
+
+
+
+
+subplot(221)
+imagesc(taxis*1000,log2(faxis/faxis(1)),STRF1s*sqrt(PP)), colorbar
+xlabel('Delay (msec)')
+ylabel('Freq. (oct)')
+set(gca,'YDir','normal')
+
+subplot(222)
+imagesc(Fm,RD,RTF/max(max(RTF))),colorbar
+hold on
+contour(Fm,RD,RTF/max(max(RTF)),.5,'k')
+hold off
+xlabel('Modulation Freq (Hz)')
+ylabel('Ripple Density (cyc/oct)')
+set(gca,'YDir','normal')
+caxis([0 1])
+
+

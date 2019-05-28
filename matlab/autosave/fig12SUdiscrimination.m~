@@ -1,0 +1,48 @@
+
+
+
+subplot(221)
+plot(log10(Tau),mean(D3(4,:,:),3),'r')
+hold on
+errorbar(log10(Tau),mean(D3(4,:,:),3),std(D3(4,:,:),[],3)/sqrt(20),'r','linewidth',2)
+hold on
+plot(log10(Tau),mean(D3(10,:,:),3),'g')
+hold on
+errorbar(log10(Tau),mean(D3(10,:,:),3),std(D3(10,:,:),[],3)/sqrt(20),'g','linewidth',2)
+set(gca,'XTick',log10(Tau(1:2:end)))
+set(gca,'XTickLabel',([Tau(1:2:end)]))
+xlim(log10([0.1*.8 3.2/0.8]))
+set(gca,'Box','off')
+% shadedErrorBar(log10(Tau),mean(D3(4,:,:),3),std(D3(4,:,:)/sqrt(20),[],3),'r',2)
+% hold on
+% shadedErrorBar(log10(Tau),mean(D3(10,:,:),3),std(D3(10,:,:)/sqrt(20),[],3),'g',2)
+% set(gca,'XTick',log10(Tau(1:2:end)))
+% set(gca,'XTickLabel',[Tau(1:2:end)])
+% xlim(log10([0.1*.8 3.2/0.8]))
+% set(gca,'Box','off')
+% 
+
+subplot(222)
+plot(log10(Sig(4:10)),mean(D3(4:10,8,:),3),'r')
+hold on
+errorbar(log10(Sig(4:10)),mean(D3(4:10,8,:),3),std(D3(4:10,8,:),[],3)/sqrt(20),'r','linewidth',2)
+set(gca,'XTick',(Sig(3:2:end)))
+set(gca,'XTickLabel',[Sig(3:2:end)])
+xlim(([Sig(3)*.8 Sig(end)/.8]))
+set(gca,'Box','off')
+
+% shadedErrorBar(log10(Sig(4:10)),mean(D3(4:10,8,:),3),std(D3(4:10,8,:)/sqrt(20),[],3),'r',1)
+% set(gca,'XTick',log10(Sig(3:2:end)))
+% set(gca,'XTickLabel',[Sig(3:2:end)])
+% xlim(log10([Sig(3)*.8 Sig(end)/.8]))
+% set(gca,'Box','off')
+
+figure
+subplot(223)
+isi=10.^(0.2:0.1:4);
+semilogx(isi,mean(P2(1,11).p),'r','linewidth',2)
+hold on
+semilogx(isi,mean(P3(1,11).p),'b','linewidth',2)
+xlim([1 1000])
+set(gca,'XTick',[[1:10 20:10:100 200:100:1000]])
+set(gca,'Box','off')

@@ -1,0 +1,40 @@
+
+%Setting Print Area
+fighandle=figure;
+%set(fighandle,'position',[10,400,560,350],'paperposition',[.25 1.5  8 8.5]);
+
+color='k'
+
+cd ~/data/figure/SFN99/figdata9
+
+
+
+load IC97QJE3t4_f00_ch2_u1_Pre.mat
+Fs=1/(taxis(2)-taxis(1));
+T=max(taxis);
+[RAS]=rastercompress(RASTER(25:149,:),Fs,T)
+[JitterDataLin]=jitterrastercorrfitspon(RAS,1000,100,'y');
+
+load IC97QJE3t3_f10_ch2_u1_Pre.mat
+Fs=1/(taxis(2)-taxis(1));
+T=max(taxis);
+[RAS]=rastercompress(RASTER(25:149,:),Fs,T)
+[JitterData30]=jitterrastercorrfitspon(RAS,1000,100,'y');
+
+load IC97QJE3t3_f11_ch2_u1_Pre.mat
+Fs=1/(taxis(2)-taxis(1));
+T=max(taxis);
+[RAS]=rastercompress(RASTER(25:149,:),Fs,T)
+[JitterData60]=jitterrastercorrfitspon(RAS,1000,100,'y');
+
+
+
+%Changing Raster Point Size
+%change - 2 copy moveto lineto stroke
+%to -  gsave 10 setlinewidth 2 copy moveto lineto stroke grestore
+%
+
+%orient landscape 
+cd ~/data/figure/GRANT/NIH/NIH_Feb2010/NeuronExamples/figdata9
+
+save Figure9Data JitterDataLin JitterData30 JitterData60

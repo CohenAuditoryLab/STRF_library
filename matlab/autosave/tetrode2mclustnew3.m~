@@ -1,0 +1,182 @@
+%
+%function [SpikeTime,waveforms]=tetrode2mclust(Tetrode,Thresh,Nsamples,fl,fh,Fs)
+%   FILE NAME   : Tetrode to MClust
+%   DESCRIPTION : Convert a 4-channel tetrode continuous data file 
+%                 to MClust required format. 
+
+%   Tetrode     : .mat file that contains 4 channel of continous waveforms
+%                 in a tetrode (4 x number of samples)
+%   Thresh      : Threshold for spike detecting; Default=5 
+%	Nsamples    : Number of samples required in each spike waveform;
+%                 Default=33
+%	Fs          : Sampling frequency; Default=12207
+%	fl          : Lower cutoff frequency for bandpass filter; Default=300
+%	fh          : Higher cutoff frequency for bandpass filter; Default=5000
+%   US          : Upsampling factor 
+%   DeadTime    : Minimum time between adjecent spikes (msec) - Secondary 
+%                 spikes within this time window are not detected
+%                 (Default==0.5 msec)
+%   Disp        : Display output results (Default=='n')
+%
+%RETURNED PARAMETERS
+%
+%	TetrodeData : Output Tetrode Data Structure
+%                 .Snip
+%                 .Zsnip
+%                 .Yhat
+%                 .Fs
+%                 .Spet
+%                
+% (C) C.Chen, April 2008
+
+function [TetrodeData]=tetrode2mclustnew2(Tetrode,Thresh,Nsamples,fl,fh,Fs,US,DeadTime,Disp)
+
+%Input Arguments
+if nargin<9
+    Disp='n';
+end
+if nargin<8
+    DeadTime=0.5;
+end
+if nargin<7
+    US=4;
+end
+if nargin<6
+   Fs=12207;
+end  
+if nargin<4
+    fl=300;
+end
+if nargin<5
+   fh=5000;
+end
+if nargin<3
+   Nsamples=33;
+end
+if nargin<2
+   Thresh=[5 5];
+end   
+if length(Thresh)==1
+    Thresh=Thresh*ones(1,2);
+end
+
+%Filter continous waveform
+H=bandpass(fl,fh,250,Fs,40,'n');
+L=(length(H)-1)/2;
+Y=[];
+for i=1:4
+    disp(['Filtering Channel ' int2str(i)])
+    X=conv(Tetrode(i).ContWave,H);
+    N=length(X);
+    X=X(L+1:N-L);
+    Y(i,:)=X;
+end 
+clear Tetrode
+
+%Computig Covariance Matrix
+[C]=covblocked(Y',US,0,1024*512);       %Covariance
+[C2]=covblocked(Y',US,2,1024*512);      %Covariance of diff(X,2) - 2nd derivative waveform
+C=inv(C);                               %Inverese Covariance Matrix
+C2=inv(chol(C2,'lower'));               %Inverse Chelesky Decomposition of Covariance
+
+%Initialize Variables
+L=Fs*US;    %Block Size - # samples
+index=[];
+spet=[];
+Ytemp=[];
+count=1;
+TetrodeData.Snip=zeros(4,Nsamples*US-3,10000);
+TetrodeData.ZSnip=zeros(4,Nsamples*US-3,10000);
+TetrodeData.Yhat=zeros(10000,Nsamples*US-3);
+    
+%Spike Detection - Calculate hyperelliptical threshold    
+disp('Thresholding')
+for k=1:ceil(length(Y)/L)
+
+    %Interpolating Waveform Blocks
+    if length(Y)-(k-1)*L<L   %Checking for Last Segment
+        Ytemp=[];
+        Yt=Y(:,(k-1)*L+1-(Nsamples-1)/2:length(Y));  %Adding Nsamples at extremes to assure that all spikes are detected
+    elseif k==1
+        Yt=[zeros(4,(Nsamples-1)/2) Y(:,(k-1)*L+1:k*L+1+(Nsamples-1)/2)]; %Add zeros at begining of first block
+    else
+        Yt=Y(:,(k-1)*L+1-(Nsamples-1)/2:k*L+1+(Nsamples-1)/2); %Adding Nsamples at extremes to assure that all spikes are detected
+    end
+    M=length(Yt);
+    for l=1:4
+        Ytemp(l,:)=interp1(1:M,Yt(l,:),1:1/US:M-1/US,'spline');
+    end
+    clear Yt
+
+    %Generating Energy Signal for Raw Waveform and 2nd Derrivative
+    Y2=diff([zeros(4,2) Ytemp],2,2);    %Second Order Derivative
+    Y2=C2*Y2;                           %C2 is the iverse Cholesky decompostion of the covariance matrix
+    Z=Ytemp.*((C*Ytemp).*Y2);           %C is the inverse of the covariance matrix
+    Yhat=sum(Z,1);
+
+    %Finding Samples that Exceed Threshold and Contain Peaks
+    M=length(Yhat);
+    Ns=(Nsamples-1)/2*US;
+    Mask=[zeros(1,Ns) ones(1,L*US) zeros(1,Ns)];    %Used to remove edge boundaries
+    index=1+find(Mask(2:M-1) & Yhat(2:M-1)>Thresh(1)^2*Thresh(2) & abs(Yhat(2:M-1))>abs(Yhat(1:M-2)) & abs(Yhat(2:M-1))>abs(Yhat(3:M)) );;
+    spet=[spet (k-1)*M+index - Ns];   %Corrects for offset due to Ns and + 1
+
+    %Finding Spike & Feature Waveforms
+    for l=1:length(index)
+        TetrodeData.Snip(:,:,count)=Ytemp(:,index(l)-Ns:index(l)+Ns);
+        TetrodeData.ZSnip(:,:,count)=Z(:,index(l)-Ns:index(l)+Ns);
+        TetrodeData.Yhat(count,:)=Yhat(index(l)-Ns:index(l)+Ns);
+        count=count+1;
+    end
+    TetrodeData.spet=spet;
+
+    %Dynamically Allocating Data Arrays
+    if ~isinteger(length(spet)/10000)
+        LL=size(TetrodeData.Snip,3);
+        Lceil=ceil(LL/10000)*10000;
+        TetrodeData.Snip(:,:,LL+1:Lceil)=zeros(4,Nsamples*US-3,Lceil-LL);
+        TetrodeData.ZSnip(:,:,LL+1:Lceil)=zeros(4,Nsamples*US-3,Lceil-LL);
+        TetrodeData.Yhat(LL+1:Lceil,:)=zeros(Lceil-LL,Nsamples*US-3);
+    end
+
+    %Displaying Output Results
+    if strcmp(Disp,'y')
+        subplot(511)
+        Offset=(k-1)*M/Fs/US;
+        plot(Offset++(1:length(Yhat))/Fs/US,Yhat)
+        hold on
+        plot(Offset + index/Fs/US,4000*ones(size(index)),'r+')
+        axis([Offset Offset+M/Fs/US -5000 5000])
+        hold off
+
+        for k=1:4
+            subplot(5,1,k+1)    
+            Max=max(300,max(max(abs(Ytemp))));
+            plot(Offset+(1:length(Ytemp(k,:)))/Fs/US,Ytemp(k,:))
+            hold on
+            plot(Offset+index/Fs/US,0.8*Max*ones(size(index)),'r+')
+            axis([Offset Offset+M/Fs/US -Max Max])
+            hold off
+            if k==4
+               xlabel('Time (sec)') 
+            end
+            pause(0)
+        end
+    end
+end
+
+%Truncating Data to Appropriate Size
+TetrodeData.Snip=TetrodeData.Snip(:,:,1:length(TetrodeData.spet));
+TetrodeData.ZSnip=TetrodeData.ZSnip(:,:,1:length(TetrodeData.spet));
+TetrodeData.Yhat=TetrodeData.Yhat(1:length(TetrodeData.spet),:);
+
+%Removing Peaks Within Dead Time
+dt=DeadTime/1000;
+ii=find(diff(TetrodeData.spet)/Fs/US>dt);
+TetrodeData.spet=TetrodeData.spet(ii+1);
+TetrodeData.Snip=TetrodeData.Snip(:,:,ii+1);
+TetrodeData.ZSnip=TetrodeData.ZSnip(:,:,ii+1);
+TetrodeData.Yhat=TetrodeData.Yhat(ii+1,:);
+TetrodeData.Fs=Fs*US;
+TetrodeData.C=C;
+TetrodeData.C2=C2;

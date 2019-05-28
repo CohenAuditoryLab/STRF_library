@@ -1,0 +1,166 @@
+load Map_07_26_2010_v3.mat      %V2 versions contain a A1 Mask
+Mask=MapData.Mask;
+i=find(Mask~=0 & Peak);
+BF1=[MapData.BF(i)];
+PeakBF1=[MapData.PeakBF(i)];
+BFHz1=[MapData.BFHz(i)];
+BWHz1=[MapData.BWHz(i)];
+BW1=[MapData.BW(i)];
+cSMF1=[MapData.cSMF(i)];
+cTMF1=[MapData.cTMF(i)];
+bSMF1=[MapData.bSMF(i)];
+bTMF1=[MapData.bTMF(i)];
+FmUpperCutoff1=[MapData.FmUpperCutoff(i)];
+RDUpperCutoff1=[MapData.RDUpperCutoff(i)];
+Delay1=[MapData.Delay(i)];
+PeakDelay1=[MapData.PeakDelay(i)];
+Duration1=[MapData.Duration(i)];
+
+load Map_07_27_2010_v3.mat
+Mask=MapData.Mask;
+i=find(Mask~=0);
+BF2=[MapData.BF(i)];
+PeakBF2=[MapData.PeakBF(i)];
+BFHz2=[MapData.BFHz(i)];
+BWHz2=[MapData.BWHz(i)];
+BW2=[MapData.BW(i)];
+cSMF2=[MapData.cSMF(i)];
+cTMF2=[MapData.cTMF(i)];
+bSMF2=[MapData.bSMF(i)];
+bTMF2=[MapData.bTMF(i)];
+FmUpperCutoff2=[MapData.FmUpperCutoff(i)];
+RDUpperCutoff2=[MapData.RDUpperCutoff(i)];
+Delay2=[MapData.Delay(i)];
+PeakDelay2=[MapData.PeakDelay(i)];
+Duration2=[MapData.Duration(i)];
+
+load Map_07_28_2010_v3.mat
+Mask=MapData.Mask;
+i=find(Mask~=0);
+BF3=[MapData.BF(i)];
+PeakBF3=[MapData.PeakBF(i)];
+BFHz3=[MapData.BFHz(i)];
+BWHz3=[MapData.BWHz(i)];
+BW3=[MapData.BW(i)];
+cSMF3=[MapData.cSMF(i)];
+cTMF3=[MapData.cTMF(i)];
+bSMF3=[MapData.bSMF(i)];
+bTMF3=[MapData.bTMF(i)];
+FmUpperCutoff3=[MapData.FmUpperCutoff(i)];
+RDUpperCutoff3=[MapData.RDUpperCutoff(i)];
+Delay3=[MapData.Delay(i)];
+PeakDelay3=[MapData.PeakDelay(i)];
+Duration3=[MapData.Duration(i)];
+
+
+figure
+subplot(221)
+loglog(BFHz1,BWHz1/1000,'k+')
+hold on
+loglog(BFHz2,BWHz2/1000,'ko')
+loglog(BFHz3,BWHz3/1000,'k^')
+xlabel('BF')
+ylabel('BWHz')
+set(gca,'XTick',[1 2 4 8 16 32])
+set(gca,'XTickLabel',[1 2 4 8 16 32])
+xlim([1 40])
+set(gca,'YTick',[0.1 1 10])
+set(gca,'YTickLabel',[0.1 1 10])
+ylim([0.1 40])
+
+
+subplot(222)
+plot(Delay1-100,Duration1,'k+')
+hold on
+plot(Delay2-100,Duration2,'ko')
+plot(Delay3-100,Duration3,'k^')
+xlabel('Duration')
+ylabel('Delay')
+xlim([17 43])
+ylim([25 75])
+
+subplot(223)
+plot(Duration1,FmUpperCutoff1,'k+')
+hold on
+plot(Duration2,FmUpperCutoff2,'ko')
+plot(Duration3,FmUpperCutoff3,'k^')
+xlabel('Duration')
+ylabel('Fm Upper')
+
+
+subplot(224)
+plot(BW1,cSMF1,'k+')
+hold on
+plot(BW2,cSMF2,'ko')
+plot(BW3,cSMF3,'k^')
+xlabel('BW')
+ylabel('cSMF')
+
+
+
+
+
+figure
+figure
+subplot(221)
+semilogx(BFHz1,PeakDelay1-100,'k+')
+hold on
+plot(BFHz2,PeakDelay2-100,'ko')
+plot(BFHz3,PeakDelay3-100,'k^')
+xlabel('BF')
+ylabel('Delay')
+ set(gca,'XTick',[1 2 4 8 16 32])
+ set(gca,'XTickLabel',[1 2 4 8 16 32])
+ xlim([1 40])
+% set(gca,'YTick',[0.1 1 10])
+% set(gca,'YTickLabel',[0.1 1 10])
+% ylim([0.1 40])
+
+
+
+
+% 
+% figure
+% subplot(221)
+% loglog(Duration1,BW1,'k+')
+% hold on
+% loglog(Duration2,BW2,'ko')
+% loglog(Duration3,BW3,'k^')
+% xlabel('Duration')
+% ylabel('BW')
+% 
+% subplot(222)
+% plot(BWHz1,FmUpperCutoff1,'k+')
+% hold on
+% plot(BWHz2,FmUpperCutoff2,'ko')
+% plot(BWHz3,FmUpperCutoff3,'k^')
+% xlabel('BW')
+% ylabel('Fm Uperr')
+% 
+% 
+% subplot(223)
+% plot(BWHz1,cSMF1,'k+')
+% hold on
+% plot(BWHz2,cSMF2,'ko')
+% plot(BWHz3,cSMF3,'k^')
+% xlabel('BWHz')
+% ylabel('cSMF')
+% 
+% subplot(224)
+% plot(BWHz1,bTMF1,'k+')
+% hold on
+% plot(BWHz2,bTMF2,'ko')
+% plot(BWHz3,bTMF3,'k^')
+% xlabel('BWHz')
+% ylabel('bTMF')
+% 
+% figure
+% subplot(221)
+% plot(BF1,RDUpperCutoff1,'k+')
+%  hold on
+% plot(BF2,RDUpperCutoff2,'ko')
+% plot(BF2,RDUpperCutoff2,'k^')
+% % plot(BF2,cSMF2,'ko')
+% % plot(BF3,cSMF3,'k^')
+% xlabel('BWHz')
+% ylabel('bTMF')

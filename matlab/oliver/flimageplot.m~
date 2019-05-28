@@ -1,0 +1,38 @@
+%
+%function [X] = flimageplot(filename1,filename2)
+%	
+%	FILE NAME       : FL IMAGE PLOT
+%	DESCRIPTION 	: Plots a florescent Image
+%
+%   filename1       : Green Channel Image
+%   filename2       : Red Channel Image
+%   alpha           : Intensity scaling - 0 to 1 (Default==1)
+%                     If alpha is a 2 element array scales Red and Green
+%                     channels independently
+%
+% (C) Monty A. Escabi, April 2007
+%
+%   X               : Image in RGB format
+%
+function [X] = flimageplot(filename1,filename2,alpha)
+
+%Input Arguments
+if nargin<3
+    alpha=1;
+end
+
+%Reading Image Data
+X1 = imread(filename1,'TIFF');
+X2 = imread(filename2,'TIFF');
+
+%Converting into RGB Image
+X(:,:,1)=double(X1)/4095;
+X(:,:,2)=double(X2)/4095;
+X(:,:,3)=zeros(size(X1));
+
+%Scaling Image
+X=X/max(max(max(X)));
+
+
+%Plotting Image
+imagesc(X)

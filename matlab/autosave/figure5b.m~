@@ -1,0 +1,23 @@
+
+subplot(221)
+RASShape=[RASSpline(1,:).RASTER];
+
+[Time,Trial,MaxTrial] = rasterconvert(RASShape);
+plot(Time,Trial,'k.')
+axis([0 1.4 0 60])
+hold on
+for k=1:6
+   plot([0 5],[10*k 10*k],'k') 
+end
+set(gca,'YDir','reverse')
+set(gca,'XTick',[0 .5 1])
+
+RASper=[RASSpline(:,6).RASTER];
+[Time,Trial,MaxTrial] = rasterconvert(RASper);
+plot(Time,Trial,'k.')
+axis([1 2 0 60])
+hold on
+for k=1:5
+   plot([0 5],[10*k 10*k],'k') 
+end
+set(gca,'YDir','reverse')

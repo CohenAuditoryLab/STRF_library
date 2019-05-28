@@ -1,0 +1,116 @@
+load 26n
+
+
+for i=1:size(FTCn,1)
+    for j=1:size(FTCn,2)
+
+        Rtrial=FTCn(i,j).Rtrial;
+        Ravg=FTCn(i,j).Ravg;
+        Snoise=[];
+        for k=1:41
+            for l=1:6
+                Snoise=[Snoise ;squeeze(Rtrial(k,1,l,:))'];
+            end
+        end
+        Pnn=mean(abs(fft(Snoise,[],2)).^2,1);
+
+        Pssk=[];
+        for k=1:41
+            Pss=[];
+            for l=1:6
+                for m=1:6
+                    if m~=l
+                        N=size(Rtrial,2);
+                        Sl=squeeze(Rtrial(k,N,l,:))';
+                        Sm=squeeze(Rtrial(k,N,m,:))';
+                        Pss=[Pss;abs(fft(Sl).*conj(fft(Sm)))];
+                    end
+                end
+            end
+            Pssk=[Pssk;mean(Pss,1)];
+        end
+        SNRData(i,j).SNR=10*log10(mean(Pssk)./Pnn);
+
+    end
+end
+
+
+
+
+% %%%%% %%%%%%%%%%%%%% AVERAGE RESPONSE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% f1=figure
+% set(f1,'Position',[60 115 1312 669])
+% set(f1,'PaperPosition',[0.25 2.5 8 6])
+% 
+% Nmax=25
+% MinR=min(min(min(FTCn(7,7).Ravg))); 
+% MaxR=max(max(max(FTCn(7,7).Ravg)));
+% 
+% 
+% for k=1:9
+%     XX=[];
+%     for l=1:26
+%         [k l]
+%         LL=l+15;
+% 
+%         XX= [XX squeeze(FTCn(7,7).Ravg(LL,9-k+1,1:Nmax))' NaN(1,5)]
+%     end
+%     
+%     subplot(9,1,k)
+%     plot(XX,'k')
+%     set(gca,'Visible','off')
+%     set(gca,'Box','off')
+%     ylim([ MinR MaxR])
+% end
+% 
+% 
+% %%%%% %%%%%%%%%%%%%% SINGLE TRIAL RESPONSE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+% f2=figure
+% set(f2,'Position',[60 115 1312 669])
+% set(f2,'PaperPosition',[0.25 2.5 8 6])
+% 
+% Nmax=25
+% MinR=min(min(min(FTCn(7,7).Ravg))); 
+% MaxR=max(max(max(FTCn(7,7).Ravg)));
+% 
+% 
+% for k=1:9
+%     XX=[];
+%     for l=1:26
+%         [k l]
+%         LL=l+15;
+% 
+%         XX= [XX squeeze(FTCn(7,7).Rtrial(LL,9-k+1,1,1:Nmax))' NaN(1,5)]
+%     end
+%     
+%     subplot(9,1,k)
+%     plot(XX,'k')
+%     set(gca,'Visible','off')
+%     set(gca,'Box','off')
+%     ylim([ MinR MaxR])
+% end
+% 
+% 
+% 
+% %%%%%%%%%%%%%%%%%%%%%% FRA %%%%%%%%%%%%%%%%%%%%%%%%
+% figure
+% imagesc(log2(FTCn(7,7).Freq(16:41)/4000),FTCn(7,7).Level+85,FTCn(7,7).Rpp(16:41,:)'),set(gca,'YDir','normal')
+% set(gca,'XTick',[1 2 3])
+% set(gca,'XTickLabel',[8 16 32])
+% % 
+% 
+% %%%%%%%%%%%%%%%%%%%%%% Single Trial FRA %%%%%%%%%%%%%%%%%%%%issio%%%%
+% figure
+% 
+% for k=1:9
+%     for l=1:26
+%        LL=l+15;
+%         RppST(k,l)= max(squeeze(FTCn(7,7).Rtrial(LL,k,1,:))');
+%     end
+% end
+% 
+% imagesc(log2(FTCn(7,7).Freq(16:41)/4000),FTCn(7,7).Level+85,RppST),set(gca,'YDir','normal')
+% set(gca,'XTick',[1 2 3])
+% set(gca,'XTickLabel',[8 16 32])
+% 

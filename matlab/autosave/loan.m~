@@ -1,0 +1,65 @@
+I=0.05375   %Payments
+dI=I/12;
+%P1=110512   %Starting Principal
+P1=65628
+N=1         %Payment Number
+P=P1;
+IP=0;       %Interest Payment
+Payment=907.15+100
+
+%Year 1
+P(N)=P(N)-10000;
+for k=1:12
+    IP(N)=P(N)*dI;
+    P(N+1)=P(N)-Payment+IP(N);
+    N=N+1;
+end
+%Year 2
+P(N)=P(N)-10000;
+for k=1:12
+    IP(N)=P(N)*dI;
+    P(N+1)=P(N)-Payment+IP(N);
+    N=N+1;
+end
+%Year 3
+P(N)=P(N)-10000;
+%for k=1:12
+%    IP(N)=P(N)*dI;
+%    P(N+1)=P(N)-Payment+IP(N);
+%    N=N+1;
+%end
+
+while P(N)>0
+    IP(N)=P(N)*dI;
+    P(N+1)=P(N)-Payment+IP(N);
+     N=N+1;
+end
+
+
+
+
+
+%%%%%%%%%%%
+I=0.05375   %Payments
+dI=I/12;
+P1=65628   %Starting Principal
+N=1         %Payment Number
+P=P1;
+IP=0;       %Interest Payment
+Payment=907.15+1000
+
+%Year 1
+%P(N)=P(N)-60000
+for k=1:12
+    IP(N)=P(N)*dI;
+    P(N+1)=P(N)-Payment+IP(N);
+    N=N+1;
+end
+
+
+while P(N)>0
+    IP(N)=P(N)*dI;
+    P(N+1)=P(N)-Payment+IP(N);
+     N=N+1;
+end
+

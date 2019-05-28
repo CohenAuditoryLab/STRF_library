@@ -1,0 +1,33 @@
+%
+%function [] = flimageplot(filename1,filename2)
+%	
+%	FILE NAME       : FL IMAGE PLOT
+%	DESCRIPTION 	: Plots a florescent Image
+%
+%   filename1       : Green Channel Image
+%   filename2       : Red Channel Image
+%
+%RETURNED VARIABLES
+%
+%   X               : Image in RGB format
+%
+% (C) Monty A. Escabi, April 2007
+%
+function [X1,X2] = flimageimagealign(filename1,filename2,FMT)
+
+%Reading Image Data
+X1 = imread(filename1,FMT);
+X2 = imread(filename2,FMT);
+
+
+N1=size(X1,1);
+N2=size(X2,2);
+
+
+X1
+
+
+subplot(221)
+imagesc(X1)
+subplot(222)
+imagesc(X2)

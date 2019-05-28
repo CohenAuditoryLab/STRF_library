@@ -1,0 +1,58 @@
+outfile='DMR500icMultiTrial'
+L=75
+Fs=96000
+Npause=round(96000*.25);
+
+filename=[outfile '.raw'];
+fidout=fopen(filename,'wb');
+filenametrig=[outfile 'Trig.raw'];
+fidtrig=fopen(filenametrig,'wb');
+
+for k=1:L
+    
+    %Reading 1-st input file
+    infile1=[outfile '_' num2str(1) '30dB.bin'];
+    fidin1=fopen(infile1,'r');
+    X1=fread(fidin1,inf,'float');
+    disp(['Reading ' infile1])
+    
+    %Reading k-th input file
+    infile=[outfile '_' num2str(k) '30dB.bin'];
+    fidin=fopen(infile,'r');
+    X=fread(fidin,inf,'float');
+    disp(['Reading ' infile])
+    
+    %Writing Output
+    XX1=[X1' zeros(1,Npause)];
+    Y1=round(XX1/max(abs(XX1))*2^27);
+    XX=[X' zeros(1,Npause)];
+    Y=round(XX/max(abs(XX))*2^27);
+    Trig=zeros(size(XX));
+    Trig(1:2000)=floor(2^31*ones(1,2000)-1);
+    
+    %Writing output files
+    %Note that Im interleaving frozen carriers (1st file; odd case) with the unfrozen
+    %carriers (even case).
+    %
+    fwrite(fidout,Y1,'int32');      %Frozen Carriers
+    fwrite(fidout,Y,'int32');      %Unfrozen Carriers
+    fwrite(fidtrig,Trig,'int32');   %Triggers
+    
+    fclose(fidin)
+    fclose(fidin1)
+end
+fclose(fidout)
+fclose(fidtrig)
+
+
+
+%Using SOX to convert to WAV File
+f=['!/usr/local/bin/sox -r ' int2str(Fs) ' -c 2 -l -s ' filename ' -l ' outfile num2str(2*L)  '75x2.wav' ];
+eval(f)
+
+f=['!/usr/local/bin/sox -r ' int2str(Fs) ' -c 2 -l -s ' filenametrig ' -l ' outfile num2str(2*L)  '75x2Trig.wav' ];
+eval(f)
+
+%f=['!rm test.raw'];
+%eval(f)
+

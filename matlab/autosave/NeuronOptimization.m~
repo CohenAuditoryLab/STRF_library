@@ -1,0 +1,482 @@
+%Physiological Modelling Project
+
+cd('C:\Users\Brian\Desktop\Work\School\Physiological Modeling\Project\matlab\matlab')
+load BrianData
+load ProjectNeuronData
+
+%Corrected correlation
+L=100
+
+Ymodel=Wkernel.Ytot;
+Ymodel=Ymodel-mean(Ymodel);
+
+PSTH1=Wkernel.PSTH1;
+PSTH1=PSTH1-mean(PSTH1);
+
+N=length(Ymodel);
+
+PSTH2=Wkernel.PSTH2;
+PSTH2=PSTH2-mean(PSTH2);
+
+Rm2=xcorr(Ymodel,PSTH2,L)/(N-1);
+R12=xcorr(PSTH1,PSTH2,L)/(N-1);
+
+Var1=var(PSTH1)-var(PSTH1-PSTH2)/2;
+Var2=var(PSTH2)-var(PSTH1-PSTH2)/2;
+Varm=var(Ymodel);
+
+Rm2=Rm2/sqrt(Varm*Var2);
+R12=R12/sqrt(Var1*Var2);
+
+%View adjusted cross-correlations
+plot(Rm2)
+hold
+plot(R12, 'r')
+
+%Put Data into the IF model
+YmodelDat=[Ymodel Ymodel];
+trials = 30;
+IFinput = [Fs trials YmodelDat];
+
+% Tau = 5;
+% Tref = 1;
+% Nsig = 1;
+% SNR = 5;
+% Beta = [Tau Tref Nsig SNR];
+% IFout = integratefirepsth(Beta, IFinput);
+% IFout = IFout - mean(IFout);
+
+% IFout1 = IFout(1:7648);
+% IFout2 = IFout(7649:length(IFout));
+
+% IFout1 = [];
+% IFout2 = [];
+% for i = 1:size(IFout')
+%     if (rem(i, 2) == 1)
+%         IFout1 = [IFout1 IFout(i)];
+%     else
+%         IFout2 = [IFout2 IFout(i)];
+%     end
+% end
+
+% Varm1=var(IFout1)-var(IFout1-IFout2)/2;
+% Varm2=var(IFout2)-var(IFout1-IFout2)/2;
+% 
+% Ri2 = xcorr(IFout1, PSTH2, L)/(N-1);
+% Ri2 = Ri2/sqrt(Varm1*Var2);
+
+%--------------------------------------------------------------------------
+%Optimization
+
+
+cd('C:\Users\Brian\Desktop\Work\School\Physiological Modeling\Project\matlab\matlab')
+load BrianData
+load ProjectNeuronData
+
+%Corrected correlation
+L=100
+
+Ymodel=Wkernel.Ytot;
+Ymodel=Ymodel-mean(Ymodel);
+
+PSTH1=Wkernel.PSTH1;
+PSTH1=PSTH1-mean(PSTH1);
+
+N=length(Ymodel);
+
+PSTH2=Wkernel.PSTH2;
+PSTH2=PSTH2-mean(PSTH2);
+
+Rm2=xcorr(Ymodel,PSTH2,L)/(N-1);
+R12=xcorr(PSTH1,PSTH2,L)/(N-1);
+
+Var1=var(PSTH1)-var(PSTH1-PSTH2)/2;
+Var2=var(PSTH2)-var(PSTH1-PSTH2)/2;
+Varm=var(Ymodel);
+
+Rm2=Rm2/sqrt(Varm*Var2);
+R12=R12/sqrt(Var1*Var2);
+
+%Put Data into the IF model
+YmodelDat=[Ymodel Ymodel];
+trials = 30;
+IFinput = [Fs trials YmodelDat];
+
+Tau0 = 2;
+Tref0 = .5;
+Nsig0 =.5;
+SNR0 = -15;
+
+TauMax = 20;
+TrefMax = 2;
+NsigMax = 4;
+SNRMax = 10;
+
+%Start minValue vectors
+minValue = ones(5, 1);
+minValue = minValue*inf
+TauValue = zeros(5, 1);
+TrefValue = zeros(5, 1);
+NsigValue = zeros(5, 1);
+SNRValue = zeros(5, 1);
+
+for Tau = Tau0:2:TauMax
+    for Tref = Tref0:.5:TrefMax
+        for Nsig = Nsig0:.25:NsigMax
+            for SNR = SNR0:5: SNRMax
+                %Create output from IF model
+                Beta = [Tau Tref Nsig SNR];
+                IFout = integratefirepsth(Beta, IFinput);
+                IFout1 = IFout(1:7648);
+                IFout1 = IFout1 - mean(IFout1);
+                IFout2 = IFout(7649:length(IFout));
+                IFout2 = IFout2 - mean(IFout2);
+                Varm1=var(IFout1)-var(IFout1-IFout2)/2;
+                Ri2 = xcorr(IFout1, PSTH2, L)/(N-1);
+                Ri2 = Ri2/sqrt(Varm1*Var2);
+                error = R12 - Ri2;
+                varError = sum(error.^2);
+                if (varError < minValue(1))
+                    minValue(2) = minValue(1);
+                    minValue(1) = varError;
+                    TauValue(1) = Tau;
+                    TrefValue(1) = Tref;
+                    NsigValue(1) = Nsig;
+                    SNRValue(1) = SNR;
+                elseif (varError < minValue(2))
+                    minValue(3) = minValue(2);
+                    minValue(2) = varError;
+                    TauValue(2) = Tau;
+                    TrefValue(2) = Tref;
+                    NsigValue(2) = Nsig;
+                    SNRValue(2) = SNR;
+                elseif (varError < minValue(3))
+                    minValue(4) = minValue(3);
+                    minValue(3) = varError;
+                    TauValue(3) = Tau;
+                    TrefValue(3) = Tref;
+                    NsigValue(3) = Nsig;
+                    SNRValue(3) = SNR;
+                elseif (varError < minValue(4))
+                    minValue(5) = minValue(4);
+                    minValue(4) = varError;
+                    TauValue(4) = Tau;
+                    TrefValue(4) = Tref;
+                    NsigValue(4) = Nsig;
+                    SNRValue(4) = SNR;
+                elseif (varError < minValue(5))
+                    minValue(5) = varError;
+                    TauValue(5) = Tau;
+                    TrefValue(5) = Tref;
+                    NsigValue(5) = Nsig;
+                    SNRValue(5) = SNR;
+                end
+            end
+        end
+    end
+end
+
+Beta1 = [TauValue(1) TrefValue(1) NsigValue(1) SNRValue(1)];
+Beta2 = [TauValue(2) TrefValue(2) NsigValue(2) SNRValue(2)];
+Beta3 = [TauValue(3) TrefValue(3) NsigValue(3) SNRValue(3)];
+Beta4 = [TauValue(4) TrefValue(4) NsigValue(4) SNRValue(4)];
+Beta5 = [TauValue(5) TrefValue(5) NsigValue(5) SNRValue(5)];
+
+
+
+%--------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------
+%Optimization
+
+
+cd('C:\Users\Brian\Desktop\Work\School\Physiological Modeling\Project\matlab\matlab')
+load BrianData
+load ProjectNeuronData
+
+%Corrected correlation
+L=100
+
+Ymodel=Wkernel.Ytot;
+Ymodel=Ymodel-mean(Ymodel);
+
+PSTH1=Wkernel.PSTH1;
+PSTH1=PSTH1-mean(PSTH1);
+
+N=length(Ymodel);
+
+PSTH2=Wkernel.PSTH2;
+PSTH2=PSTH2-mean(PSTH2);
+
+Rm2=xcorr(Ymodel,PSTH2,L)/(N-1);
+R12=xcorr(PSTH1,PSTH2,L)/(N-1);
+
+Var1=var(PSTH1)-var(PSTH1-PSTH2)/2;
+Var2=var(PSTH2)-var(PSTH1-PSTH2)/2;
+Varm=var(Ymodel);
+
+Rm2=Rm2/sqrt(Varm*Var2);
+R12=R12/sqrt(Var1*Var2);
+
+%Put Data into the IF model
+YmodelDat=[Ymodel Ymodel];
+trials = 30;
+IFinput = [Fs trials YmodelDat];
+
+Tau0 = 1;
+Tref0 = .5;
+Nsig0 =2.5;
+SNR0 = -15;
+
+TauMax = 3;
+TrefMax = 1.5;
+NsigMax = 5.5;
+SNRMax = 10;
+
+%Start minValue vectors
+minValue = ones(5, 1);
+minValue = minValue*inf
+TauValue = zeros(5, 1);
+TrefValue = zeros(5, 1);
+NsigValue = zeros(5, 1);
+SNRValue = zeros(5, 1);
+
+for Tau = Tau0:.25:TauMax
+    for Tref = Tref0:.25:TrefMax
+        for Nsig = Nsig0:.25:NsigMax
+            for SNR = SNR0:5: SNRMax
+                %Create output from IF model
+                Beta = [Tau Tref Nsig SNR];
+                IFout = integratefirepsth(Beta, IFinput);
+                IFout1 = IFout(1:7648);
+                IFout1 = IFout1 - mean(IFout1);
+                IFout2 = IFout(7649:length(IFout));
+                IFout2 = IFout2 - mean(IFout2);
+                Varm1=var(IFout1)-var(IFout1-IFout2)/2;
+                Ri2 = xcorr(IFout1, PSTH2, L)/(N-1);
+                Ri2 = Ri2/sqrt(Varm1*Var2);
+                error = R12 - Ri2;
+                varError = sum(error.^2);
+                if (varError < minValue(1))
+                    for j = 5:-1:2;
+                        minValue(j) = minValue(j-1);
+                        TauValue(j) = TauValue(j-1);
+                        TrefValue(j) = TrefValue(j-1);
+                        NsigValue(j) = NsigValue(j-1);
+                        SNRValue(j) = SNRValue(j-1);
+                    end
+                    minValue(1) = varError;
+                    TauValue(1) = Tau;
+                    TrefValue(1) = Tref;
+                    NsigValue(1) = Nsig;
+                    SNRValue(1) = SNR;
+                elseif (varError < minValue(2))
+                    for j = 5:-1:3;
+                        minValue(j) = minValue(j-1);
+                        TauValue(j) = TauValue(j-1);
+                        TrefValue(j) = TrefValue(j-1);
+                        NsigValue(j) = NsigValue(j-1);
+                        SNRValue(j) = SNRValue(j-1);
+                    end
+                    minValue(2) = varError;
+                    TauValue(2) = Tau;
+                    TrefValue(2) = Tref;
+                    NsigValue(2) = Nsig;
+                    SNRValue(2) = SNR;
+                elseif (varError < minValue(3))
+                   for j = 5:-1:4;
+                        minValue(j) = minValue(j-1);
+                        TauValue(j) = TauValue(j-1);
+                        TrefValue(j) = TrefValue(j-1);
+                        NsigValue(j) = NsigValue(j-1);
+                        SNRValue(j) = SNRValue(j-1);
+                    end
+                    minValue(3) = varError;
+                    TauValue(3) = Tau;
+                    TrefValue(3) = Tref;
+                    NsigValue(3) = Nsig;
+                    SNRValue(3) = SNR;
+                elseif (varError < minValue(4))
+                    minValue(5) = minValue(4);
+                    TauValue(5) = TauValue(4);
+                    TrefValue(5) = TrefValue(4);
+                    NsigValue(5) = NsigValue(4);
+                    SNRValue(5) = SNRValue(4);
+                    minValue(4) = varError;
+                    TauValue(4) = Tau;
+                    TrefValue(4) = Tref;
+                    NsigValue(4) = Nsig;
+                    SNRValue(4) = SNR;
+                elseif (varError < minValue(5))
+                    minValue(5) = varError;
+                    TauValue(5) = Tau;
+                    TrefValue(5) = Tref;
+                    NsigValue(5) = Nsig;
+                    SNRValue(5) = SNR;
+                end
+            end
+        end
+    end
+end
+
+Beta1 = [TauValue(1) TrefValue(1) NsigValue(1) SNRValue(1)];
+Beta2 = [TauValue(2) TrefValue(2) NsigValue(2) SNRValue(2)];
+Beta3 = [TauValue(3) TrefValue(3) NsigValue(3) SNRValue(3)];
+Beta4 = [TauValue(4) TrefValue(4) NsigValue(4) SNRValue(4)];
+Beta5 = [TauValue(5) TrefValue(5) NsigValue(5) SNRValue(5)];
+
+
+
+%--------------------------------------------------------------------------
+
+%Next Optimization
+cd('C:\Users\Brian\Desktop\Work\School\Physiological Modeling\Project\matlab\matlab')
+load BrianData
+load ProjectNeuronData
+
+%global XDATA
+
+%Corrected correlation
+Ntau=100;   %Correlation lenght in samples
+
+%IF model Input and real neuron output data (PSTH)
+Ymodel=Wkernel.Ytot;
+%Ymodel=Ymodel-mean(Ymodel);
+N=length(Ymodel);
+PSTH1=Wkernel.PSTH1;
+%PSTH1=PSTH1-mean(PSTH1);
+PSTH2=Wkernel.PSTH2;
+%PSTH2=PSTH2-mean(PSTH2);
+
+%Normalized covaraince (normalized as a correlatin coefficient)
+Rm2=xcorr(Ymodel,PSTH2-mean(PSTH2),Ntau)/(N-1);     %model covariance without IF compartment
+R12=xcorr(PSTH1-mean(PSTH1),PSTH2-mean(PSTH2),Ntau)/(N-1);
+Var1=var(PSTH1)-var(PSTH1-PSTH2)/2;
+Var2=var(PSTH2)-var(PSTH1-PSTH2)/2;
+Varm=var(Ymodel);
+Rm2=Rm2/sqrt(Varm*Var2);
+R12=R12/sqrt(Var1*Var2);
+
+%YmodelDat=[Ymodel Ymodel];
+trials = 30;
+%XDATA = [Fs trials YmodelDat PSTH1 PSTH2];
+XDATA.Fs=Fs;
+XDATA.L=trials;
+XDATA.X=Ymodel;
+XDATA.PSTH1=PSTH1;
+XDATA.PSTH2=PSTH2;
+
+
+Tau0 = 1;
+Tref0 = .5;
+Nsig0 =2.5;
+SNR0 = -15;
+
+TauMax = 3;
+TrefMax = 1.5;
+NsigMax = 5.5;
+SNRMax = 10;
+
+%Start minValue vectors
+minValue = ones(5, 1);
+minValue = minValue*inf;
+betaHolder = ones(5, 1);
+betaHolder = betaHolder*inf;
+
+LB = [0 0 0 -20];
+UB = [10 20 4 20];
+
+%myfun = @adjustedIntegrateFirePSTH;
+
+for Tau = Tau0:.25:TauMax
+    for Tref = Tref0:.25:TrefMax
+        for Nsig = Nsig0:.25:NsigMax
+            for SNR = SNR0:5: SNRMax
+                Beta = [Tau Tref Nsig SNR];
+%               [betaSolve,Rnorm,R,EXITFLAG,OUTPUT,LAMBDA,J]=lsqcurvefit(myfun,Beta, InF, R12);
+                [betaSolve,Rnorm,R,EXITFLAG,OUTPUT,LAMBDA,J]=lsqcurvefit('adjustedIntegrateFirePSTH',Beta, XDATA, R12);
+
+                if (sum(R.^2) < minValue(1))
+                    minValue(5) = minValue(4);                    
+                    minValue(4) = minValue(3);
+                    minValue(3) = minValue(2);
+                    minValue(2) = minValue(1);
+                    minValue(1) = sum(R.^2);
+                    betaHolder(1) = betaSolve;
+                elseif (sum(R.^2) < minValue(2))
+                    minValue(5) = minValue(4);                    
+                    minValue(4) = minValue(3);
+                    minValue(3) = minValue(2);
+                    minValue(2) = sum(R.^2);
+                    betaHolder(2) = betaSolve;
+                elseif (sum(R.^2) < minValue(3))
+                    minValue(5) = minValue(4);                                        
+                    minValue(4) = minValue(3);
+                    minValue(3) = sum(R.^2);
+                    betaHolder(3) = betaSolve;
+                elseif (sum(R.^2) < minValue(4))
+                    minValue(5) = minValue(4);
+                    minValue(4) = sum(R.^2);
+                    betaHolder(4) = betaSolve;
+                elseif (sum(R.^2) < minValue(5))
+                    minValue(5) = sum(R.^2);
+                    betaHolder(5) = betaSolve;
+                end
+            end
+        end
+    end
+end
+
+%--------------------------------------------------------------------------
+                
+                
+
+%create an anonymous function
+predicted = @(Beta, Ymodel) %Continue to define the function
+
+%--------------------------------------------------------------------------
+
+
+In=Wkernel.Ytot;
+YpreNew=Ypre(:,2:7649);
+
+plot(xcorr(In,mean(YpreNew),100))
+
+%Generate a set of data to compare to Neuron
+Fs=1000
+in = randn(1, 7648);
+[X,Vm,R,C,sigma_m,sigma_i]=integratefire(In,10,2,-55,-65,1,5,Fs,3,in,'y','n');
+figure(1); plot(xcorr(In,mean(YpreNew),100))
+figure(2); plot(xcorr(In,Vm,100))
+figure(3); plot(xcorr(In,mean(YpreNew),100)); hold; plot(xcorr(In,Vm,100))
+
+%--------------------------------------------------------------
+%generate a single trial
+Fs=1000
+[taxis,im]=n1overf(1,30,1,1000,1024);
+in=randn(1,1024);
+[X,Vm,R,C,sigma_m,sigma_i]=integratefire(im,10,2,-55,-65,1,5,Fs,3,in,'y','n');
+ 
+plot(Vm)
+plot(X)
+ 
+%Generate a raster with 50 trials
+Fs=1000
+[taxis,im]=n1overf(1,30,1,1000,1024);
+in=randn(1,1024*4)
+ 
+[taxis,RASTER]=rasterifsim(im,10,2,-55,-65,1,5,Fs,3,50,in,'y','n');
+
+subplot(221)
+[i,j]=find((RASTER));
+plot(j/Fs,i,'.');
+ 
+subplot(222)
+plot(mean(RASTER))
+
+%----------------------------------------------------------------------
+In=Wkernel.Ytot;  %This will be the input to the integrate and fire model
+Ypre=Ypre(:,2:7649);  %This is the neurons output, Im truncating it so that the size and alignment are the same for In
+
+plot(xcorr(In,mean(Ypre),100)
+

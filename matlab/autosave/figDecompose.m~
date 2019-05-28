@@ -1,0 +1,47 @@
+ load figdataDecompose/DataDecompose.mat
+ 
+subplot(331)
+plot(JitterData(1).Tau,mean(reshape([JitterData(1:100).Rab],251,100)'),'k')
+axis([-25 25 0 500])
+ 
+Raa=mean(reshape([JitterData(1:100).Raa],251,100)');
+RaaSpon=mean(reshape([JitterDataSpon(1:100).Raa],251,100)');
+RaaRel=mean(reshape([JitterDataRel(1:100).Raa],251,100)');
+Rab=mean(reshape([JitterData(1:100).Rab],251,100)');
+RabSpon=mean(reshape([JitterDataSpon(1:100).Rab],251,100)');
+RabRel=mean(reshape([JitterDataRel(1:100).Rab],251,100)');
+
+Rnoise=RabRel-Raa;
+
+
+
+Max=500
+ subplot(334)
+ plot(JitterData(1).Tau,RaaRel,'k')
+ axis([-25 25 0 Max])
+
+ subplot(335)
+ plot(JitterData(1).Tau,,'k')
+ axis([-25 25 0 Max])
+
+ subplot(336)
+ plot(JitterData(1).Tau,Raa-(RabRel-Rnoise),'k')
+ axis([-25 25 0 Max])
+
+ 
+ 
+Max=500
+ subplot(337)
+ plot(JitterData(1).Tau,Rnoise,'k')
+ axis([-25 25 0 Max])
+
+ subplot(338)
+ plot(JitterData(1).Tau,RabRel-Rnoise,'k')
+ axis([-25 25 0 Max])
+
+ subplot(339)
+ %plot(JitterData(1).Tau,Rab-Rnoise-(RabRel-Rnoise),'k')
+ %hold on
+ plot(JitterData(1).Tau,RabSpon/10^2*(10^2+2*10*2.5),'k')
+ %hold off
+ axis([-25 25 0 Max])

@@ -1,0 +1,37 @@
+BS%B Spline RASTER Generate
+N=1024*1024*2;
+
+fid=fopen('09I01q-Track 3.wav');
+
+spet=[];
+count=0;
+while ~feof(fid)
+    
+    X=fread(fid,N,'float');
+    i=find(X(1:length(X)-1)>.1 & diff(X)>0);
+    ii=find(diff(i)>2);
+    
+    spet=[spet i(ii)'+count*N];
+    
+    count=count+1;
+end
+
+Fs=44100;
+Fsd=1000
+tc=[2.^(1/4*(0:36))];   %time constants
+TD=5
+OnsetT=0
+Unit=0
+load SpikesTrig
+i=find(TrigTimes>1.075E8 & TrigTimes<1.7E8);
+Data.Trig=TrigTimes(i)/Fs;
+Data.SnipTimeStamp=spet/Fs;
+Data.SortCode=zeros(size(spet));
+Data.Fs=44100;
+load icpnbsplinemodnoise_param.mat
+[RASSpline] = mtfsplineraster(Data,FM,FC,TD,OnsetT,Unit);
+
+
+[MTFSpline] = mtfsplinediscriminategeneratefast(RASSpline,Fsd,tc,TD,OnsetT)
+
+save SplineData RASSpline MTFSpline Fsd TD OnsetT Unit

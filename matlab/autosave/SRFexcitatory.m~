@@ -1,0 +1,112 @@
+
+
+
+%Spectral DoG
+
+beta1=0
+beta2=0
+beta3=.25
+beta4=.5
+beta5=1
+beta6=.25
+
+alpha=1.05
+dX=0.005
+X=-10:dX:10;
+
+for k=0:30
+   
+    %Generating TRF
+    beta=[beta1*alpha^k 2*beta2*alpha^k beta3*alpha^k beta4*alpha^k beta5 beta6];
+    [TRF,TRFe,TRFi]=trfdogmodel(beta,X);
+   
+    %Generating MTF
+    N=1024*16;
+    size(TRF)
+    MTF=abs(fft(TRF,N));
+    MTFe=abs(fft(TRFe,N));
+    MTFi=abs(fft(TRFi,N));
+
+    %Truncated TRF & MTFs
+    TRFet=TRF;
+    i=find(TRF<0);
+    TRFet(i)=zeros(size(i));
+    MTFet=abs(fft(TRFet,N));
+    TRFit=TRF;
+    i=find(TRF>0);
+    TRFit(i)=zeros(size(i));
+    MTFit=abs(fft(TRFit,N));
+    
+    %Computing Bandwidth
+    M=floor(N/2)
+    FmAxis=(0:N-1)/N/dX;
+    MTFe=MTFe(1:M)/max(MTFe(1:M));
+%     i=1;
+%      while MTFe(i).^2>0.5
+%      i=i+1;    
+%      end
+i=max(find(MTFe.^2>0.5));
+    BWe(k+1)=FmAxis(i);
+    %BWe(k+1)=sum(MTFe.*FmAxis(1:M));
+     MTFi=MTFi(1:M)/max(MTFi(1:M));
+%         i=1;
+%      while MTFi(i).^2>0.5
+%      i=i+1;    
+%      end
+i=max(find(MTFi.^2>0.5));
+    BWi(k+1)=FmAxis(i);
+     %BWi(k+1)=sum(MTFi.*FmAxis(1:M));
+     MTFet=MTFet(1:M)/max(MTFet(1:M));
+%      i=1;
+%      while MTFet(i).^2>0.5
+%      i=i+1;    
+%      end
+i=max(find(MTFet.^2>0.5));
+
+    BWet(k+1)=FmAxis(i);
+    
+    %BWet(k+1)=sum(MTFet.*FmAxis(1:M));
+     MTFit=MTFit(1:M)/max(MTFit(1:M));
+i=max(find(MTFit.^2>0.5));
+%          i=1;
+%      while MTFit(i).^2>0.5
+%      i=i+1;    
+%      end
+    BWit(k+1)=FmAxis(i);
+     %BWit(k+1)=sum(MTFit.*FmAxis(1:M));
+    
+%     plot(TRFe,'r')
+%     hold on
+%     plot(TRFet,'r-.')
+%     plot(TRFit,'b-.')
+%     plot(TRFi,'b-')
+%     hold off
+    
+    plot(MTFe.^2,'r')
+    hold on
+    plot(MTFet.^2,'r-.')
+    plot(MTFit.^2,'b-.')
+    plot(MTFi.^2,'b')
+    hold off
+    pause(0.1)
+    
+end
+
+
+
+figure
+loglog(BWe,BWet,'ro')
+hold on
+loglog(BWi,BWit,'bo')
+plot([.1 4],[.1 4 ],'k-.')
+axis([.1 4.5 .1 4.5])
+axis([.1 4.5 .2 4.5])
+axis([.1 4.5 .1 4.5])
+set(gca,'XTick',[.1 1 4])
+set(gca,'YTick',[.1 1 4])
+set(gca,'XTickLabel',[.1 1 4])
+set(gca,'YTickLabel',[.1 1 4])
+
+xlabel('Spectral Modulation Bandwidth (cycles/oct)','fontsize',16)
+ylabel('Estimated Spectral Modulation Bandwidth (cycles/oct)','fontsize',16)
+title('Excitatory = red, Inhibitory = blue','fontsize',16)

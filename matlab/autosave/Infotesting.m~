@@ -1,0 +1,90 @@
+load RASpnb.mat
+load RASsam.mat
+load FMAxis
+
+RASTER=RASspetpnb(1:10);
+Fm=FMAxispnb(1);
+RASTER=RASspet(11:20);
+Fm=FMAxis(2);
+
+B=100
+Fsd=RASTER(1).Fs;
+Fs=Fsd;
+
+L=20
+alpha=log2(200/1)/L;
+sig=1*2.^(alpha*(0:L))
+
+
+
+
+
+
+
+
+
+
+
+Lc=50
+    
+%Estimating Spike Train Parameters to generate periodic spike train model
+Fsd=Fm*Lc;
+[RASTERc]=raster2cycleraster(RASTER,Fm,4,0);
+[RData]=rastercircularshufcorrfast(RASTERc,Fsd,'y',1);
+RData.Renv=RData.Rshuf;
+RData.Fm=Fm;
+[REnvParam]=circularshufcorrenvparam(RData);
+
+
+%Generating Model Dot-Raster
+M=length(RASTERc)*4;
+
+Fs=RASTER(1).Fs;
+refractory=2;
+spet=round(Fs*1/Fm*(1:3));  %3 Periods - 1 and 3 are removed to avoid edge artifacts
+%[RASmodel]=jitterraster2(spet,REnvParam.sigma,REnvParam.xhat,REnvParam.lambdaDC,refractory,Fs,M);
+[RASmodel]=jitterraster(spet,REnvParam.sigma,REnvParam.xhat,REnvParam.lambdaDC,Fs,Fs,M*2^6);
+for k=1:length(RASmodel);
+    index=find(RASmodel(k).spet/Fs>=1/Fm & RASmodel(k).spet/Fs<2/Fm);
+    RASmodel(k).spet=round(RASmodel(k).spet(index)-1/Fm*Fs)+1;
+    RASmodel(k).T=1/Fm;
+end
+    
+    
+
+
+
+for k=1:length(sig)
+    
+    %[RASj]=rasteraddjitterpanzeri(RASTER,sig(k));
+    [RASj]=rasteraddjitterunifcirc(RASTER,sig(k),1,0);
+%    tic,[InfoData(k)]=infwordrasterperiodicpanzeri(RASj,B,Fm);,toc
+    
+    %[RASmj]=rasteraddjitterpanzeri(RASmodel,sig(k));
+    [RASmj]=rasteraddjitterunifcirc(RASmodel,sig(k),1,0);
+    
+    for L=1:5+1
+      %  tic,[InfoDataBias(k,L)]=infwordrasterperiodicbias(RASmj(1:M*2^(L-1)),B,Fm,M-1,0);,toc
+        M*2^(L-1)
+        tic,[InfoDataBias2(k,L)]=infwordrasterperiodicpanzeri(RASmj(1:M*2^(L-1)),B,Fm);,toc
+    end
+end
+
+
+figure
+for k=1:6
+semilogx(sig,[InfoDataBias2(:,k).HWord]-[InfoDataBias2(:,k).HWordt],'k')
+hold on
+end
+set(gca,'Box','off')
+
+figure
+k=1
+Ibias=[InfoDataBias2(21,k).HWord]-[InfoDataBias2(21,k).HWordt]
+semilogx(sig,[InfoDataBias2(:,k).HWord]-[InfoDataBias2(:,k).HWordt]-Ibias,'k')
+hold on
+k=6
+Ibias=[InfoDataBias2(21,k).HWord]-[InfoDataBias2(21,k).HWordt]
+semilogx(sig,[InfoDataBias2(:,k).HWord]-[InfoDataBias2(:,k).HWordt]-Ibias,'k')
+set(gca,'Box','off')
+ylim([-0.01 .4])

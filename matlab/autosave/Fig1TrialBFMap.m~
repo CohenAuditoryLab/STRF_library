@@ -1,0 +1,146 @@
+load ./BFBWMapData/AC102610SingleTrialBFMap.mat
+
+figure
+
+subplot(223)
+k=12,l=12; %k=7,l=10
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).Rpp1trialThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+subplot(221)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).RppThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+k=8,l=8; %k=7,l=10
+subplot(224)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).Rpp1trialThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+subplot(222)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).RppThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+figure
+
+k=8,l=7; %k=7,l=10
+subplot(224)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).Rpp1trialThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+subplot(222)
+X=log2(FTC(k,l).Freq/1000);
+Level=FTC(k,l).Level+85;
+imagesc(X,Level,FTC(k,l).RppThresh')
+set(gca,'YDir','normal')
+set(gca,'XTick',[1 2 3 4 5 ])
+set(gca,'XTickLabel',[2 4 8 16 32])
+
+        
+k=6 %Sound Level
+figure
+subplot(221)
+imagesc(rot90(BF(:,:,k),-1))
+title('6 Trial Average')
+set(gca,'Visible','off')
+caxis([2 5])
+
+subplot(222)
+imagesc(rot90(BF1(:,:,k),-1))
+title('1 Trial')
+set(gca,'Visible','off')
+caxis([2 5])
+
+
+c=colormap
+c(1,:)=[ 1 1 1]
+colormap(c)
+
+%AI only
+subplot(223)
+i=find(A1Mask &~isnan(BF(:,:,k)) & ~isnan(BF1(:,:,k)));
+bf=BF(:,:,k);
+bf1=BF1(:,:,k);
+plot(bf(i),bf1(i),'ko')
+set(gca,'Box','off')
+axis([2 5 2 5])
+set(gca,'XTick',[2 3 4 5 ])
+set(gca,'XTickLabel',[4 8 16 32])
+set(gca,'YTick',[ 2 3 4 5 ])
+set(gca,'YTickLabel',[4 8 16 32])
+xlabel('BF (octave)')
+ylabel('1 Trial BF Octave')
+R=corrcoef(bf(i),bf1(i))
+R=R(1,2);
+title(['r=' num2str(R)])
+
+
+
+%FULL MAP
+subplot(224)
+i=find(~isnan(BF(:,:,k)) & ~isnan(BF1(:,:,k)));
+bf=BF(:,:,k);
+bf1=BF1(:,:,k);
+plot(bf(i),bf1(i),'ko')
+set(gca,'Box','off')
+axis([2 5 2 5])
+set(gca,'XTick',[2 3 4 5 ])
+set(gca,'XTickLabel',[4 8 16 32])
+set(gca,'YTick',[ 2 3 4 5 ])
+set(gca,'YTickLabel',[4 8 16 32])
+xlabel('BF (octave)')
+ylabel('1 Trial BF Octave')
+R=corrcoef(bf(i),bf1(i))
+R=R(1,2);
+title(['r=' num2str(R)])
+
+
+figure
+subplot(224)
+caxis([2 5])
+C=colorbar
+set(gca,'Visible','off')
+set(C,'YTick',[2 3 4 5])
+set(C,'YTickLabel',[4 8 16 32])
+
+%%%%%%%%%% CORRELATION COEFFICIENT A1 only %%%%%%%%%
+%load ./BFBWMapData/AC102610SingleTrialBFMap.mat
+BFA=BF(:,:,k);
+BFA1=BF1(:,:,k);
+i=find(A1Mask & ~isnan(BFA) & ~isnan(BFA1));
+BFA=BFA(i)';
+BFA1=BFA1(i)';
+load ./BFBWMapData/AC102710SingleTrialBFMap.mat
+BFB=BF(:,:,k);
+BFB1=BF1(:,:,k);
+i=find(A1Mask & ~isnan(BFB) & ~isnan(BFB1));
+BFB=BFB(i)';
+BFB1=BFB1(i)';
+bf=[BFA BFB];
+bf1=[BFA1 BFB1];
+
+R=corrcoef(bf,bf1)
+[Rb]=bootstrapcorrcoef(bf,bf1,1000);
+SD=std(Rb)
+R=R(1,2);
+
+

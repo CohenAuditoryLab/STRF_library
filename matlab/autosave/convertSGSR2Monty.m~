@@ -1,0 +1,94 @@
+
+
+
+% %user inputs: 
+% %1. data file folder and name
+% %2. sequence numbers
+% dataDir = 'E:\Neural Data Second Copy Backup\sktdtsys3\Data';
+% dataDir = '.'
+% dataFile = '10f02b';
+% fulldatapath = [dataDir filesep dataFile '.SGSR'];
+% dataseqs = [17 18 19];
+% seqstrdum = 'Sequence000';
+
+%
+% function [Data] = sgsr2(Data,T1,T2)
+%
+%	FILE NAME 	: FTC Generate
+%	DESCRIPTION : Generates a frequency tunning curve on the TDT system
+%
+%
+%
+%
+%
+% RETURNED DATA
+%
+%	Data        : Data structure obtained using "READTANK"
+%                 Data is formated as follows:
+%
+%                   Data.Snips              - Snipet Waveforms
+%                   Data.Fs                 - Sampling Rate
+%                   Data.SnipsTimeStamp     - Snipet Time Stamps
+%                   Data.SortCode           - Sort Code for the Snipets
+%                   Data.ChannelNumber      - Channel Number for the Snipets
+%                   Data.Trig               - Trigger Event Times
+%                   Data.Attenuation        - Event Attenuation Level
+%                   Data.Frequency          - Event Frequency 
+%                   Data.StimOff            - Stimulus Offset Time
+%                   Data.StimOn             - Stimulus Onset Time
+%                   Data.EventTimeStanp     - Event Time Stamp
+%
+%   (C) Brian Bishop/Monty A. Escabi, Last edit 2012
+%
+function [Data] = sgsr2ftcescabi(Data,T1,T2)
+
+
+%Initialize variables
+StimOn = [];
+StimOff = [];
+SnipTimeStamp = [];
+Attenuation = [];
+Frequency = [];
+
+%Extracting Data
+for nseq = 1:length(dataseqs)
+    seqstr = seqstrdum;
+    seqnumstr = num2str(dataseqs(nseq));
+    seqstr(end-length(seqnumstr)+1:end) = seqnumstr;
+    dd = load(fulldatapath, seqstr, '-mat');
+    seqstruct = dd.(seqstr);
+    spks = seqstruct.SpikeTimes.spikes.spt;
+    [msubs nreps] = size(spks);
+    for msub = 1:msubs
+        for nrep = 1:nreps
+            if nseq==1 && msub==1 && nrep==1
+                StimOn = 0;
+                %working with the duration will require more thought than this.
+                StimOff = str2num(seqstruct.Header.StimParams.indiv.stim{1}.duration); 
+            else
+                StimOn = [StimOn StimOn(end)+seqstruct.Header.StimParams.interval];
+                StimOff = [StimOff StimOn(end)+str2num(seqstruct.Header.StimParams.indiv.stim{1}.duration)];
+            end
+            
+            SnipTimeStamp = [SnipTimeStamp spks{msub,nrep}+StimOn(end)];
+            Attenuation = [Attenuation seqstruct.Header.StimParams.indiv.stim{1}.spl];
+            Frequency = [Frequency seqstruct.Header.IndepVar.Values(msub)];
+        end
+    end
+end
+
+%Adding data to structure using Monty's format
+Data.Snips = [];
+Data.Fs = seqstruct.Header.RecordParams.samFreqs;
+Data.SnipTimeStamp = SnipTimeStamp*1e-3;    %Convert to sec
+Data.SortCode = zeros(1,length(SnipTimeStamp));
+Data.ChannelNumber = ones(1,length(SnipTimeStamp));
+Data.Trig = [];
+Data.Attenuation = Attenuation;
+Data.Frequency = Frequency;
+Data.StimOff = StimOff*1E-3;
+Data.StimOn = StimOn*1E-3;
+Data.StimSweep = [];
+Data.EventTimeStamp = StimOn*1E-3;
+Data.ContWave = [];
+Data.FsCont = [];

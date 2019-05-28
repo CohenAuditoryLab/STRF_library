@@ -1,0 +1,88 @@
+clear all
+clc
+
+%Parameters of the neuron
+C=0.5E-9;
+R=40E6;
+Tau=R*C;
+tr=1E-3;
+Vr=-65E-3;
+
+%Input data
+At=0.5E-3;
+V=zeros(1000,1);
+Vd=zeros(1000,1);
+I=zeros(1000,1);
+I0=1E-8;
+f=50;
+n=zeros(1000,1);
+N0=1E-8;
+X=zeros(1000,1);
+Vt=zeros(1001,1);
+Vtd=zeros(1000,1);
+% Vt(1)=-35E-3;
+% Vt(2)=-35E-3;
+Taut=1;
+Gt=100;
+p=0;
+
+NT=round(Taut/1000/At*5);
+VT=Gt*exp(-(0:NT)*At/(Taut/1000));
+
+
+for k=1:1:1000
+    T(k)=At*k;
+    I(k)=I0*sin(2*pi*f*T(k));
+    n(k)=(rand(1)-0.5)*N0;
+end
+
+% V(1)=Vr;
+k=2;
+while k<1000
+%     V(k)=V(k-1)*exp(-Tau*At*+At/C*(I(k-1)+n(k-1));
+    
+%     sum(X)
+%     k
+%     Vt(k)=(1+At/Taut)*Vt(k-1)+At*Gt*X(k-1);
+    
+    if (V(k)-65E-3)>=(Vt(k)-35E-3)
+        X(k)=1;
+        p=k;
+        Vt(k+1)=Vt(k)+At*Gt;
+        V(k+1)=0;    
+        k=k+1;
+        
+        for l=1:1:2
+                V(k+l)=0;
+                Vt(k+l)=Vt(k+l-1)*exp(-Taut*l*At);
+        end
+
+        k=k+2;
+    else
+        k=k+1;
+        Vt(k)=Vt(k-1)*exp(-Taut*(k-p)*At);
+        %V(k)=V(k-1)*exp(-Tau*At*(k-p))+At/C*(I(k-1)+n(k-1));
+        V(k)=(1-At/Tau)*V(k-1) + At/C*(I(k-1)+n(k-1));
+    end
+    
+end
+
+
+for l=1:1:1000
+
+    Vd(l)=V(l)-65E-3;
+    Vtd(l)=Vt(l)-35E-3;
+
+end
+
+figure
+plot(T,I+n);
+figure
+plot(T,Vd);
+figure
+plot(T,Vtd);
+figure
+plot(T,X);
+
+
+

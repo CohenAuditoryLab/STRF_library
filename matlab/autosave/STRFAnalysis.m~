@@ -1,0 +1,159 @@
+
+%Make sure you are in the directory with the SPR file
+%'C:\Documents and Settings\ANL\Escritorio\Escabi\Moving Ripple\Cat Ripple ICC - 06-04-05\sprdir_ic_March_08_2005'
+%
+function [STRFData]=STRFAnalysis(TankName,Tank)
+
+%addpath('C:\Documents and Settings\ExpSys3\Mis documentos\MATLAB\STRFAnalysis\sprdir_ic_March_08_2005\')
+addpath('G:\Escabi\sprdir_ic_March_08_2005\')
+
+SpecFile='dynamicripple500ic.spr'
+
+T1=0;
+T2=.05; 
+%T2=.1%PARA HACERLO MAS LARGO
+NTrig=900;
+Ndouble=400;
+SPL=80;
+MdB=30;
+ModType='dB';
+Sound='MR';
+NBlocks=100;
+UF=4;
+sprtype='float';
+
+%Reading Tank Data
+
+
+DataTank=readtankv66(TankName,Tank,0,'Local');
+
+
+%Generating Triggers and Spikes
+[TrigTimesA,TrigTimesB]=trigfixstrf2(DataTank.Trig,Ndouble,NTrig);
+spet=round(DataTank.SnipTimeStamp*DataTank.Fs);
+TrigA=TrigTimesA*DataTank.Fs);
+TrigB=TrigTimesB*DataTank.Fs);
+Fss=DataTank.Fs;
+
+%Generating the STRF
+[taxis,faxis,STRF1A,STRF2A,PPA,Wo1A,Wo2A,No1A,No2A,SPLN]=rtwstrfdb(SpecFile,T1,T2,spet,TrigA,Fss,SPL,MdB,ModType,Sound,NBlocks,sprtype);
+[taxis,faxis,STRF1B,STRF2B,PPB,Wo1B,Wo2B,No1B,No2B,SPLN]=rtwstrfdb(SpecFile,T1,T2,spet,TrigB,Fss,SPL,MdB,ModType,Sound,NBlocks,sprtype);
+
+%Generating Ripple Transfer Function Histogram
+T=0;
+Xc=log2(48/1)/2;
+paramfile='dynamicripple500ic_param.mat'
+[RDHist1A,FMHist1A,RDHist2A,FMHist2A,Time1A,Time2A]=rtfhist(paramfile,spet,TrigA,Fss,T,Xc);
+[RDHist1B,FMHist1B,RDHist2B,FMHist2B,Time1B,Time2B]=rtfhist(paramfile,spet,TrigB,Fss,T,Xc);
+
+%Finding signifcant STRF and computing parameters
+PP=PPA;
+STRF1=(STRF1A+STRF1B)/2;
+STRF2=(STRF2A+STRF2B)/2;
+No1=(No1A+No1B);
+Wo1=(Wo1A+Wo1B)/2;
+No2=(No2A+No2B);
+Wo2=(Wo2A+Wo2B)/2;
+p=0.001;
+MaxFm=500;
+MaxRD=4;
+[STRF2s,Tresh]=wstrfstat(STRF2,p,No1,Wo1,PP,MdB,ModType,Sound,ModType);
+[RFParam2]=strfparam(taxis,faxis,STRF2s,Wo1,PP,Sound,MaxFm,MaxRD,0.5,0.05,0.25,'y');
+[STRF1s,Tresh]=wstrfstat(STRF1,p,No1,Wo1,PP,MdB,ModType,Sound,ModType);
+[RFParam1]=strfparam(taxis,faxis,STRF1s,Wo1,PP,Sound,MaxFm,MaxRD,0.5,0.05,0.25,'y');
+
+
+
+%Feature Selectivity index
+p=0.001
+SModType='dB'
+[STRF1s,Tresh]=wstrfstat(STRF1,p,No1,Wo1,PP,MdB,ModType,Sound,SModType);
+[STRF2s,Tresh]=wstrfstat(STRF2,p,No1,Wo1,PP,MdB,ModType,Sound,SModType);
+[p1A,p2A,p1eA,p2eA,p1iA,p2iA,spindex1A,spindex2A]=rtwstrfdbvar(STRF1s/Wo1*PP,STRF2s/Wo1*PP,SpecFile,T1,T2,spet,TrigA,Fss,SPL,MdB,Sound,NBlocks,sprtype);
+[p1rA,p2rA,p1erA,p2erA,p1irA,p2irA,spindex1rA,spindex2rA]=rtwstrfdbvar(STRF1s/Wo1*PP,STRF2s/Wo1*PP,SpecFile,T1,T2,shufflespet(spet),TrigA,Fss,SPL,MdB,Sound,NBlocks,sprtype);
+[p1B,p2B,p1eB,p2eB,p1iB,p2iB,spindex1B,spindex2B]=rtwstrfdbvar(STRF1s/Wo1*PP,STRF2s/Wo1*PP,SpecFile,T1,T2,spet,TrigB,Fss,SPL,MdB,Sound,NBlocks,sprtype);
+[p1rB,p2rB,p1erB,p2erB,p1irB,p2irB,spindex1rB,spindex2rB]=rtwstrfdbvar(STRF1s/Wo1*PP,STRF2s/Wo1*PP,SpecFile,T1,T2,shufflespet(spet),TrigB,Fss,SPL,MdB,Sound,NBlocks,sprtype);
+[FSI2_1,FSI2_2,FSI2_3]=fsi([p2A p2B],[p2rA p2rB]);
+[FSI1_1,FSI1_2,FSI1_3]=fsi([p1A p1B],[p1rA p1rB]);
+
+% %Computing Shuffled Autocorrelogram
+%Fsd=5000
+% MaxTau=25
+% Disp='y'
+%[spetA,spetB,TrigA,TrigB,T]=spet2spetab(spet,TrigA,TrigB,Fss);
+%[JitterData]=jittercorrfitspon(spetA,spetB,Fss,Fsd,T,MaxTau,Disp);
+% 
+%Saving to data structure
+STRFData.STRF1A=STRF1A;
+STRFData.STRF1B=STRF1B;
+STRFData.STRF1s=STRF1s;
+STRFData.STRF2A=STRF2A;
+STRFData.STRF2B=STRF2B;
+STRFData.STRF2s=STRF2s;
+STRFData.taxis=taxis;
+STRFData.faxis=faxis;
+STRFData.Wo1A=Wo1A;
+STRFData.Wo1B=Wo1B;
+STRFData.Wo1=Wo1;
+STRFData.Wo2A=Wo2A;
+STRFData.Wo2B=Wo2B;
+STRFData.Wo2=Wo2;
+STRFData.No1A=No1A;
+STRFData.No1B=No1B;
+STRFData.No1=No1;
+STRFData.No2A=No2A;
+STRFData.No2B=No2B;
+STRFData.No2=No2;
+STRFData.PP=PP;
+STRFData.MdB=MdB;
+STRFData.ModType=ModType;
+STRFData.Sound=Sound;
+STRFData.SPLN=SPLN;
+STRFData.RFParam1=RFParam1;
+STRFData.RFParam2=RFParam2;
+STRFData.FSIStats2.FSI1=FSI2_1;
+STRFData.FSIStats2.FSI2=FSI2_2;
+STRFData.FSIStats2.FSI3=FSI2_3;
+STRFData.FSIStats2.p2A=p2A;
+STRFData.FSIStats2.p2rA=p2rA;
+STRFData.FSIStats2.p2B=p2B;
+STRFData.FSIStats2.p2rB=p2rB;
+STRFData.FSIStats1.FSI1=FSI1_1;
+STRFData.FSIStats1.FSI2=FSI1_2;
+STRFData.FSIStats1.FSI3=FSI1_3;
+STRFData.FSIStats1.p1A=p1A;
+STRFData.FSIStats1.p1rA=p1rA;
+STRFData.FSIStats1.p1B=p1B;
+STRFData.FSIStats1.p1rB=p1rB;
+STRFData.spet=spet;
+STRFData.TrigA=TrigA;
+STRFData.TrigB=TrigB;
+STRFData.flag=1;
+STRFData.Fss=Fss;
+STRFData.RDHist1A=RDHist1A; 
+STRFData.FMHist1A=FMHist1A; 
+STRFData.RDHist2A=RDHist2A;
+STRFData.FMHist2A=FMHist2A;
+STRFData.Time1A=Time1A;
+STRFData.Time2A=Time2A;
+STRFData.RDHist1B=RDHist1B; 
+STRFData.FMHist1B=FMHist1B; 
+STRFData.RDHist2B=RDHist2B;
+STRFData.FMHist2B=FMHist2B;
+STRFData.Time1B=Time1B;
+STRFData.Time2B=Time2B;
+
+% STRFData.JitterData=JitterData;
+
+%figure('name',sprintf('Block: %d',Tank))
+figure('name',sprintf('STRF Block: %d',Tank))
+%de aqui en adelante coment
+subplot(221)
+imagesc(taxis*1000,log2(faxis/faxis(1)),STRF2A*sqrt(PPA)),set(gca,'YDir','normal')
+subplot(222)
+imagesc(taxis*1000,log2(faxis/faxis(1)),STRF2B*sqrt(PPB)),set(gca,'YDir','normal')
+subplot(223)
+imagesc(taxis*1000,log2(faxis/faxis(1)),STRF1A*sqrt(PPA)),set(gca,'YDir','normal')
+subplot(224)
+imagesc(taxis*1000,log2(faxis/faxis(1)),STRF1B*sqrt(PPB)),set(gca,'YDir','normal')
+

@@ -1,0 +1,34 @@
+clear Fm F
+alpha=sqrt(2);
+Fm=alpha.^(2:12);
+Fs=10000;
+sigma=10;
+x=2;
+lambdas=10;
+T=2;
+Ncyc=2
+
+%Simulated
+for k=1:length(Fm)
+    
+    k
+    
+    %Generating periodic spiketrain
+    N=round(1/Fm(k)*Fs);
+    spet=N:N:Fs*2;
+    M=10;   %Number of trials
+    [RASTER]=jitterraster(spet,sigma,x,lambdas,Fs,Fs,M);    %Adding jitter,reliability, and spontanoues erros 
+    
+    %Computing TCF
+    [F(k)]=temporalcodingfraction(RASTER,Fm(k),Ncyc,sigma/1000*2,256);
+end
+
+%Theoretical Solution
+Fmt=0.1:.01:128;
+[Ft]=temporalcodingfractiontheoretical(sigma,x,lambdas,Fmt);
+
+%Plotting Results
+semilogx(Fm,F,'ko')
+hold on
+semilogx(Fmt,Ft,'r')
+xlabel('Modulation Freq (Hz)')
